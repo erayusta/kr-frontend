@@ -1,0 +1,1 @@
+export const IMAGE_BASE_URL = "https://kampanyaradar-static.b-cdn.net/kampanyaradar"
