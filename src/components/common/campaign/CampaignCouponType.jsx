@@ -46,8 +46,8 @@ export default function ({ campaign }) {
             </div>
             
             {/* Sol ve Sağ Daireler (Kupon券 Efekti) */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-gray-50 rounded-full border-2 border-dashed border-orange-300"></div>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-8 h-8 bg-gray-50 rounded-full border-2 border-dashed border-orange-300"></div>
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 bg-gray-50 rounded-full shadow-inner"></div>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-10 h-10 bg-gray-50 rounded-full shadow-inner"></div>
           </div>
         </div>
       </div>
