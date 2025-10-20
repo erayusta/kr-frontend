@@ -1,19 +1,18 @@
 /** @type {import('next').NextConfig} */
-module.exports =  {
-  reactStrictMode: true,
-   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'kampanyaradar-static.b-cdn.net',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
-   experimental: {
-    largePageDataBytes: 800 * 1000,
-  },
+const nextConfig = {
+	reactStrictMode: true,
+	images: {
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "kampanyaradar-static.b-cdn.net",
+				pathname: "/",
+			},
+		],
+	},
+	experimental: {
+		largePageDataBytes: 800 * 1000,
+	},
 };
 
-
+module.exports = nextConfig;
