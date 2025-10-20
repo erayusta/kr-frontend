@@ -2,13 +2,7 @@
 const nextConfig = {
 	reactStrictMode: true,
 	images: {
-		remotePatterns: [
-			{
-				protocol: "https",
-				hostname: "kampanyaradar-static.b-cdn.net",
-				pathname: "/**",
-			},
-		],
+		domains: ["kampanyaradar-static.b-cdn.net"],
 	},
 	experimental: {
 		largePageDataBytes: 800 * 1000,
