@@ -84,7 +84,7 @@ export default function CampaignContent({ campaign, ads }) {
 					{/* Kampanya Detayları */}
 					{campaign.content && (
 						<Card className="mb-8">
-							<CardHeader className="border-b bg-gradient-to-r from-blue-50 to-white">
+							<CardHeader className="border-b bg-blue-50">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-2">
 										<div className="p-2 bg-blue-100 rounded-lg">
