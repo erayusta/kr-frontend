@@ -175,8 +175,8 @@ export default function CampaignHeader({ campaign }) {
 
           {/* Sağ Taraf - Kampanya Görseli */}
           <div className="lg:col-span-4">
-            <Card className="overflow-hidden bg-gradient-to-br from-orange-50 to-orange-100 border-0">
-              <div className="relative aspect-[4/3]">
+            <Card className="p-0 border-0 shadow-lg">
+              <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
                 <img
                   src={getImageUrl(campaign.image)}
                   alt={campaign.title}
@@ -187,7 +187,7 @@ export default function CampaignHeader({ campaign }) {
                   }}
                 />
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
                 
                 {/* Campaign Type Badge */}
                 {campaign.item_type && (
