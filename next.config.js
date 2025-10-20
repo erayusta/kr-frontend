@@ -7,7 +7,7 @@ module.exports =  {
         protocol: 'https',
         hostname: 'kampanyaradar-static.b-cdn.net',
         port: '',
-        pathname: '/kampanyaradar/**',
+        pathname: '/**',
       },
     ],
   },
