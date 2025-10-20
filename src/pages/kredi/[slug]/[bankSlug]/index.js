@@ -25,7 +25,7 @@ export async function getServerSideProps(context) {
 
 export default function LoanIndex({ loan }) {
  const router = useRouter()
- const canonical = `https://www.kampanyaradar.com${router.asPath}`
+ const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}${router.asPath}`
  return (
   <Layout>
    <NextSeo

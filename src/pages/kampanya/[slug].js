@@ -42,7 +42,7 @@ export async function getServerSideProps(context) {
 export default function Campaign({ campaign, categories, ads, isGone }) {
 	const [CampaignForm, setCampaignForm] = useState(null);
 	const router = useRouter();
-	const canonical = `http://localhost:3000/kampanya/${campaign?.slug || router.query.slug}`;
+	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/kampanya/${campaign?.slug || router.query.slug}`;
 
 	useEffect(() => {
 		if (typeof window !== "undefined" && campaign?.lead_form) {

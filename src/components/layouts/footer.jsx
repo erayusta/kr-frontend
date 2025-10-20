@@ -78,9 +78,9 @@ return (
   <div>
     <p className="font-medium text-gray-900">Kredi Hesapla</p>
     <ul className="mt-6 space-y-4 text-sm">
-      <li><a href="https://kampanyaradar.com/kredi/ihtiyac-kredisi" className="text-gray-700 transition hover:opacity-75">İhtiyaç Kredisi Hesapla</a></li>
-      <li><a href="https://kampanyaradar.com/kredi/tasit-kredisi" className="text-gray-700 transition hover:opacity-75">Taşıt Kredisi Hesapla</a></li>
-      <li><a href="https://kampanyaradar.com/kredi/konut-kredisi" className="text-gray-700 transition hover:opacity-75">Konut Kredisi Hesapla</a></li>
+      <li><a href="/kredi/ihtiyac-kredisi" className="text-gray-700 transition hover:opacity-75">İhtiyaç Kredisi Hesapla</a></li>
+      <li><a href="/kredi/tasit-kredisi" className="text-gray-700 transition hover:opacity-75">Taşıt Kredisi Hesapla</a></li>
+      <li><a href="/kredi/konut-kredisi" className="text-gray-700 transition hover:opacity-75">Konut Kredisi Hesapla</a></li>
     </ul>
   </div>
 

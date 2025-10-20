@@ -45,7 +45,7 @@ export async function getServerSideProps() {
 
 export default function Home({ categories, carousels, brands, ads, posts }) {
   const router = useRouter();
-  const canonical = `http://localhost:3000/`
+  const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/`
 
  return (
   <Layout>
@@ -54,7 +54,7 @@ export default function Home({ categories, carousels, brands, ads, posts }) {
       description="Kampanya Radar, Türkiye'deki tüm indirimler ve kredi fırsatlarını bir araya getirir. A101 ve Bim gibi marketlerin güncel kampanyaları burada!"
       canonical={canonical}
       openGraph={{
-        url: 'http://localhost:3000',
+        url: process.env.NEXT_PUBLIC_BASE_URL,
         title: 'Güncel İndirim Kampanyaları ve Kredi Fırsatları | Kampanya Radar',
         description:"Kampanya Radar, Türkiye'deki tüm indirimler ve kredi fırsatlarını bir araya getirir. A101 ve Bim gibi marketlerin güncel kampanyaları burada!",
         images: [

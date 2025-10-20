@@ -37,12 +37,12 @@ export default function App({ Component, pageProps }) {
       <Head>
         <link
               rel="alternate"
-              href={`http://localhost:3000${urlPath}`}
+              href={`${process.env.NEXT_PUBLIC_BASE_URL}${urlPath}`}
               hreflang="tr"
             />
             <link
               rel="canonical"
-              href={`http://localhost:3000${urlPath}`}
+              href={`${process.env.NEXT_PUBLIC_BASE_URL}${urlPath}`}
             />
             <meta name="google-site-verification" content="1uewPo15Vsrn3MpvrqeAPyC6ZIjmDl5QO5tU6GnXRhM" />
             <script async src="https://cdn-native.pigeoon.com/common/pgn-native-manager.js"></script>

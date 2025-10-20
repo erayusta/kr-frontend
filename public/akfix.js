@@ -5,7 +5,8 @@
     'use strict';
     
     // URL kontrolü - sadece belirtilen sayfada çalış
-    const targetURL = 'https://www.kampanyaradar.com/kampanya/akbank-kredi-karti-basvurusu-icin-hemen-axess-wingse-basvur';
+    const baseURL = window.location.origin;
+    const targetURL = `${baseURL}/kampanya/akbank-kredi-karti-basvurusu-icin-hemen-axess-wingse-basvur`;
     
     if (window.location.href !== targetURL) {
         console.log('Bu script sadece Akbank kredi kartı kampanya sayfasında çalışır');

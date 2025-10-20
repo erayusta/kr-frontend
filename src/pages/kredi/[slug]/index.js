@@ -39,7 +39,7 @@ const loan = await serverApiRequest(`/loan/${loanType[slug]}`,'get')
 export default function LoanIndex({ loan }) {
 
  const router= useRouter()
- const canonical = `https://kampanyaradar.com${router.asPath}`
+ const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}${router.asPath}`
 
 
  return (

@@ -39,7 +39,7 @@ export async function getServerSideProps(context) {
 export default function Category({ brand, ads, url, items }) {
 
  const router = useRouter()
-   const canonical = `http://localhost:3000${router.asPath}`
+   const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}${router.asPath}`
 
  // Handle missing brand data
  if (!brand) {

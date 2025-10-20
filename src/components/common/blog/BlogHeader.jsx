@@ -58,7 +58,7 @@ export default function ({ post }) {
        <HeartIcon className="mr-2 h-5 w-5"></HeartIcon> <span className="md:block hidden">Kaydet</span>
       </Button>
       <Button asChild variant="secondary" className="rounded-full hover:bg-orange-500 hover:text-white py-3">
-       <Link target="_blank" href={`https://twitter.com/intent/tweet?text=${post.title}&url=https://kampanyaradar.com/blog/${post.slug}`}>
+       <Link target="_blank" href={`https://twitter.com/intent/tweet?text=${post.title}&url=${process.env.NEXT_PUBLIC_BASE_URL}/blog/${post.slug}`}>
         <Share2Icon className="mr-2 h-5 w-5"></Share2Icon>
         <span className="md:block hidden">Paylaş</span>
        </Link>

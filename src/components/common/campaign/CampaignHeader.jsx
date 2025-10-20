@@ -164,7 +164,7 @@ export default function CampaignHeader({ campaign }) {
               >
                 <Link 
                   target="_blank" 
-                  href={`https://twitter.com/intent/tweet?text=${campaign.title}&url=https://kampanyaradar.com/kampanya/${campaign.slug}`}
+                  href={`https://twitter.com/intent/tweet?text=${campaign.title}&url=${process.env.NEXT_PUBLIC_BASE_URL}/kampanya/${campaign.slug}`}
                 >
                   <Share2 className="h-5 w-5 mr-2" />
                   Paylaş

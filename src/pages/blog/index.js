@@ -35,7 +35,7 @@ try {
 export default function Blog({ category, items, ads, url }) {
 
  const router = useRouter()
-   const canonical = `http://localhost:3000${router.asPath}`
+   const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}${router.asPath}`
 
  return (
   <Layout>

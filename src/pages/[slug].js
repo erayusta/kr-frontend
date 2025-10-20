@@ -34,7 +34,7 @@ try {
 
 export default function Post({ page, ads }) {
  const router = useRouter()
- const canonical = `http://localhost:3000${router.asPath}`
+ const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}${router.asPath}`
 
  // Handle missing page
  if (!page) {
