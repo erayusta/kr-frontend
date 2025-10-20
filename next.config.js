@@ -6,7 +6,7 @@ const nextConfig = {
 			{
 				protocol: "https",
 				hostname: "kampanyaradar-static.b-cdn.net",
-				pathname: "/",
+				pathname: "/**",
 			},
 		],
 	},
