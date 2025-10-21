@@ -1,1 +1,1 @@
-export const IMAGE_BASE_URL = "https://kampanyaradar-static.b-cdn.net/kampanyaradar"
+export const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_CDN_URL || "https://kampanyaradar-static.b-cdn.net/kampanyaradar"
