@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Inter } from '@next/font/google';
 import { MenuProvider } from "@/context/menuContext";
 import NoSSR from "@/components/NoSSR";
+import SettingsInjector from "@/components/SettingsInjector";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -34,6 +35,7 @@ export default function App({ Component, pageProps }) {
   return (
   <NoSSR>
     <MenuProvider>
+      <SettingsInjector />
       <Head>
         <link
               rel="alternate"
@@ -44,11 +46,9 @@ export default function App({ Component, pageProps }) {
               rel="canonical"
               href={`${process.env.NEXT_PUBLIC_BASE_URL}${urlPath}`}
             />
-            <meta name="google-site-verification" content="1uewPo15Vsrn3MpvrqeAPyC6ZIjmDl5QO5tU6GnXRhM" />
-            <script async src="https://cdn-native.pigeoon.com/common/pgn-native-manager.js"></script>
           </Head>
       {loading && <Loading></Loading>}
-      <div className={inter.className}><Component {...pageProps} /></div> 
+      <div className={inter.className}><Component {...pageProps} /></div>
     </MenuProvider>
   </NoSSR>
 )

@@ -12,13 +12,8 @@ import apiRequest from '@/lib/apiRequest';
 import { useToast } from '@/components/ui/use-toast';
 import { isWebDevice } from '@/lib/utils';
 
-const schema = yup.object().shape({
- phone: yup.string().required("Telefon numarası gerekli"),
- firstName: yup.string().required("İsim gerekli"),
- lastName: yup.string().required("Soyİsim gerekli"),
- email: yup.string().email('Geçersiz E-posta Adresi').required('Email Adresi Zorunlu'),
- consent: yup.bool().oneOf([true], "Onay gereklidir"),
-});
+// Schema dinamik olarak oluşturulacak, bu yüzden şimdilik boş bırakıyoruz
+const schema = yup.object().shape({});
 
 const CustomMaskedInput = React.forwardRef(({ register, name, errors, ...rest }, ref) => {
  return (
@@ -41,6 +36,8 @@ const CustomMaskedInput = React.forwardRef(({ register, name, errors, ...rest },
 CustomMaskedInput.displayName = 'CustomMaskedInput';
 
 const FormField = ({ data, register, control, errors }) => {
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
   // İl ve ilçe verisini hazırla
   const dealersByCity = React.useMemo(() => {
     const dealers = [
@@ -285,36 +282,44 @@ const FormField = ({ data, register, control, errors }) => {
   }, []);
 
   const RenderField = () => {
+    // Debug: Log field data
+    console.log('RenderField - Field Data:', {
+      name: data.name,
+      type: data.type,
+      label: data.label,
+      options: data.options,
+      fullData: data
+    });
+
+    // Bayi özel field'ı
     if (data.name === 'bayi') {
       return (
         <div className="space-y-2">
-          <Label htmlFor={data.name} className="text-xs">{data.label}</Label>
+          <Label htmlFor={data.name} className="text-xs">{data.label} {data.required && <span className="text-red-500">*</span>}</Label>
           <select
             id={data.name}
-            {...register(data.name)}
+            {...register(data.name, { required: data.required })}
             className={`flex h-10 w-full rounded-md border ${errors[data.name] ? 'border-red-500' : 'border-gray-300'} bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
           >
             <option value="">Bayi Seçiniz</option>
             {Object.entries(dealersByCity).sort().map(([city, dealers]) => {
               const hasOnlyOneDealer = dealers.length === 1;
-              
+
               if (hasOnlyOneDealer) {
-                // Tek bayi varsa direkt şehir olarak göster
                 return (
-                  <option 
-                    key={`${dealers[0].il}`} 
+                  <option
+                    key={`${dealers[0].il}`}
                     value={dealers[0].dealerCode}
                   >
                     {dealers[0].il}
                   </option>
                 );
               } else {
-                // Birden fazla bayi varsa ilçeleri grupla
                 return (
                   <optgroup key={city} label={city}>
                     {dealers.map(dealer => (
-                      <option 
-                        key={`${dealer.il}-${dealer.ilce}`} 
+                      <option
+                        key={`${dealer.il}-${dealer.ilce}`}
                         value={dealer.dealerCode}
                       >
                         {dealer.ilce}
@@ -325,47 +330,162 @@ const FormField = ({ data, register, control, errors }) => {
               }
             })}
           </select>
-          {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message}</p>}
+          {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
         </div>
       );
-    } else if (data.type === 'text') {
-      if (data.name === 'phone') {
+    }
+
+    // Diğer field tipleri
+    switch (data.type) {
+      case 'email':
         return (
-          <Controller
-            name="phone"
-            control={control}
-            rules={{ required: 'Phone number is required', pattern: { value: /^\+90 \([1-9]\d{2}\) \d{3}-\d{4}$/, message: 'Invalid phone number' } }}
-            render={({ field }) => (
-              <CustomMaskedInput
-                register={register}
-                name="phone"
-                errors={errors}
-                {...field}
-              />
-            )}
-          />
+          <div className="space-y-2">
+            <Label htmlFor={data.name} className="text-xs">{data.label} {data.required && <span className="text-red-500">*</span>}</Label>
+            <Input
+              id={data.name}
+              type="email"
+              {...register(data.name, { required: data.required })}
+              placeholder={data.placeholder || ''}
+              className={`${errors[data.name] ? 'border-red-500' : ''}`}
+            />
+            {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
+          </div>
         );
-      }
-      return (
-        <div className="space-y-2">
-          <Label htmlFor={data.name} className="text-xs">{data.label}</Label>
-          <Input
-            id={data.name}
-            {...register(data.name)}
-            placeholder=""
-            className={`${errors[data.name] ? 'border-red-500' : ''}`}
-          />
-          {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message}</p>}
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex items-center space-x-2">
-          <Checkbox className="mr-2" id={data.name} {...register(data.name)} />
-          <Label htmlFor={data.name} className="text-xs" dangerouslySetInnerHTML={{ __html: data.label }}></Label>
-          {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message}</p>}
-        </div>
-      );
+
+      case 'phone':
+        return (
+          <div className="space-y-2">
+            <Label htmlFor={data.name} className="text-xs">{data.label} {data.required && <span className="text-red-500">*</span>}</Label>
+            <Controller
+              name={data.name}
+              control={control}
+              rules={{ required: data.required }}
+              render={({ field }) => (
+                <CustomMaskedInput
+                  register={register}
+                  name={data.name}
+                  errors={errors}
+                  {...field}
+                />
+              )}
+            />
+            {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
+          </div>
+        );
+
+      case 'number':
+        return (
+          <div className="space-y-2">
+            <Label htmlFor={data.name} className="text-xs">{data.label} {data.required && <span className="text-red-500">*</span>}</Label>
+            <Input
+              id={data.name}
+              type="number"
+              {...register(data.name, { required: data.required })}
+              placeholder={data.placeholder || ''}
+              className={`${errors[data.name] ? 'border-red-500' : ''}`}
+            />
+            {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
+          </div>
+        );
+
+      case 'textarea':
+        return (
+          <div className="space-y-2">
+            <Label htmlFor={data.name} className="text-xs">{data.label} {data.required && <span className="text-red-500">*</span>}</Label>
+            <textarea
+              id={data.name}
+              {...register(data.name, { required: data.required })}
+              placeholder={data.placeholder || ''}
+              rows={4}
+              className={`flex w-full rounded-md border ${errors[data.name] ? 'border-red-500' : 'border-gray-300'} bg-white px-3 py-2 text-sm ring-offset-white placeholder-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+            />
+            {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
+          </div>
+        );
+
+      case 'select':
+        return (
+          <div className="space-y-2">
+            <Label htmlFor={data.name} className="text-xs">{data.label} {data.required && <span className="text-red-500">*</span>}</Label>
+            <select
+              id={data.name}
+              {...register(data.name, { required: data.required })}
+              className={`flex h-10 w-full rounded-md border ${errors[data.name] ? 'border-red-500' : 'border-gray-300'} bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+            >
+              <option value="">{data.placeholder || 'Seçiniz'}</option>
+              {data.options && data.options.map((option, index) => (
+                <option key={index} value={option}>{option}</option>
+              ))}
+            </select>
+            {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
+          </div>
+        );
+
+      case 'multiselect':
+        return (
+          <div className="space-y-2">
+            <Label htmlFor={data.name} className="text-xs">{data.label} {data.required && <span className="text-red-500">*</span>}</Label>
+            <div className="space-y-1">
+              {data.options && data.options.map((option, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`${data.name}-${index}`}
+                    value={option}
+                    {...register(data.name, { required: data.required })}
+                  />
+                  <Label htmlFor={`${data.name}-${index}`} className="text-xs font-normal cursor-pointer">
+                    {option}
+                  </Label>
+                </div>
+              ))}
+            </div>
+            {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
+          </div>
+        );
+
+      case 'date':
+        return (
+          <div className="space-y-2">
+            <Label htmlFor={data.name} className="text-xs">{data.label} {data.required && <span className="text-red-500">*</span>}</Label>
+            <Input
+              id={data.name}
+              type="date"
+              {...register(data.name, { required: data.required })}
+              placeholder={data.placeholder || ''}
+              className={`${errors[data.name] ? 'border-red-500' : ''}`}
+            />
+            {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
+          </div>
+        );
+
+      case 'checkbox':
+        return (
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              className="mr-2"
+              id={data.name}
+              {...register(data.name, { required: data.required })}
+            />
+            <Label htmlFor={data.name} className="text-xs" dangerouslySetInnerHTML={{ __html: data.label }}></Label>
+            {errors[data.name] && <p className="text-red-500 text-xs ml-2">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
+          </div>
+        );
+
+      case 'text':
+      default:
+        return (
+          <div className="space-y-2">
+            <Label htmlFor={data.name} className="text-xs">{data.label} {data.required && <span className="text-red-500">*</span>}</Label>
+            <Input
+              id={data.name}
+              type="text"
+              {...register(data.name, { required: data.required })}
+              placeholder={data.placeholder || ''}
+              className={`${errors[data.name] ? 'border-red-500' : ''}`}
+            />
+            {errors[data.name] && <p className="text-red-500 text-xs">{errors[data.name]?.message || 'Bu alan zorunludur'}</p>}
+          </div>
+        );
     }
   };
 
@@ -373,6 +493,9 @@ const FormField = ({ data, register, control, errors }) => {
 };
 
 export default function CampaignForm({ form, campaignId }) {
+ console.log('CampaignForm - Received form prop:', form);
+ console.log('CampaignForm - Form fields:', form?.fields);
+
  const [isOpen, setIsOpen] = useState(isWebDevice());
  const { toast } = useToast()
  const { register, handleSubmit, control, formState: { errors } } = useForm({

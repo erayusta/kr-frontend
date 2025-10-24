@@ -71,4 +71,14 @@ export const fetchMenuItems = async () => {
 	return categories;
 };
 
+export const fetchSettings = async () => {
+	try {
+		const response = await apiRequest("/settings", "get");
+		return response.data || {};
+	} catch (error) {
+		console.error("[Settings Fetch Error]", error);
+		return {};
+	}
+};
+
 export default apiRequest;
