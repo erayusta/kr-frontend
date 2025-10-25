@@ -1,71 +1,95 @@
-import Image from "next/image"
 import { useEffect, useState } from "react";
 import { IMAGE_BASE_URL } from "@/constants/site";
 
-const AdItem = ({ad}) => {
-  const [isAdLoaded, setIsAdLoaded] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  useEffect(() => {
-    if (!mounted) return;
-    const adContainer = document.getElementById("ad-container");
+const AdItem = ({ ad }) => {
+	const [isAdLoaded, setIsAdLoaded] = useState(false);
+	const [mounted, setMounted] = useState(false);
 
-    const checkAdLoad = () => {
-      if (window.pigeon && window.pigeon.ads && window.pigeon.ads.length > 0) {
-        setIsAdLoaded(true); 
-      } else {
-        setIsAdLoaded(false); 
-      }
-    };
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
-    if (window.pigeon) {
-      checkAdLoad();
-    } else {
-      window.addEventListener('pigeonLoaded', checkAdLoad);
-    }
+	useEffect(() => {
+		if (!mounted) return;
 
-    document.addEventListener("pigeonAdLoaded", () => {
-      setIsAdLoaded(true); 
-    });
+		const checkAdLoad = () => {
+			if (window.pigeon?.ads?.length > 0) {
+				setIsAdLoaded(true);
+			} else {
+				setIsAdLoaded(false);
+			}
+		};
 
-    setTimeout(checkAdLoad, 3000);
+		if (window.pigeon) {
+			checkAdLoad();
+		} else {
+			window.addEventListener("pigeonLoaded", checkAdLoad);
+		}
 
-    return () => {
-      window.removeEventListener('pigeonLoaded', checkAdLoad);
-      document.removeEventListener("pigeonAdLoaded", () => setIsAdLoaded(true));
-    };
-  }, [mounted]);
-  
- if (!mounted) {
-  return null; // Don't render anything during SSR
- }
- 
- if(ad?.type == 'html'){
-  return <div id="ad-container" className={`${isAdLoaded ? 'block' : 'hidden'} h-64 bg-gray-200`} dangerouslySetInnerHTML={{ __html:ad?.code}}></div>
- }else{
-  if(ad?.image){
-   return <a href={ad?.link} className="mt-10 mb-10"><img className="h-auto m-auto" src={`${IMAGE_BASE_URL}/ads/${ad?.image}`} alt={ad?.title || 'Reklam görseli'}/></a>
-  }
- } 
-}
+		document.addEventListener("pigeonAdLoaded", () => setIsAdLoaded(true));
 
+		const timeout = setTimeout(checkAdLoad, 3000);
 
-export default function Ad({position,ad}){
+		return () => {
+			window.removeEventListener("pigeonLoaded", checkAdLoad);
+			document.removeEventListener("pigeonAdLoaded", () => setIsAdLoaded(true));
+			clearTimeout(timeout);
+		};
+	}, [mounted]);
 
-switch(position){
+	if (!mounted) return null;
 
-case  'right':
- return (<div className="fixed right-0 z-50 hidden md:block"><AdItem ad={ad}></AdItem></div>)
-case  'left':
- return (<div className="fixed right-0 z-50 hidden md:block"><AdItem ad={ad}></AdItem></div>)
-case 'center':
-  return (<div className="flex justify-center mt-3"><AdItem ad={ad}></AdItem></div>)
-default:
-  return (<div className="flex justify-center mt-3"><AdItem ad={ad}></AdItem></div>) 
-}
+	if (ad?.type === "html") {
+		return (
+			<div
+				id="ad-container"
+				className={isAdLoaded ? "block" : "hidden"}
+				dangerouslySetInnerHTML={{ __html: ad?.code }}
+			/>
+		);
+	}
 
+	if (ad?.image) {
+		return (
+			<a href={ad?.link} target="_blank" rel="noopener noreferrer">
+				<img
+					className="w-full h-auto"
+					src={`${IMAGE_BASE_URL}/ads/${ad?.image}`}
+					alt={ad?.title || "Reklam görseli"}
+				/>
+			</a>
+		);
+	}
+
+	return null;
+};
+
+export default function Ad({ position, ad }) {
+	if (!ad) return null;
+
+	switch (position) {
+		case "left":
+			return (
+				<aside className="hidden xl:block fixed left-2 top-52 z-40 w-28">
+					<AdItem ad={ad} />
+				</aside>
+			);
+
+		case "right":
+			return (
+				<aside className="hidden xl:block fixed right-2 top-52 z-40 w-28">
+					<AdItem ad={ad} />
+				</aside>
+			);
+
+		case "center":
+			return (
+				<div className="max-w-4xl mx-auto my-4">
+					<AdItem ad={ad} />
+				</div>
+			);
+
+		default:
+			return null;
+	}
 }

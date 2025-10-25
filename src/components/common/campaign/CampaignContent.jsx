@@ -1,7 +1,6 @@
 import { Calendar, ChevronRight, ExternalLink, Info } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Ad from "../ads/Ad";
@@ -75,12 +74,12 @@ export default function CampaignContent({ campaign, ads }) {
 	const specialContent = renderSpecialContent();
 
 	return (
-		<section className="w-full py-8 bg-gray-50">
+		<section className="mx-auto px-4 xl:mx-auto xl:px-36 min-h-screen antialiased py-4 bg-[#fffaf4]">
 			<div className="container px-4">
-				<div className="max-w-7xl mx-auto">
+				<div className="">
 					{/* Özel İçerik (Ürün, Araba, Gayrimenkul) */}
 					{specialContent && <div className="mb-8">{specialContent}</div>}
-
+					{/* <CampaignCarHeader campaign={campaign} /> */}
 					{/* Kampanya Detayları */}
 					{campaign.content && (
 						<Card className="mb-8">
@@ -160,12 +159,12 @@ export default function CampaignContent({ campaign, ads }) {
 					/>
 
 					<Ad
-						position="center"
-						ad={ads.find((item) => item.position == "campaign_content_two")}
+						position="left"
+						ad={ads.find((item) => item.position === "campaign_left")}
 					/>
 					<Ad
 						position="right"
-						ad={ads.find((item) => item.position == "campaign_right")}
+						ad={ads.find((item) => item.position === "campaign_right")}
 					/>
 
 					{/* Reklamlar - Grid Düzeninde */}

@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
 import { useEffect, useState } from "react";
+import CampaignCarHeader from "@/components/common/campaign/CampaignCarHeader";
 import CampaignContent from "@/components/common/campaign/CampaignContent";
 import CampaignHeader from "@/components/common/campaign/CampaignHeader";
 import LatestCampaigns from "@/components/common/campaign/LatestCampaigns";
@@ -39,7 +40,7 @@ export async function getServerSideProps(context) {
 	}
 }
 
-export default function Campaign({ campaign, categories, ads, isGone }) {
+export default function Campaign({ campaign, categories, isGone, ads }) {
 	const [CampaignForm, setCampaignForm] = useState(null);
 	const router = useRouter();
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/kampanya/${campaign?.slug || router.query.slug}`;
@@ -106,8 +107,13 @@ export default function Campaign({ campaign, categories, ads, isGone }) {
 			{campaign?.lead_form && CampaignForm && !campaign.car && (
 				<CampaignForm form={campaign.lead_form} campaignId={campaign.id} />
 			)}
-			<CampaignHeader campaign={campaign}></CampaignHeader>
-			<CampaignContent ads={ads} campaign={campaign}></CampaignContent>
+			{campaign?.car ? (
+				<CampaignCarHeader campaign={campaign}></CampaignCarHeader>
+			) : (
+				<CampaignHeader campaign={campaign}></CampaignHeader>
+			)}
+
+			<CampaignContent ads={ads} campaign={campaign} />
 			<section className="md:container">
 				<LatestCampaigns data={categories}></LatestCampaigns>
 			</section>

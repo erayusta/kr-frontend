@@ -113,11 +113,11 @@ export default function CampaignCarType({ campaign }) {
 	};
 
 	return (
-		<div class="flex flex-col md:flex-row w-full">
+		<div class="flex flex-col md:flex-row w-full gap-0">
 			{/* SOL TARAF GÖRSEL GALERİ */}
 			<div className="w-12/12  md:w-3/12">
 				<div className="space-y-4">
-					<div className="relative rounded-lg overflow-hidden bg-gray-100">
+					<Card className="relative rounded-lg overflow-hidden bg-transparent">
 						<img
 							src={getImageUrl(activeImage)}
 							alt={`${carData.brand} ${carData.model}`}
@@ -151,7 +151,7 @@ export default function CampaignCarType({ campaign }) {
 						<div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
 							{activeImageIndex + 1} / {activeImages.length}
 						</div>
-					</div>
+					</Card>
 
 					{/* Küçük Görsel Galerisi */}
 					<div className="flex gap-2 overflow-x-auto pb-2">
@@ -176,7 +176,7 @@ export default function CampaignCarType({ campaign }) {
 
 					{/* Renk Seçenekleri */}
 					{carData.colors && carData.colors.length > 0 && (
-						<div className="bg-gray-50 p-4 rounded-lg">
+						<Card className="bg-transparent p-4 rounded-lg">
 							<p className="text-sm font-medium text-gray-700 mb-3">
 								Renk Seçenekleri
 							</p>
@@ -202,25 +202,25 @@ export default function CampaignCarType({ campaign }) {
 									</button>
 								))}
 							</div>
-						</div>
+						</Card>
 					)}
 				</div>
 			</div>
 
 			{/* ORTA KISIM BİLGİLER */}
-			<div className="w-12/12  md:w-6/12 space-y-2 px-8">
-				<div className="flex justify-between">
+			<div className="w-12/12  md:w-6/12 space-y-2 px-2 ">
+				<div className="flex justify-between ">
 					<h2 className="text-lg text-[#1C2B4A] font-bold">
 						{carData.brand} {carData.model}
 					</h2>
-					<div className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm font-semibold">
+					<div className="bg-blue-500 text-white px-1 py-1 rounded-lg text-sm font-semibold">
 						{formatPrice(
 							carData.history_prices[carData.history_prices.length - 1]?.price,
 						)}
 					</div>
 				</div>
 
-				<Card className="grid grid-cols-2 gap-6 p-8 bg-gray-50">
+				<Card className="grid grid-cols-2 gap-6 p-8 bg-transparent">
 					{carData.attributes &&
 						carData.attributes.slice(0, 10).map((attr, index) => (
 							<div key={index} className="flex justify-between items-center">
@@ -238,7 +238,7 @@ export default function CampaignCarType({ campaign }) {
 
 				{/* Euro NCAP */}
 				{carData.euroncap && (
-					<Card className="bg-gray-50">
+					<Card className="bg-transparent">
 						<CardContent className="p-6">
 							<div className="flex items-center gap-2 mb-4">
 								<Shield className="h-5 w-5 text-yellow-600" />
@@ -291,7 +291,7 @@ export default function CampaignCarType({ campaign }) {
 
 				{/* Fiyat Analizi */}
 				{carData.history_prices && carData.history_prices.length > 0 && (
-					<Card className="bg-gray-50 mt-6">
+					<Card className="bg-transparent mt-6">
 						<CardContent className="p-6">
 							<div className="w-full h-48">
 								<ResponsiveContainer width="100%" height="100%">
@@ -336,7 +336,7 @@ export default function CampaignCarType({ campaign }) {
 			</div>
 
 			{/* SAĞ TARAF FORM */}
-			<div className="w-12/12 md:w-3/12 shadow-md p-5 space-y-4">
+			<Card className="w-12/12 md:w-3/12 p-5 space-y-4 bg-transparent">
 				<div className="flex justify-center">
 					<img
 						src={campaign.brands[0].logo ?? ""}
@@ -418,7 +418,7 @@ export default function CampaignCarType({ campaign }) {
 						Teklif Al
 					</button>
 				</form>
-			</div>
+			</Card>
 		</div>
 	);
 }
