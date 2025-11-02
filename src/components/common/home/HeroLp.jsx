@@ -1,50 +1,56 @@
-import { TabsTrigger, TabsList, TabsContent, Tabs } from "@/components/ui/tabs"
-import { CardTitle, CardDescription, CardHeader, CardContent, Card } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { ArrowRightIcon, Calculator, GitCompareArrows, SearchIcon } from "lucide-react"
-import { Slider } from "@/components/ui/slider"
-import Link from "next/link"
-import ProductPriceComparision from "./ProductPriceComparision"
-import LoanCalculator from "./LoanCalculator"
-
-
-
+import { Calculator, GitCompareArrows } from "lucide-react";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LoanCalculator from "./LoanCalculator";
+import ProductPriceComparision from "./ProductPriceComparision";
 
 export default function HeroLp() {
-  return (
-    <Tabs className="w-full max-w-2xl" defaultValue="personal">
-      <TabsList className="grid grid-cols-2 rounded-full bg-gray-100 p-1 dark:bg-gray-800">
-        <TabsTrigger
-          className="rounded-full  py-2 gap-x-4 md:text-sm text-xs font-medium transition-colors hover:bg-gray-200 hover:text-gray-900 data-[state=active]:bg-primary data-[state=active]:text-white"
-          value="personal"
-        >
-          <Calculator size={18} />
-          Kredi Hesaplama
-        </TabsTrigger>
-        <TabsTrigger
-          className="rounded-full gap-x-4 py-2 text-xs md:text-sm font-medium transition-colors hover:bg-gray-200 hover:text-gray-900 data-[state=active]:bg-primary data-[state=active]:text-white"
-          value="business"
-        >
-          <GitCompareArrows size={18} />
-          Fiyat Karşılaştır
-        </TabsTrigger>
-      </TabsList>
-      <TabsContent value="personal">
-<LoanCalculator></LoanCalculator>
-      </TabsContent>
-      <TabsContent value="business">
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle className="font-bold md:text-xl text-md">Ürün Fiyat Karşılaştırma</CardTitle>
-            <CardDescription>Almak İstediğin Ürünün En ucuz Nerde Olduğu Bul</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <ProductPriceComparision />
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
-  );
+	return (
+		<div className="w-full max-w-2xl mx-auto flex flex-col justify-center">
+			<Tabs defaultValue="personal" className="w-full">
+				<TabsList className="grid grid-cols-2 rounded-full bg-gray-100 dark:bg-gray-800 p-1">
+					<TabsTrigger
+						value="personal"
+						className="rounded-full py-2 gap-x-2 text-xs md:text-sm font-medium transition-colors hover:bg-gray-200 hover:text-gray-900 data-[state=active]:bg-primary data-[state=active]:text-white"
+					>
+						<Calculator size={18} />
+						Kredi Hesaplama
+					</TabsTrigger>
+					<TabsTrigger
+						value="business"
+						className="rounded-full py-2 gap-x-2 text-xs md:text-sm font-medium transition-colors hover:bg-gray-200 hover:text-gray-900 data-[state=active]:bg-primary data-[state=active]:text-white"
+					>
+						<GitCompareArrows size={18} />
+						Fiyat Karşılaştır
+					</TabsTrigger>
+				</TabsList>
+
+				<TabsContent value="personal">
+					<LoanCalculator />
+				</TabsContent>
+
+				<TabsContent value="business">
+					<Card className="mt-4">
+						<CardHeader>
+							<CardTitle className="font-bold md:text-xl text-md">
+								Ürün Fiyat Karşılaştırma
+							</CardTitle>
+							<CardDescription>
+								Almak İstediğin Ürünün En Ucuz Nerede Olduğunu Bul
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<ProductPriceComparision />
+						</CardContent>
+					</Card>
+				</TabsContent>
+			</Tabs>
+		</div>
+	);
 }

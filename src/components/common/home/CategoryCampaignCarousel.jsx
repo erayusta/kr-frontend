@@ -1,105 +1,103 @@
-
-
-import CampaignCard from "../CampaignCard";
-import React, { useEffect } from 'react'
-import { CarouselItem, CarouselContent, CarouselPrevious, CarouselNext, Carousel } from "@/components/ui/carousel"
-import { getIcon } from "@/lib/utils"
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Autoplay from "embla-carousel-autoplay"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Autoplay from "embla-carousel-autoplay";
 import Link from "next/link";
-
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	CarouselNext,
+	CarouselPrevious,
+} from "@/components/ui/carousel";
+import { getIcon } from "@/lib/utils";
+import CampaignCard from "../CampaignCard";
 
 const CategoryCampaginsCarousel = ({ category, style }) => {
+	return (
+		<Card
+			key={category.id}
+			className="bg-transparent max-w-full border-0 shadow-none"
+		>
+			{/* Üst başlık kısmı */}
+			<CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+				<div className="flex items-center gap-x-3">
+					<div
+						dangerouslySetInnerHTML={{ __html: getIcon(category.name) }}
+						className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8"
+					/>
+					<CardTitle className="text-lg md:text-xl font-semibold">
+						{category.name} Kampanyaları
+					</CardTitle>
+				</div>
 
- return (<Card key={category.id} className="bg-transparent max-w-full">
-  <CardHeader className="flex flex-row items-center justify-between">
-   <div className="flex flex-row items-center  gap-x-3">
-    <div dangerouslySetInnerHTML={{ __html: getIcon(category.name) }}></div>
-    <CardTitle className="md:text-xl text-md"> {category.name} Kampanyaları</CardTitle>
-   </div>
+				<Button
+					asChild
+					variant="outline"
+					className="text-xs md:text-sm whitespace-nowrap"
+				>
+					<Link href={`/kategori/${category.slug}`}>Tümünü Gör</Link>
+				</Button>
+			</CardHeader>
 
-   <Button asChild variant="outline">
-   <Link href={`/kategori/${category.slug}`}>
-   Tümünü Gör
-   </Link>
-    
+			{/* Carousel kısmı */}
+			<CardContent className="p-0 md:p-5">
+				<Carousel
+					className="w-full"
+					plugins={[
+						Autoplay({
+							delay: 2500,
+							stopOnInteraction: false,
+							stopOnMouseEnter: true,
+						}),
+					]}
+				>
+					<CarouselContent className="flex items-stretch">
+						{category.campaigns.map((campaign) => (
+							<CarouselItem
+								key={campaign.id}
+								className={`${
+									style === "one"
+										? "basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+										: "basis-[85%] sm:basis-1/2"
+								} flex-shrink-0 px-2`}
+							>
+								<CampaignCard {...campaign} />
+							</CarouselItem>
+						))}
+					</CarouselContent>
 
-   </Button>
-  </CardHeader>
-  <CardContent className="p-0 md:p-5">
-   <Carousel
-    className="w-full"
-    plugins={[
-     Autoplay({
-      delay: 2000,
-      stopOnInteraction: false,
-      stopOnMouseEnter: true
-     }),
-    ]}
-    opts={{
-     responsive: [
-      {
-       breakpoint: 768,
-       settings: {
-        slidesToShow: 1,
-       },
-      },
-      {
-       breakpoint: 1024,
-       settings: {
-        slidesToShow: 4,
-       },
-      },
-     ],
-    }}
-   >
-    <CarouselContent>
-
-     {category.campaigns.map(campaign => (
-      <CarouselItem className={`${style == 'one' ? 'basis-[86%] md:basis-1/4' : 'basis-[86%] md:basis-1/2'}`} key={campaign.id}>  <CampaignCard {...campaign}></CampaignCard></CarouselItem>))}
-
-    </CarouselContent>
- 
-{ style == 'one' && <>
- <CarouselPrevious className="hidden md:flex" />
-  <CarouselNext className="hidden md:flex" />
-    
- </>}
-
-   
-   </Carousel>
-  </CardContent>
- </Card>)
-}
-
+					{style === "one" && (
+						<>
+							<CarouselPrevious className="hidden md:flex -left-3 md:-left-6" />
+							<CarouselNext className="hidden md:flex -right-3 md:-right-6" />
+						</>
+					)}
+				</Carousel>
+			</CardContent>
+		</Card>
+	);
+};
 
 const CategoryCampaginCarousel = ({ data }) => {
+	return (
+		<section className="bg-transparent w-full">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+				{data?.slice(0, 2).map((category) => (
+					<CategoryCampaginsCarousel key={category.id} category={category} />
+				))}
+			</div>
 
- return (<section className="bg-transparent">
-
-  <div className="grid md:grid-cols-2 grid-cols-1 gap-4 mt-10">
-   {data?.slice(0, 2).map((category) => (
-    <CategoryCampaginsCarousel key={category.id} category={category} />
-   ))}
-  </div>
-
-  {data?.slice(2).map((category) => (
-   <div key={category.id} className="grid md:grid-cols-1 grid-cols-1 gap-4 mt-10 ">
-    <CategoryCampaginsCarousel style="one" category={category} />
-   </div>
-  ))}
-
- </section>
-
- )
-}
-
-
-
-
-
-
+			<div className="flex flex-col gap-10 mt-10">
+				{data?.slice(2).map((category) => (
+					<CategoryCampaginsCarousel
+						key={category.id}
+						category={category}
+						style="one"
+					/>
+				))}
+			</div>
+		</section>
+	);
+};
 
 export default CategoryCampaginCarousel;

@@ -108,7 +108,7 @@ export default function Campaign({ campaign, categories, isGone, ads }) {
 				<CampaignForm form={campaign.lead_form} campaignId={campaign.id} />
 			)}
 			{campaign?.car ? (
-				<CampaignCarHeader campaign={campaign}></CampaignCarHeader>
+				<CampaignCarHeader campaign={campaign} />
 			) : (
 				<CampaignHeader campaign={campaign}></CampaignHeader>
 			)}

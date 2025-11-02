@@ -9,7 +9,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-export default function CampaignHeroHeader({ campaign }) {
+export default function CampaignCarHeader({ campaign }) {
 	const getImageUrl = (image) => {
 		if (!image)
 			return "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800";

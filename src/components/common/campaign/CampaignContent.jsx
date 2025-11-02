@@ -79,7 +79,6 @@ export default function CampaignContent({ campaign, ads }) {
 				<div className="">
 					{/* Özel İçerik (Ürün, Araba, Gayrimenkul) */}
 					{specialContent && <div className="mb-8">{specialContent}</div>}
-					{/* <CampaignCarHeader campaign={campaign} /> */}
 					{/* Kampanya Detayları */}
 					{campaign.content && (
 						<Card className="mb-8">

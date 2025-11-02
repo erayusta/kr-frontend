@@ -1,59 +1,47 @@
-import CampaignCard from "../CampaignCard";
-import React, { useEffect } from 'react'
-import { Carousel, CarouselItem, CarouselContent } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay"
-import Image from 'next/image'
-import { IMAGE_BASE_URL } from "@/constants/site";
+import Autoplay from "embla-carousel-autoplay";
+import Image from "next/image";
+import Link from "next/link";
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+} from "@/components/ui/carousel";
 
-const HeroCarousel = ({data, children}) => {
-
- 
-
-
- return (
-  <div className="max-w-full rounded-md">
-     <Carousel
-      className="w-full"
-      plugins={[
-        Autoplay({
-          delay: 2000,
-          stopOnInteraction: false,
-          stopOnMouseEnter: true
-        }),
-      ]}
-      opts={{
-        responsive: [
-          {
-            breakpoint: 768,
-            settings: {
-              slidesToShow: 2,
-            },
-          },
-          {
-            breakpoint: 1024,
-            settings: {
-              slidesToShow: 4,
-            },
-          },
-        ],
-      }}
-    >
-      <CarouselContent>
-       {data?.map(item =>  <CarouselItem key={item.id}><a href={item.link} className="keen-slider__slide rounded-md bg-slate-300">
-        <Image width={600} height={600}  className=" object-fit  rounded-md" src={item.image} alt={item.title || 'Kampanya'}/>
-       </a></CarouselItem>)}
-       </CarouselContent>
-   </Carousel>
-{children}
-  </div>
-
- )
-}
-
-
-
-
-
-
+const HeroCarousel = ({ data }) => {
+	return (
+		<div className="w-full rounded-2xl overflow-hidden h-full">
+			<Carousel
+				className="w-full h-full "
+				plugins={[
+					Autoplay({
+						delay: 2500,
+						stopOnInteraction: false,
+						stopOnMouseEnter: true,
+					}),
+				]}
+			>
+				<CarouselContent>
+					{data?.map((item) => (
+						<CarouselItem
+							key={item.id}
+							className="relative aspect-[16/9] sm:aspect-[4/3] md:aspect-[5/3] lg:aspect-[1/1] bg-blue-50"
+						>
+							<Link href={item.link || "#"} className="block w-full h-full">
+								<Image
+									src={item.image}
+									alt={item.title || "Kampanya"}
+									fill
+									className="object-cover w-full h-full rounded-2xl"
+									sizes="100vw"
+									priority
+								/>
+							</Link>
+						</CarouselItem>
+					))}
+				</CarouselContent>
+			</Carousel>
+		</div>
+	);
+};
 
 export default HeroCarousel;

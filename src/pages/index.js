@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
 import Ad from "@/components/common/ads/Ad";
 import BrandCarousel from "@/components/common/home/BrandCarousel";
@@ -8,7 +7,6 @@ import HeroLp from "@/components/common/home/HeroLp";
 import InfoBox from "@/components/common/home/InfoBox";
 import LatestPost from "@/components/common/home/LatestPost";
 import Layout from "@/components/layouts/layout";
-import apiRequest, { fetchData } from "@/lib/apiRequest";
 import serverApiRequest from "@/lib/serverApiRequest";
 
 export async function getServerSideProps() {
@@ -40,7 +38,6 @@ export async function getServerSideProps() {
 }
 
 export default function Home({ categories, carousels, brands, posts, ads }) {
-	const router = useRouter();
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/`;
 
 	return (
@@ -89,11 +86,14 @@ export default function Home({ categories, carousels, brands, posts, ads }) {
 					ad={ads?.find((item) => item.position === "home_header")}
 				/>
 
-				<div className="grid md:grid-cols-2 gap-5">
-					<HeroCarousel data={carousels}>
-						<BrandCarousel data={brands} />
-					</HeroCarousel>
-					<HeroLp />
+				<div className="container mx-auto px-4">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+						<HeroCarousel data={carousels} />
+						<HeroLp />
+					</div>
+
+					{/* Alt kısımda tam genişlikte */}
+					<BrandCarousel data={brands} />
 				</div>
 
 				<CategoryCampaginCarousel data={categories} />
