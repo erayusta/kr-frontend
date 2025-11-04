@@ -16,7 +16,6 @@ import { IMAGE_BASE_URL } from "@/constants/site";
 import apiRequest from "@/lib/apiRequest";
 
 export default function CampaignCarType({ campaign }) {
-	console.log("hocam", campaign);
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
 	const [selectedColorIndex, setSelectedColorIndex] = useState(0);
 

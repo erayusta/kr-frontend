@@ -80,78 +80,80 @@ export default function CampaignContent({ campaign, ads }) {
 					{/* Özel İçerik (Ürün, Araba, Gayrimenkul) */}
 					{specialContent && <div className="mb-8">{specialContent}</div>}
 					{/* Kampanya Detayları */}
-					{campaign.content && (
-						<Card className="mb-8">
-							<CardHeader className="border-b bg-blue-50">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-2">
-										<div className="p-2 bg-blue-100 rounded-lg">
-											<Info className="h-5 w-5 text-blue-600" />
-										</div>
-										<h2 className="text-xl font-semibold text-gray-900">
-											Kampanya Detayları
-										</h2>
-									</div>
+					{campaign.content &&
+						campaign?.itemType !==
+							"product" && (
+								<Card className="mb-8">
+									<CardHeader className="border-b bg-blue-50">
+										<div className="flex items-center justify-between">
+											<div className="flex items-center gap-2">
+												<div className="p-2 bg-blue-100 rounded-lg">
+													<Info className="h-5 w-5 text-blue-600" />
+												</div>
+												<h2 className="text-xl font-semibold text-gray-900">
+													Kampanya Detayları
+												</h2>
+											</div>
 
-									{(campaign.start_date || campaign.end_date) && (
-										<div className="flex items-center gap-2 text-sm text-gray-600">
-											<Calendar className="h-4 w-4" />
-											<span>
-												{campaign.start_date &&
-													new Date(campaign.start_date).toLocaleDateString(
-														"tr-TR",
-														{
-															day: "numeric",
-															month: "long",
-															year: "numeric",
-														},
-													)}
-												{" - "}
-												{campaign.end_date &&
-													new Date(campaign.end_date).toLocaleDateString(
-														"tr-TR",
-														{
-															day: "numeric",
-															month: "long",
-															year: "numeric",
-														},
-													)}
-											</span>
+											{(campaign.start_date || campaign.end_date) && (
+												<div className="flex items-center gap-2 text-sm text-gray-600">
+													<Calendar className="h-4 w-4" />
+													<span>
+														{campaign.start_date &&
+															new Date(campaign.start_date).toLocaleDateString(
+																"tr-TR",
+																{
+																	day: "numeric",
+																	month: "long",
+																	year: "numeric",
+																},
+															)}
+														{" - "}
+														{campaign.end_date &&
+															new Date(campaign.end_date).toLocaleDateString(
+																"tr-TR",
+																{
+																	day: "numeric",
+																	month: "long",
+																	year: "numeric",
+																},
+															)}
+													</span>
+												</div>
+											)}
+										</div>
+									</CardHeader>
+
+									<CardContent className="p-6">
+										<div
+											ref={contentRef}
+											className="prose prose-gray max-w-none campaign-content"
+											dangerouslySetInnerHTML={{ __html: campaign.content }}
+										/>
+									</CardContent>
+
+									{/* Kampanya Linki */}
+									{campaign.link && (
+										<div className="px-6 pb-6">
+											<Button
+												asChild
+												size="lg"
+												className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
+											>
+												<Link
+													href={campaign.link}
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													<ExternalLink className="h-4 w-4 mr-2" />
+													Kampanyaya Git
+													<ChevronRight className="h-4 w-4 ml-1" />
+												</Link>
+											</Button>
 										</div>
 									)}
-								</div>
-							</CardHeader>
-
-							<CardContent className="p-6">
-								<div
-									ref={contentRef}
-									className="prose prose-gray max-w-none campaign-content"
-									dangerouslySetInnerHTML={{ __html: campaign.content }}
-								/>
-							</CardContent>
-
-							{/* Kampanya Linki */}
-							{campaign.link && (
-								<div className="px-6 pb-6">
-									<Button
-										asChild
-										size="lg"
-										className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
-									>
-										<Link
-											href={campaign.link}
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											<ExternalLink className="h-4 w-4 mr-2" />
-											Kampanyaya Git
-											<ChevronRight className="h-4 w-4 ml-1" />
-										</Link>
-									</Button>
-								</div>
+								</Card>,
 							)}
-						</Card>
-					)}
 					<Ad
 						position="center"
 						ad={ads.find((item) => item.position == "campaign_content_one")}
