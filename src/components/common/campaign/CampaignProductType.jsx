@@ -33,13 +33,6 @@ export default function CampaignContent({ campaign }) {
 			? productData.images
 			: [productData?.image || campaign?.image].filter(Boolean);
 
-	const lowestPrice =
-		stores.length > 0
-			? Math.min(
-					...stores.filter((s) => s.price).map((s) => parseFloat(s.price)),
-				)
-			: null;
-
 	// Handlers
 	const formatPrice = (price) => {
 		if (!price) return "";

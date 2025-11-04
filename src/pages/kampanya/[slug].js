@@ -109,13 +109,14 @@ export default function Campaign({ campaign, categories, isGone, ads }) {
 			{campaign?.lead_form &&
 				CampaignForm &&
 				!campaign.car &&
-				campaign?.itemType !==
-					"product" && (
-						<CampaignForm form={campaign.lead_form} campaignId={campaign.id} />,
-					)}
+				campaign?.itemType !== "product" && (
+					<CampaignForm form={campaign.lead_form} campaignId={campaign.id} />
+				)}
 			{campaign?.car ? (
 				<CampaignCarHeader campaign={campaign} />
-			) : campaign?.itemType === "product"  ? (<CampaignProductHeader campaign={campaign}/>)  :(
+			) : campaign?.itemType === "product" ? (
+				<CampaignProductHeader campaign={campaign} />
+			) : (
 				<CampaignHeader campaign={campaign}></CampaignHeader>
 			)}
 
