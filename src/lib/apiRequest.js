@@ -35,6 +35,7 @@ const apiRequest = async (url, method, data = {}, isAuth = false) => {
 	try {
 		const fullUrl = getApiUrl() + url;
 		console.log(`[API Request] ${method.toUpperCase()} ${fullUrl}`);
+		console.log("hocam fullUrl", fullUrl);
 
 		const response = await apiClient({
 			method,
@@ -43,6 +44,7 @@ const apiRequest = async (url, method, data = {}, isAuth = false) => {
 			data,
 			headers,
 		});
+		console.log("hocam response", response); // bu log hiç gözüükmüyor
 
 		console.log(`[API Success] ${method.toUpperCase()} ${fullUrl}`);
 		return response.data;

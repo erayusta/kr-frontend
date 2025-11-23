@@ -1,3 +1,4 @@
+import type { GetServerSideProps } from "next";
 import { NextSeo } from "next-seo";
 import Ad from "@/components/common/ads/Ad";
 import BrandCarousel from "@/components/common/home/BrandCarousel";
@@ -6,10 +7,18 @@ import HeroCarousel from "@/components/common/home/HeroCarousel";
 import HeroLp from "@/components/common/home/HeroLp";
 import InfoBox from "@/components/common/home/InfoBox";
 import LatestPost from "@/components/common/home/LatestPost";
-import Layout from "@/components/layouts/layout";
+import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
 
-export async function getServerSideProps() {
+interface HomeProps {
+	categories: any[];
+	carousels: any[];
+	brands: any[];
+	ads: any[];
+	posts: any[];
+}
+
+export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
 	try {
 		const data = await serverApiRequest("/", "get");
 
@@ -23,7 +32,7 @@ export async function getServerSideProps() {
 			},
 		};
 	} catch (error) {
-		console.error("[HomePage SSR Error]", error.message);
+		console.error("[HomePage SSR Error]", (error as Error).message);
 
 		return {
 			props: {
@@ -35,9 +44,15 @@ export async function getServerSideProps() {
 			},
 		};
 	}
-}
+};
 
-export default function Home({ categories, carousels, brands, posts, ads }) {
+export default function Home({
+	categories,
+	carousels,
+	brands,
+	posts,
+	ads,
+}: HomeProps) {
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/`;
 
 	return (
