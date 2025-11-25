@@ -2,8 +2,7 @@ import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
 import PageContent from "@/components/common/page/PageContent";
 import PageHeader from "@/components/common/page/PageHeader";
-import Layout from "@/components/layouts/layout";
-import apiRequest, { fetchData } from "@/lib/apiRequest";
+import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
 import { stripHtmlTags } from "@/lib/utils";
 

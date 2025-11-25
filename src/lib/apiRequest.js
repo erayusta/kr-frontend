@@ -35,7 +35,6 @@ const apiRequest = async (url, method, data = {}, isAuth = false) => {
 	try {
 		const fullUrl = getApiUrl() + url;
 		console.log(`[API Request] ${method.toUpperCase()} ${fullUrl}`);
-		console.log("hocam fullUrl", fullUrl);
 
 		const response = await apiClient({
 			method,

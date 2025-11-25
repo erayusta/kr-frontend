@@ -11,35 +11,50 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import apiRequest from "@/lib/apiRequest";
 
-const AuthDialog = () => {
-	const [activeTab, setActiveTab] = useState("login");
+interface LoginFormData {
+	email: string;
+	password: string;
+}
 
-	const {
-		register,
-		handleSubmit,
-		control,
-		formState: { errors },
-	} = useForm();
+interface RegisterFormData {
+	firstName: string;
+	lastName: string;
+	email: string;
+	phone: string;
+	password: string;
+	passwordConfirmation: string;
+	accept: boolean;
+}
+
+const AuthDialog = () => {
+	const [activeTab, setActiveTab] = useState<"login" | "register">("login");
 	const { toast } = useToast();
 
-	const onLoginSubmit = async (data) => {
+	const loginForm = useForm<LoginFormData>();
+	const registerForm = useForm<RegisterFormData>({
+		defaultValues: {
+			accept: false,
+		},
+		shouldFocusError: false,
+	});
+
+	const onLoginSubmit = async (data: LoginFormData) => {
 		try {
 			const response: any = await apiRequest("/auth/login", "post", data);
-			console.log("bu log hiç gözükmüyor ");
 
 			if (!response.token) {
 				return toast({
 					variant: "destructive",
 					title: "Hata!",
-					description: response.message,
+					description: "Giriş yapılamadı",
 				});
 			}
 
 			localStorage.setItem("token", response.token);
-			return location.reload();
+			location.reload();
 		} catch (error: any) {
-			console.error("Login error:", error); // Debug için
-			return toast({
+			console.log("hocam", error);
+			toast({
 				variant: "destructive",
 				title: "Hata!",
 				description:
@@ -48,7 +63,15 @@ const AuthDialog = () => {
 		}
 	};
 
-	const onRegisterSubmit = async (data: any) => {
+	const onRegisterSubmit = async (data: RegisterFormData) => {
+		if (!data.accept) {
+			return toast({
+				variant: "destructive",
+				title: "Hata!",
+				description: "KVKK sözleşmesini kabul etmelisiniz",
+			});
+		}
+
 		try {
 			const response: any = await apiRequest("/auth/register", "post", data);
 
@@ -56,15 +79,14 @@ const AuthDialog = () => {
 				return toast({
 					variant: "destructive",
 					title: "Hata!",
-					description: response.message,
+					description: response.message || "Kayıt oluşturulamadı",
 				});
 			}
 
 			localStorage.setItem("token", response.token);
 			location.reload();
 		} catch (error: any) {
-			console.error("Register error:", error); // Debug için
-			return toast({
+			toast({
 				variant: "destructive",
 				title: "Hata!",
 				description:
@@ -76,15 +98,13 @@ const AuthDialog = () => {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button
-					className="h-9 flex gap-x-5 bg-orange-500 px-4 text-sm font-medium  text-white transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-600"
-					variant="destructive"
-				>
-					<User2 size={20} /> <span>Giriş Yap</span>
+				<Button className="h-9 flex gap-x-5 bg-orange-500 px-4 text-sm font-medium text-white transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-600">
+					<User2 size={20} />
+					<span>Giriş Yap</span>
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
-				{activeTab === "login" && (
+				{activeTab === "login" ? (
 					<div className="flex items-center justify-center px-4">
 						<div className="space-y-6 max-w-md w-full">
 							<div className="space-y-2 text-center">
@@ -95,7 +115,7 @@ const AuthDialog = () => {
 							</div>
 							<form
 								className="space-y-4"
-								onSubmit={handleSubmit(onLoginSubmit)}
+								onSubmit={loginForm.handleSubmit(onLoginSubmit)}
 							>
 								<div>
 									<Label
@@ -109,7 +129,7 @@ const AuthDialog = () => {
 										type="email"
 										placeholder="isim@gmail.com"
 										className="mt-1 block w-full"
-										{...register("email", {
+										{...loginForm.register("email", {
 											required: "E-posta adresi gerekli",
 											pattern: {
 												value:
@@ -118,9 +138,9 @@ const AuthDialog = () => {
 											},
 										})}
 									/>
-									{errors.email && (
-										<p className="text-red-500 text-sm">
-											{errors.email.message}
+									{loginForm.formState.errors.email && (
+										<p className="text-red-500 text-sm mt-1">
+											{loginForm.formState.errors.email.message}
 										</p>
 									)}
 								</div>
@@ -135,7 +155,6 @@ const AuthDialog = () => {
 										<Link
 											href="#"
 											className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-											prefetch={false}
 										>
 											Şifreni mi Unuttun?
 										</Link>
@@ -145,11 +164,13 @@ const AuthDialog = () => {
 										type="password"
 										placeholder="••••••••"
 										className="mt-1 block w-full"
-										{...register("password", { required: "Şifre gerekli" })}
+										{...loginForm.register("password", {
+											required: "Şifre gerekli",
+										})}
 									/>
-									{errors.password && (
-										<p className="text-red-500 text-sm">
-											{errors.password.message}
+									{loginForm.formState.errors.password && (
+										<p className="text-red-500 text-sm mt-1">
+											{loginForm.formState.errors.password.message}
 										</p>
 									)}
 								</div>
@@ -169,24 +190,23 @@ const AuthDialog = () => {
 							</p>
 						</div>
 					</div>
-				)}
-				{activeTab === "register" && (
+				) : (
 					<div className="flex items-center justify-center px-4">
 						<div className="space-y-6 max-w-md w-full">
 							<div className="space-y-2 text-center">
 								<h1 className="text-3xl font-bold tracking-tight">Kayıt Ol</h1>
 								<p className="text-gray-500 dark:text-gray-400">
-									Hesabınızı oluşturmak Alanları Doğru şekilde doldurun.
+									Hesabınızı oluşturmak için alanları doğru şekilde doldurun.
 								</p>
 							</div>
 							<form
 								className="space-y-4"
-								onSubmit={handleSubmit(onRegisterSubmit)}
+								onSubmit={registerForm.handleSubmit(onRegisterSubmit)}
 							>
 								<div className="grid grid-cols-2 gap-x-3">
 									<div>
 										<Label
-											htmlFor="email"
+											htmlFor="firstName"
 											className="block text-sm font-medium"
 										>
 											Ad
@@ -194,19 +214,20 @@ const AuthDialog = () => {
 										<Input
 											id="firstName"
 											type="text"
-											placeholder=""
 											className="mt-1 block w-full"
-											{...register("firstName", { required: "Ad gerekli" })}
+											{...registerForm.register("firstName", {
+												required: "Ad gerekli",
+											})}
 										/>
-										{errors.firstName && (
-											<p className="text-red-500 text-sm">
-												{errors.firstName.message}
+										{registerForm.formState.errors.firstName && (
+											<p className="text-red-500 text-sm mt-1">
+												{registerForm.formState.errors.firstName.message}
 											</p>
 										)}
 									</div>
 									<div>
 										<Label
-											htmlFor="email"
+											htmlFor="lastName"
 											className="block text-sm font-medium"
 										>
 											Soyad
@@ -214,13 +235,14 @@ const AuthDialog = () => {
 										<Input
 											id="lastName"
 											type="text"
-											placeholder=""
 											className="mt-1 block w-full"
-											{...register("lastName", { required: "Soyisim gerekli" })}
+											{...registerForm.register("lastName", {
+												required: "Soyad gerekli",
+											})}
 										/>
-										{errors.lastName && (
-											<p className="text-red-500 text-sm">
-												{errors.lastName.message}
+										{registerForm.formState.errors.lastName && (
+											<p className="text-red-500 text-sm mt-1">
+												{registerForm.formState.errors.lastName.message}
 											</p>
 										)}
 									</div>
@@ -234,13 +256,18 @@ const AuthDialog = () => {
 										type="email"
 										placeholder="isim@gmail.com"
 										className="mt-1 block w-full"
-										{...register("email", {
+										{...registerForm.register("email", {
 											required: "E-posta adresi gerekli",
+											pattern: {
+												value:
+													/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+												message: "Geçerli bir e-posta adresi girin",
+											},
 										})}
 									/>
-									{errors.email && (
-										<p className="text-red-500 text-sm">
-											{errors.email.message}
+									{registerForm.formState.errors.email && (
+										<p className="text-red-500 text-sm mt-1">
+											{registerForm.formState.errors.email.message}
 										</p>
 									)}
 								</div>
@@ -250,13 +277,14 @@ const AuthDialog = () => {
 									</Label>
 									<Controller
 										name="phone"
-										control={control}
+										control={registerForm.control}
 										rules={{
 											required: "Telefon numarası gerekli",
 											pattern: {
 												value: /^\+90 \([1-9]\d{2}\) \d{3}-\d{4}$/,
-												message: "Invalid phone number",
+												message: "Geçersiz telefon numarası",
 											},
+											shouldUnregister: false,
 										}}
 										render={({ field }) => (
 											<MaskedInput
@@ -282,17 +310,19 @@ const AuthDialog = () => {
 													/\d/,
 												]}
 												className={`flex h-10 w-full rounded-md border ${
-													errors.phone ? "border-red-500" : "border-input"
+													registerForm.formState.errors.phone
+														? "border-red-500"
+														: "border-input"
 												} bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
 												placeholder="+90 (___) ___-____"
 												guide={false}
-												id={"phone"}
+												id="phone"
 											/>
 										)}
 									/>
-									{errors.phone && (
-										<p className="text-red-500 text-sm">
-											{errors.phone.message}
+									{registerForm.formState.errors.phone && (
+										<p className="text-red-500 text-sm mt-1">
+											{registerForm.formState.errors.phone.message}
 										</p>
 									)}
 								</div>
@@ -308,50 +338,56 @@ const AuthDialog = () => {
 										type="password"
 										placeholder="••••••••"
 										className="mt-1 block w-full"
-										{...register("password", { required: "Şifre gerekli" })}
+										{...registerForm.register("password", {
+											required: "Şifre gerekli",
+										})}
 									/>
-									{errors.password && (
-										<p className="text-red-500 text-sm">
-											{errors.password.message}
+									{registerForm.formState.errors.password && (
+										<p className="text-red-500 text-sm mt-1">
+											{registerForm.formState.errors.password.message}
 										</p>
 									)}
 								</div>
 								<div>
 									<Label
-										htmlFor="cpassword"
+										htmlFor="passwordConfirmation"
 										className="block text-sm font-medium"
 									>
 										Tekrar Şifre
 									</Label>
 									<Input
-										id="cpassword"
+										id="passwordConfirmation"
 										type="password"
 										placeholder="••••••••"
 										className="mt-1 block w-full"
-										{...register("passwordConfirmation", {
-											required: "Tekrar Şifre gerekli",
+										{...registerForm.register("passwordConfirmation", {
+											required: "Tekrar şifre gerekli",
 										})}
 									/>
-									{errors.confirmPassword && (
-										<p className="text-red-500 text-sm">
-											{errors.confirmPassword.message}
+									{registerForm.formState.errors.passwordConfirmation && (
+										<p className="text-red-500 text-sm mt-1">
+											{
+												registerForm.formState.errors.passwordConfirmation
+													.message
+											}
 										</p>
 									)}
 								</div>
-								<div className="space-y-2 gap-x-4">
-									<Checkbox
-										className="mr-2"
-										id={"accept"}
-										{...register("accept")}
+								<div className="flex items-center space-x-2">
+									<Controller
+										name="accept"
+										control={registerForm.control}
+										render={({ field }) => (
+											<Checkbox
+												id="accept"
+												checked={field.value}
+												onCheckedChange={field.onChange}
+											/>
+										)}
 									/>
-									<Label htmlFor={"accept"} className="text-xs">
+									<Label htmlFor="accept" className="text-xs">
 										Kvkk Sözleşmesini Okudum ve Kabul Ediyorum.
 									</Label>
-									{errors.accept && (
-										<p className="text-red-500 text-xs">
-											{errors.accept?.message}
-										</p>
-									)}
 								</div>
 								<Button type="submit" className="w-full">
 									Kayıt Ol

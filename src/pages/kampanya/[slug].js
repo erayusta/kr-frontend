@@ -6,7 +6,7 @@ import CampaignContent from "@/components/common/campaign/CampaignContent";
 import CampaignHeader from "@/components/common/campaign/CampaignHeader";
 import CampaignProductHeader from "@/components/common/campaign/CampaignProductHeader";
 import LatestCampaigns from "@/components/common/campaign/LatestCampaigns";
-import Layout from "@/components/layouts/layout";
+import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
 import { stripHtmlTags } from "@/lib/utils";
 

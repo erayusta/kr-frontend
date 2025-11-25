@@ -1,49 +1,47 @@
-import apiRequest, { fetchData } from '@/lib/apiRequest'
-import { Menu } from 'lucide-react'
-import React, {Children, createContext, useContext, useEffect, useState} from 'react'
+import { createContext, useContext, useEffect, useState } from "react";
+import apiRequest from "@/lib/apiRequest";
 
-const MenuContext = createContext()
+const MenuContext = createContext();
 
-export const MenuProvider = ({children}) => {
- const [menuItems, setMenuItems] = useState([])
- const [mounted, setMounted] = useState(false)
+export const MenuProvider = ({ children }) => {
+	const [menuItems, setMenuItems] = useState([]);
+	const [mounted, setMounted] = useState(false);
 
-useEffect(() => {
- setMounted(true)
-}, [])
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
-useEffect(() => {
- if (!mounted) return;
- 
- const getMenuItems = async () => {
-  try {
-   const data = await apiRequest('/categories','get');
-   // Ensure data is an array
-   if (Array.isArray(data)) {
-    setMenuItems(data)
-   } else {
-    console.error('[MenuContext] Categories response is not an array:', data);
-    setMenuItems([])
-   }
-  } catch (error) {
-   console.error('[MenuContext] Failed to fetch categories:', error);
-   setMenuItems([])
-  }
- }
- getMenuItems()
-}, [mounted])
- 
+	useEffect(() => {
+		if (!mounted) return;
 
-return(
- <MenuContext.Provider value={menuItems}>
-{children}
- </MenuContext.Provider>
-)
+		const getMenuItems = async () => {
+			try {
+				const data = await apiRequest("/categories", "get");
+				// Ensure data is an array
+				if (Array.isArray(data)) {
+					setMenuItems(data);
+				} else {
+					console.error(
+						"[MenuContext] Categories response is not an array:",
+						data,
+					);
+					setMenuItems([]);
+				}
+			} catch (error) {
+				console.error("[MenuContext] Failed to fetch categories:", error);
+				setMenuItems([]);
+			}
+		};
+		getMenuItems();
+	}, [mounted]);
 
-}
+	return (
+		<MenuContext.Provider value={menuItems}>{children}</MenuContext.Provider>
+	);
+};
 
 export const useMenu = () => {
- const context = useContext(MenuContext)
- // Always return an array even if context is undefined
- return context || []
-}
+	const context = useContext(MenuContext);
+	// Always return an array even if context is undefined
+	return context || [];
+};

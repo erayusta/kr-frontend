@@ -3,7 +3,7 @@ import { NextSeo } from "next-seo";
 import Ad from "@/components/common/ads/Ad";
 import BrandContent from "@/components/common/brand/BrandContent";
 import BrandHeader from "@/components/common/brand/BrandHeader";
-import Layout from "@/components/layouts/layout";
+import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
 
 export async function getServerSideProps(context) {
