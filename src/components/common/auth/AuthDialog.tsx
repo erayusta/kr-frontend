@@ -56,7 +56,7 @@ const AuthDialog = () => {
 			toast({
 				variant: "destructive",
 				title: "Hata!",
-				description: error?.response?.data?.error,
+				description: error?.response?.data?.error ?? "Giriş yapılamadı",
 			});
 		}
 	};
@@ -87,8 +87,7 @@ const AuthDialog = () => {
 			toast({
 				variant: "destructive",
 				title: "Hata!",
-				description:
-					error?.response?.data?.message || error?.message || "Bir hata oluştu",
+				description: error?.response?.data?.error ?? "Kayıt oluşturulamadı",
 			});
 		}
 	};
