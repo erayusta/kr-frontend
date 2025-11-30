@@ -53,7 +53,6 @@ const AuthDialog = () => {
 			localStorage.setItem("token", response.token);
 			location.reload();
 		} catch (error: any) {
-			console.log("hocam", error);
 			toast({
 				variant: "destructive",
 				title: "Hata!",

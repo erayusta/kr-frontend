@@ -30,7 +30,7 @@ export default function App({ Component, pageProps }: AppProps) {
 			router.events.off("routeChangeError", handleComplete);
 		};
 	}, [router]);
-
+	console.log("deploy test");
 	return (
 		<NoSSR>
 			<MenuProvider>
