@@ -45,17 +45,17 @@ export default function CampaignContent({ campaign, ads }) {
 
 	// Kampanya tipine göre özel içerik göster
 	const renderSpecialContent = () => {
-		if (campaign?.itemType == "coupon" || campaign?.item_type == "coupon") {
+		if (campaign?.itemType === "coupon" || campaign?.item_type === "coupon") {
 			return <CampaignCouponType campaign={campaign} />;
 		}
 		if (
-			(campaign?.itemType == "car" || campaign?.item_type == "car") &&
+			(campaign?.itemType === "car" || campaign?.item_type === "car") &&
 			(campaign.car || campaign.item)
 		) {
 			return <CampaignCarType campaign={campaign} />;
 		}
 		if (
-			(campaign?.itemType == "product" || campaign?.item_type == "product") &&
+			(campaign?.itemType === "product" || campaign?.item_type === "product") &&
 			campaign.product
 		) {
 			return <CampaignProductType campaign={campaign} />;
