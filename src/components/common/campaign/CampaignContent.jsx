@@ -74,7 +74,7 @@ export default function CampaignContent({ campaign, ads }) {
 	const specialContent = renderSpecialContent();
 
 	return (
-		<section className="mx-auto px-4 xl:mx-auto xl:px-36 min-h-screen antialiased py-4 bg-[#fffaf4]">
+		<section className="mx-auto px-4 xl:mx-auto xl:px-36 antialiased py-4 bg-[#fffaf4]">
 			<div className="container px-4">
 				<div className="">
 					{/* Özel İçerik (Ürün, Araba, Gayrimenkul) */}

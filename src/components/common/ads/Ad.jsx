@@ -1,5 +1,5 @@
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import { IMAGE_BASE_URL } from "@/constants/site";
 
 const AdItem = ({ ad }) => {
 	const [isAdLoaded, setIsAdLoaded] = useState(false);
@@ -13,12 +13,11 @@ const AdItem = ({ ad }) => {
 		if (!mounted) return;
 
 		const checkAdLoad = () => {
-			if (window.pigeon?.ads?.length > 0) {
-				setIsAdLoaded(true);
-			} else {
-				setIsAdLoaded(false);
-			}
+			const hasAds = window.pigeon?.ads?.length > 0;
+			setIsAdLoaded(hasAds);
 		};
+
+		const handleAdLoaded = () => setIsAdLoaded(true);
 
 		if (window.pigeon) {
 			checkAdLoad();
@@ -26,13 +25,13 @@ const AdItem = ({ ad }) => {
 			window.addEventListener("pigeonLoaded", checkAdLoad);
 		}
 
-		document.addEventListener("pigeonAdLoaded", () => setIsAdLoaded(true));
+		document.addEventListener("pigeonAdLoaded", handleAdLoaded);
 
 		const timeout = setTimeout(checkAdLoad, 3000);
 
 		return () => {
 			window.removeEventListener("pigeonLoaded", checkAdLoad);
-			document.removeEventListener("pigeonAdLoaded", () => setIsAdLoaded(true));
+			document.removeEventListener("pigeonAdLoaded", handleAdLoaded);
 			clearTimeout(timeout);
 		};
 	}, [mounted]);
@@ -41,22 +40,21 @@ const AdItem = ({ ad }) => {
 
 	if (ad?.type === "html") {
 		return (
-			<div
-				id="ad-container"
-				className={isAdLoaded ? "block" : "hidden"}
-				dangerouslySetInnerHTML={{ __html: ad?.code }}
-			/>
+			<div id="ad-container" dangerouslySetInnerHTML={{ __html: ad?.code }} />
 		);
 	}
 
 	if (ad?.image) {
 		return (
 			<a href={ad?.link} target="_blank" rel="noopener noreferrer">
-				<img
-					className="w-full h-auto"
-					src={`${IMAGE_BASE_URL}/ads/${ad?.image}`}
-					alt={ad?.title || "Reklam görseli"}
-				/>
+				<div className="relative w-full aspect-video">
+					<Image
+						src={ad?.image}
+						alt={ad?.title || "Reklam görseli"}
+						fill
+						className="object-contain"
+					/>
+				</div>
 			</a>
 		);
 	}
@@ -67,29 +65,20 @@ const AdItem = ({ ad }) => {
 export default function Ad({ position, ad }) {
 	if (!ad) return null;
 
-	switch (position) {
-		case "left":
-			return (
-				<aside className="hidden xl:block fixed left-2 top-52 z-40 w-28">
-					<AdItem ad={ad} />
-				</aside>
-			);
+	const positionClasses = {
+		left: "hidden xl:block fixed left-2 top-52 z-40 w-28",
+		right: "hidden xl:block fixed right-2 top-52 z-40 w-28",
+		center: "max-w-4xl mx-auto my-4",
+	};
 
-		case "right":
-			return (
-				<aside className="hidden xl:block fixed right-2 top-52 z-40 w-28">
-					<AdItem ad={ad} />
-				</aside>
-			);
+	const className = positionClasses[position];
+	if (!className) return null;
 
-		case "center":
-			return (
-				<div className="max-w-4xl mx-auto my-4">
-					<AdItem ad={ad} />
-				</div>
-			);
+	const Wrapper = position === "center" ? "div" : "aside";
 
-		default:
-			return null;
-	}
+	return (
+		<Wrapper className={className}>
+			<AdItem ad={ad} />
+		</Wrapper>
+	);
 }
