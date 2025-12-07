@@ -1,17 +1,23 @@
-import { ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
+import {
+	CheckCircle,
+	ChevronLeft,
+	ChevronRight,
+	ExternalLink,
+	Store,
+	XCircle,
+} from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
 const TABS = {
+	PRICES: "prices",
 	DESCRIPTION: "description",
 	TERMS: "terms",
 };
 
 export default function CampaignContent({ campaign }) {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
-	const [activeTab, setActiveTab] = useState(TABS.DESCRIPTION);
+	const [activeTab, setActiveTab] = useState(TABS.PRICES);
 	const [formData, setFormData] = useState({
 		name: "",
 		email: "",
@@ -33,14 +39,25 @@ export default function CampaignContent({ campaign }) {
 			? productData.images
 			: [productData?.image || campaign?.image].filter(Boolean);
 
+	// Sort stores by price
+	const sortedStores = [...stores]
+		.filter((s) => s.price)
+		.sort((a, b) => a.price - b.price);
+
+	const totalStoresCount = sortedStores.length;
+
 	// Handlers
 	const formatPrice = (price) => {
 		if (!price) return "";
 		return new Intl.NumberFormat("tr-TR", {
-			style: "currency",
-			currency: "TRY",
 			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
 		}).format(price);
+	};
+
+	const capitalizeFirst = (str) => {
+		if (!str) return "";
+		return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 	};
 
 	const nextImage = () => {
@@ -70,24 +87,12 @@ export default function CampaignContent({ campaign }) {
 		}
 
 		try {
-			const payload = {
-				campaign_id: campaign.id,
-				name: formData.name || "İsimsiz",
-				email: formData.email,
-				phone: formData.phone,
-				form_data: formData,
-			};
-
-			// API call would go here
-			// await apiRequest("/leads", "post", payload);
-
 			toast({
 				title: "Başarılı!",
 				description:
 					"Form başarıyla gönderildi. En kısa sürede sizinle iletişime geçeceğiz.",
 			});
 
-			// Reset form
 			setFormData({
 				name: "",
 				email: "",
@@ -105,323 +110,398 @@ export default function CampaignContent({ campaign }) {
 	};
 
 	return (
-		<div className="min-h-screen bg-transparent">
-			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+		<div className="bg-[#fffaf4]">
+			<div className="container mx-auto px-4 py-6">
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 					{/* Main Content */}
-					<div className="lg:col-span-2 space-y-6">
+					<div className="lg:col-span-2 space-y-5">
+						{/* Price Count Header */}
+						{totalStoresCount > 0 && (
+							<h2 className="text-xl font-bold text-gray-900">
+								{totalStoresCount} Adet Fiyat Bulundu
+							</h2>
+						)}
+
 						{/* Tabs */}
-						<div className="flex gap-3">
-							<Button
+						<div className="flex flex-wrap items-center gap-2">
+							<button
+								type="button"
+								onClick={() => setActiveTab(TABS.PRICES)}
+								className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+									activeTab === TABS.PRICES
+										? "bg-orange-500 text-white"
+										: " border border-gray-200 text-gray-700 hover:border-orange-300"
+								}`}
+							>
+								<Store className="h-4 w-4" />
+								Mağazalar
+								{totalStoresCount > 0 && (
+									<span
+										className={`px-1.5 py-0.5 rounded text-xs ${
+											activeTab === TABS.PRICES
+												? "bg-orange-600"
+												: "bg-gray-100"
+										}`}
+									>
+										{totalStoresCount}
+									</span>
+								)}
+							</button>
+
+							<button
+								type="button"
 								onClick={() => setActiveTab(TABS.DESCRIPTION)}
-								className={`flex-1 py-6 rounded-2xl text-base font-semibold transition-all duration-300 shadow-md ${
+								className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
 									activeTab === TABS.DESCRIPTION
-										? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white scale-105"
-										: "bg-transparent text-gray-700 hover:bg-orange-50 border-2 border-orange-200"
+										? "bg-orange-500 text-white"
+										: " border border-gray-200 text-gray-700 hover:border-orange-300"
 								}`}
 							>
 								Kampanya Açıklaması
-							</Button>
-							<Button
+							</button>
+
+							<button
+								type="button"
 								onClick={() => setActiveTab(TABS.TERMS)}
-								className={`flex-1 py-6 rounded-2xl text-base font-semibold transition-all duration-300 shadow-md ${
+								className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
 									activeTab === TABS.TERMS
-										? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white scale-105"
-										: "bg-transparent text-gray-700 hover:bg-orange-50 border-2 border-orange-200"
+										? "bg-orange-500 text-white"
+										: " border border-gray-200 text-gray-700 hover:border-orange-300"
 								}`}
 							>
 								Kampanya Şartları
-							</Button>
+							</button>
 						</div>
 
 						{/* Tab Content */}
-						{activeTab === TABS.DESCRIPTION ? (
-							<Card className="overflow-hidden shadow-xl rounded-3xl border-0 bg-transparent backdrop-blur-sm">
-								<CardContent className="p-6">
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-										{/* Product Image */}
-										<div className="relative">
-											<div className="bg-gradient rounded-2xl p-6 shadow-inner">
-												{productImages.length > 0 ? (
-													<>
+						{activeTab === TABS.PRICES && (
+							<div className="space-y-3">
+								{sortedStores.length > 0 ? (
+									sortedStores.map((store) => (
+										<div
+											key={`${store.storeId}-${store.storeBrand}-${store.price}`}
+											className=" rounded-xl border border-gray-100 overflow-hidden hover:shadow-sm transition-shadow"
+										>
+											<div className="p-4 flex items-center gap-4">
+												{/* Store Logo */}
+												<div className="flex-shrink-0 w-20 h-14 rounded-lg border border-gray-100 p-2 flex items-center justify-center ">
+													{store.image_link ? (
 														<img
-															src={productImages[currentImageIndex]}
-															alt={productData?.title || "Ürün görseli"}
-															className="w-full aspect-square object-contain rounded-xl"
+															src={store.image_link}
+															alt={store.storeBrand || "Mağaza"}
+															className="max-w-full max-h-full object-contain"
+															onError={(e) => {
+																e.target.style.display = "none";
+																e.target.nextSibling?.classList.remove(
+																	"hidden",
+																);
+															}}
 														/>
-														{productImages.length > 1 && (
+													) : null}
+													<span
+														className={`text-xs font-bold text-gray-500 uppercase ${
+															store.image_link ? "hidden" : ""
+														}`}
+													>
+														{store.storeBrand || "Mağaza"}
+													</span>
+												</div>
+
+												{/* Product Info */}
+												<div className="flex-1 min-w-0">
+													<p className="text-sm font-medium text-gray-900 line-clamp-1">
+														{productData?.title || campaign?.title}
+													</p>
+													<p className="text-xs text-gray-500 mt-0.5">
+														{capitalizeFirst(store.storeBrand)}
+													</p>
+												</div>
+
+												{/* Price & Status */}
+												<div className="text-right flex-shrink-0">
+													{/* Stock Status */}
+													<div className="flex items-center justify-end gap-1 mb-1">
+														{store.stock_availability === "in stock" ? (
 															<>
-																<button
-																	onClick={prevImage}
-																	className="absolute left-4 top-1/2 -translate-y-1/2 bg-transparent hover:bg-orange-500 hover:text-white text-gray-700 rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110"
-																	aria-label="Önceki görsel"
-																>
-																	<ChevronLeft className="h-6 w-6" />
-																</button>
-																<button
-																	onClick={nextImage}
-																	className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent hover:bg-orange-500 hover:text-white text-gray-700 rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110"
-																	aria-label="Sonraki görsel"
-																>
-																	<ChevronRight className="h-6 w-6" />
-																</button>
-																<div className="flex justify-center gap-2 mt-4">
-																	{productImages.map((_, idx) => (
-																		<button
-																			key={idx}
-																			onClick={() => setCurrentImageIndex(idx)}
-																			className={`w-2 h-2 rounded-full transition-all duration-300 ${
-																				idx === currentImageIndex
-																					? "bg-orange-500 w-8"
-																					: "bg-gray-300 hover:bg-gray-400"
-																			}`}
-																			aria-label={`Görsel ${idx + 1}`}
-																		/>
-																	))}
-																</div>
+																<CheckCircle className="h-3 w-3 text-green-500" />
+																<span className="text-xs text-green-600">
+																	Stokta
+																</span>
+															</>
+														) : (
+															<>
+																<XCircle className="h-3 w-3 text-red-500" />
+																<span className="text-xs text-red-600">
+																	Tükendi
+																</span>
 															</>
 														)}
-													</>
-												) : (
-													<div className="w-full aspect-square flex items-center justify-center bg-transparent rounded-xl">
-														<p className="text-gray-400">Görsel yok</p>
 													</div>
-												)}
+
+													{/* Price */}
+													<p className="text-xl font-bold text-gray-900">
+														{formatPrice(store.price)}{" "}
+														<span className="text-sm font-medium text-gray-500">
+															TL
+														</span>
+													</p>
+
+													{/* Shipping Info */}
+													<p className="text-xs text-gray-400">
+														Ücretsiz Kargo
+													</p>
+												</div>
+
+												{/* Go to Store Button */}
+												<a
+													href={store.link}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="flex-shrink-0 w-10 h-10 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center text-white transition-colors"
+													aria-label="Mağazaya Git"
+												>
+													<ChevronRight className="h-5 w-5" />
+												</a>
 											</div>
 										</div>
+									))
+								) : (
+									<div className=" rounded-xl border border-gray-100 p-8 text-center">
+										<Store className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+										<p className="text-gray-500 text-sm">
+											Bu kampanya için mağaza fiyatı bulunmamaktadır.
+										</p>
+										{campaign?.link && (
+											<a
+												href={campaign.link}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors text-sm"
+											>
+												Kampanya Sayfasına Git
+												<ExternalLink className="h-4 w-4" />
+											</a>
+										)}
+									</div>
+								)}
+							</div>
+						)}
 
-										{/* Product Attributes */}
-										<div className="space-y-1">
-											<h3 className="text-xl font-bold text-gray-800 mb-4">
-												Ürün Özellikleri
-											</h3>
+						{activeTab === TABS.DESCRIPTION && (
+							<div className=" rounded-xl border border-gray-100 p-6">
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+									{/* Product Image Gallery */}
+									<div className="relative">
+										<div className="rounded-xl overflow-hidden bg-gray-50">
+											{productImages.length > 0 ? (
+												<>
+													<img
+														src={productImages[currentImageIndex]}
+														alt={productData?.title || "Ürün görseli"}
+														className="w-full aspect-square object-contain"
+													/>
+													{productImages.length > 1 && (
+														<>
+															<button
+																type="button"
+																onClick={prevImage}
+																className="absolute left-2 top-1/2 -translate-y-1/2  hover:bg-orange-500 hover:text-white text-gray-600 rounded-full p-1.5 shadow transition-colors"
+																aria-label="Önceki görsel"
+															>
+																<ChevronLeft className="h-4 w-4" />
+															</button>
+															<button
+																type="button"
+																onClick={nextImage}
+																className="absolute right-2 top-1/2 -translate-y-1/2  hover:bg-orange-500 hover:text-white text-gray-600 rounded-full p-1.5 shadow transition-colors"
+																aria-label="Sonraki görsel"
+															>
+																<ChevronRight className="h-4 w-4" />
+															</button>
+															<div className="flex justify-center gap-1.5 mt-3">
+																{productImages.map((image, idx) => (
+																	<button
+																		type="button"
+																		key={`dot-${image.slice(-15)}`}
+																		onClick={() => setCurrentImageIndex(idx)}
+																		className={`w-2 h-2 rounded-full transition-all ${
+																			idx === currentImageIndex
+																				? "bg-orange-500 w-5"
+																				: "bg-gray-300 hover:bg-gray-400"
+																		}`}
+																		aria-label={`Görsel ${idx + 1}`}
+																	/>
+																))}
+															</div>
+														</>
+													)}
+												</>
+											) : (
+												<div className="w-full aspect-square flex items-center justify-center">
+													<p className="text-gray-400 text-sm">Görsel yok</p>
+												</div>
+											)}
+										</div>
+									</div>
+
+									{/* Product Attributes */}
+									<div>
+										<h3 className="text-base font-semibold text-gray-900 mb-3">
+											Ürün Özellikleri
+										</h3>
+										<div className="bg-gray-50 rounded-lg">
 											{Object.entries(attributes).length > 0 ? (
 												Object.entries(attributes).map(
 													([key, value], index) => (
 														<div
-															key={index}
-															className="grid grid-cols-2 gap-4 py-3 border-b border-gray-100 hover:bg-orange-50 transition-colors rounded-lg px-2"
+															key={`attr-${key}`}
+															className={`flex justify-between py-2.5 px-3 text-sm ${
+																index !== 0 ? "border-t border-gray-200" : ""
+															}`}
 														>
-															<div className="text-gray-600 font-medium text-sm">
-																{key}
-															</div>
-															<div className="text-gray-900 font-semibold text-sm">
+															<span className="text-gray-500">{key}</span>
+															<span className="text-gray-900 font-medium">
 																{value}
-															</div>
+															</span>
 														</div>
 													),
 												)
 											) : productData?.gtin ? (
-												<div className="grid grid-cols-2 gap-4 py-3 border-b border-gray-100">
-													<div className="text-gray-600 font-medium text-sm">
-														Ürün Kodu
-													</div>
-													<div className="text-gray-900 font-semibold text-sm">
+												<div className="flex justify-between py-2.5 px-3 text-sm">
+													<span className="text-gray-500">Ürün Kodu</span>
+													<span className="text-gray-900 font-medium">
 														{productData.gtin}
-													</div>
+													</span>
 												</div>
 											) : (
-												<p className="text-gray-400 text-center py-8 text-sm">
+												<p className="text-gray-400 text-center py-6 text-sm">
 													Ürün özellikleri bulunmamaktadır.
 												</p>
 											)}
 										</div>
 									</div>
-									{/* Price Comparison */}
-									{stores.length > 0 && (
-										<CardContent className="p-6">
-											<h3 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-												<ShoppingCart className="h-6 w-6 text-orange-500" />
-												Fiyat Karşılaştır
-											</h3>
-											<div className="space-y-3">
-												{stores
-													.filter((s) => s.price)
-													.slice(0, 4)
-													.map((store, index) => (
-														<div
-															key={index}
-															className="flex items-center justify-between p-5 bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl hover:from-orange-100 hover:to-orange-200 transition-all duration-300 border border-orange-200 hover:shadow-md"
-														>
-															<div className="flex items-center gap-4 flex-1">
-																<div className="bg-white rounded-xl p-3 w-16 h-16 flex items-center justify-center shadow-sm">
-																	{store.image_link ? (
-																		<img
-																			src={store.image_link}
-																			alt={store.storeBrand || "Mağaza"}
-																			className="max-h-12 max-w-12 object-contain"
-																			onError={(e) =>
-																				(e.target.style.display = "none")
-																			}
-																		/>
-																	) : (
-																		<ShoppingCart className="h-8 w-8 text-gray-400" />
-																	)}
-																</div>
-																<div>
-																	<p className="font-semibold text-gray-900 text-sm line-clamp-2">
-																		{productData?.title || "Ürün"}
-																	</p>
-																	<p className="text-xs text-gray-600 capitalize mt-1">
-																		{store.storeBrand || "Mağaza"}
-																	</p>
-																</div>
-															</div>
-															<div className="text-right flex items-center gap-4">
-																<div>
-																	<p
-																		className={`text-xs font-medium mb-1 ${
-																			store.stock_availability === "in stock"
-																				? "text-green-600"
-																				: "text-red-600"
-																		}`}
-																	>
-																		{store.stock_availability === "in stock"
-																			? "✓ Stokta"
-																			: "✕ Tükendi"}
-																	</p>
-																	<p className="text-xl font-bold text-orange-600">
-																		{formatPrice(store.price)}
-																	</p>
-																</div>
-																<Button
-																	size="sm"
-																	className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-full px-4 shadow-md hover:shadow-lg transition-all duration-300"
-																	asChild
-																>
-																	<a
-																		href={store.link}
-																		target="_blank"
-																		rel="noopener noreferrer"
-																		aria-label="Mağazaya git"
-																	>
-																		→
-																	</a>
-																</Button>
-															</div>
-														</div>
-													))}
-											</div>
-										</CardContent>
-									)}
-								</CardContent>
-							</Card>
-						) : (
-							<Card className="shadow-xl rounded-3xl border-0 bg-transparent">
-								<CardContent className="p-8">
-									{campaign?.content ? (
-										<div
-											className="prose prose-gray max-w-none text-gray-700 leading-relaxed"
-											dangerouslySetInnerHTML={{ __html: campaign.content }}
-										/>
-									) : (
-										<p className="text-gray-400 text-center py-12">
-											Kampanya şartları bilgisi bulunmamaktadır.
-										</p>
-									)}
-								</CardContent>
-							</Card>
+								</div>
+							</div>
+						)}
+
+						{activeTab === TABS.TERMS && (
+							<div className=" rounded-xl border border-gray-100 p-6">
+								{campaign?.content ? (
+									<div
+										className="prose prose-sm prose-gray max-w-none text-gray-600 leading-relaxed prose-headings:text-gray-900 prose-a:text-orange-600 prose-strong:text-gray-800"
+										// biome-ignore lint/security/noDangerouslySetInnerHtml: Campaign content is sanitized on the backend
+										dangerouslySetInnerHTML={{ __html: campaign.content }}
+									/>
+								) : (
+									<p className="text-gray-400 text-center py-8 text-sm">
+										Kampanya şartları bilgisi bulunmamaktadır.
+									</p>
+								)}
+							</div>
 						)}
 					</div>
 
-					{/* Contact Form */}
-					<div className="space-y-6">
-						<Card className="shadow-xl rounded-3xl border-0 bg-transparent sticky top-8">
-							<CardContent className="p-6">
-								{brandLogo && (
-									<div className="flex justify-center mb-6">
-										<div className="bg-transparent p-4 rounded-2xl shadow-inner">
-											<img
-												src={brandLogo}
-												alt={brandName || "Marka"}
-												className="h-20 object-contain"
-											/>
-										</div>
-									</div>
-								)}
-
-								<h2 className="text-center font-bold text-xl text-gray-800 mb-6">
-									Formu Doldurun,{" "}
-									<span className="text-orange-500">Size Ulaşalım</span>
-								</h2>
-
-								<div className="space-y-4">
-									<div>
-										<label className="block text-sm font-semibold text-gray-700 mb-2">
-											Ad Soyad *
-										</label>
-										<input
-											type="text"
-											value={formData.name}
-											onChange={(e) =>
-												handleInputChange("name", e.target.value)
-											}
-											placeholder="Adınızı ve soyadınızı girin"
-											className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-											required
-										/>
-									</div>
-
-									<div>
-										<label className="block text-sm font-semibold text-gray-700 mb-2">
-											E-posta Adresi *
-										</label>
-										<input
-											type="email"
-											value={formData.email}
-											onChange={(e) =>
-												handleInputChange("email", e.target.value)
-											}
-											placeholder="ornek@mail.com"
-											className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-											required
-										/>
-									</div>
-
-									<div>
-										<label className="block text-sm font-semibold text-gray-700 mb-2">
-											Telefon Numarası *
-										</label>
-										<input
-											type="tel"
-											value={formData.phone}
-											onChange={(e) =>
-												handleInputChange("phone", e.target.value)
-											}
-											placeholder="05xx xxx xx xx"
-											className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-											required
-										/>
-									</div>
-
-									<div className="flex items-start gap-3 pt-2">
-										<input
-											type="checkbox"
-											id="consent"
-											checked={formData.consent}
-											onChange={(e) =>
-												handleInputChange("consent", e.target.checked)
-											}
-											className="mt-1 h-5 w-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
-											required
-										/>
-										<label
-											htmlFor="consent"
-											className="text-sm text-gray-600 cursor-pointer"
-										>
-											Açık rıza metnini okudum ve kabul ediyorum. *
-										</label>
-									</div>
-
-									<button
-										onClick={handleSubmit}
-										className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-									>
-										Teklif Al
-									</button>
+					{/* Sidebar - Contact Form */}
+					<div>
+						<div className=" rounded-xl border border-gray-100 p-5 sticky top-6">
+							{brandLogo && (
+								<div className="flex justify-center mb-5">
+									<img
+										src={brandLogo}
+										alt={brandName || "Marka"}
+										className="h-14 object-contain"
+									/>
 								</div>
-							</CardContent>
-						</Card>
+							)}
+
+							<h2 className="text-center font-semibold text-gray-900 mb-5">
+								Formu Doldurun,{" "}
+								<span className="text-orange-500">Size Ulaşalım</span>
+							</h2>
+
+							<form onSubmit={handleSubmit} className="space-y-4">
+								<div>
+									<label
+										htmlFor="name-input"
+										className="block text-sm text-gray-700 mb-1"
+									>
+										Ad Soyad <span className="text-red-500">*</span>
+									</label>
+									<input
+										type="text"
+										id="name-input"
+										value={formData.name}
+										onChange={(e) => handleInputChange("name", e.target.value)}
+										placeholder="Adınızı ve soyadınızı girin"
+										className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+										required
+									/>
+								</div>
+
+								<div>
+									<label
+										htmlFor="email-input"
+										className="block text-sm text-gray-700 mb-1"
+									>
+										E-posta Adresi <span className="text-red-500">*</span>
+									</label>
+									<input
+										type="email"
+										id="email-input"
+										value={formData.email}
+										onChange={(e) => handleInputChange("email", e.target.value)}
+										placeholder="ornek@mail.com"
+										className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+										required
+									/>
+								</div>
+
+								<div>
+									<label
+										htmlFor="phone-input"
+										className="block text-sm text-gray-700 mb-1"
+									>
+										Telefon Numarası <span className="text-red-500">*</span>
+									</label>
+									<input
+										type="tel"
+										id="phone-input"
+										value={formData.phone}
+										onChange={(e) => handleInputChange("phone", e.target.value)}
+										placeholder="05xx xxx xx xx"
+										className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+										required
+									/>
+								</div>
+
+								<div className="flex items-start gap-2 pt-1">
+									<input
+										type="checkbox"
+										id="consent-input"
+										checked={formData.consent}
+										onChange={(e) =>
+											handleInputChange("consent", e.target.checked)
+										}
+										className="mt-0.5 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500 cursor-pointer"
+										required
+									/>
+									<label
+										htmlFor="consent-input"
+										className="text-xs text-gray-500 cursor-pointer leading-relaxed"
+									>
+										Açık rıza metnini okudum ve kabul ediyorum.{" "}
+										<span className="text-red-500">*</span>
+									</label>
+								</div>
+
+								<button
+									type="submit"
+									className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-lg transition-colors text-sm"
+								>
+									Teklif Al
+								</button>
+							</form>
+						</div>
 					</div>
 				</div>
 			</div>
