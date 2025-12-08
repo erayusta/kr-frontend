@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
 import { useEffect, useState } from "react";
@@ -9,6 +10,12 @@ import LatestCampaigns from "@/components/common/campaign/LatestCampaigns";
 import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
 import { stripHtmlTags } from "@/lib/utils";
+
+const Ads = dynamic(
+	() =>
+		import("@/components/common/ads/Ad").then((mod) => ({ default: mod.Ads })),
+	{ ssr: false },
+);
 
 export async function getServerSideProps(context) {
 	try {
@@ -23,14 +30,11 @@ export async function getServerSideProps(context) {
 			};
 		}
 
-		// Get ads data from home endpoint or another source
-		// For now, we'll pass empty ads
-
 		return {
 			props: {
 				campaign: response.data || null,
 				categories: response.related ? [{ campaigns: response.related }] : [],
-				ads: [],
+				ads: response.ads || [],
 			},
 		};
 	} catch (error) {
@@ -67,7 +71,6 @@ export default function Campaign({ campaign, categories, isGone, ads }) {
 		);
 	}
 
-	// Handle missing campaign data
 	if (!campaign) {
 		return (
 			<Layout>
@@ -105,23 +108,38 @@ export default function Campaign({ campaign, categories, isGone, ads }) {
 					cardType: "summary_large_image",
 				}}
 			/>
+
+			{/* Sidebar */}
+			<Ads ads={ads} positions={["sidebar"]} />
+
 			{campaign?.lead_form &&
 				CampaignForm &&
 				!campaign.car &&
 				campaign?.itemType !== "product" && (
 					<CampaignForm form={campaign.lead_form} campaignId={campaign.id} />
 				)}
+
 			{campaign?.car ? (
 				<CampaignCarHeader campaign={campaign} />
 			) : campaign?.itemType === "product" ? (
 				<CampaignProductHeader campaign={campaign} />
 			) : (
-				<CampaignHeader campaign={campaign}></CampaignHeader>
+				<CampaignHeader campaign={campaign} />
 			)}
 
+			{/* Header banner */}
+			<Ads ads={ads} positions={["campaign_header"]} />
+
+			{/* Content middle */}
+			<Ads ads={ads} positions={["content_middle"]} />
+
 			<CampaignContent ads={ads} campaign={campaign} />
+
+			{/* Footer */}
+			<Ads ads={ads} positions={["footer"]} />
+
 			<section className="md:container">
-				<LatestCampaigns data={categories}></LatestCampaigns>
+				<LatestCampaigns data={categories} />
 			</section>
 		</Layout>
 	);

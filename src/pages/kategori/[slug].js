@@ -6,13 +6,16 @@ import CategoryHeader from "@/components/common/category/CategoryHeader";
 import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
 
-const Ad = dynamic(() => import("@/components/common/ads/Ad"), { ssr: false });
+const Ads = dynamic(
+	() =>
+		import("@/components/common/ads/Ad").then((mod) => ({ default: mod.Ads })),
+	{ ssr: false },
+);
 
 export async function getServerSideProps(context) {
 	try {
-		let query = new URLSearchParams(context.query).toString();
+		const query = new URLSearchParams(context.query).toString();
 		const url = `/categories/${context.params.slug}?${query}`;
-		console.log("Fetching category data from URL:", url);
 		const data = await serverApiRequest(url, "get");
 
 		return {
@@ -32,11 +35,9 @@ export async function getServerSideProps(context) {
 }
 
 export default function Category({ category, items, ads, url }) {
-	console.log("hocam", ads);
 	const router = useRouter();
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}${router.asPath}`;
 
-	// Handle missing category data
 	if (!category) {
 		return (
 			<Layout>
@@ -65,17 +66,23 @@ export default function Category({ category, items, ads, url }) {
 					cardType: "summary_large_image",
 				}}
 			/>
+
+			{/* Sidebar (home hariç sayfalar için) */}
+			<Ads ads={ads} positions={["sidebar"]} />
+
 			<CategoryHeader category={category} />
-			<Ad
-				position="center"
-				ad={ads?.find((item) => item.position === "category_header")}
-			/>
+
+			{/* Header banner */}
+			<Ads ads={ads} positions={["category_header"]} />
+
 			<section className="container">
-				<CategoryContent
-					url={url}
-					items={items}
-					category={category}
-				></CategoryContent>
+				{/* Content middle */}
+				<Ads ads={ads} positions={["content_middle"]} />
+
+				<CategoryContent url={url} items={items} category={category} />
+
+				{/* Footer */}
+				<Ads ads={ads} positions={["footer"]} />
 			</section>
 		</Layout>
 	);

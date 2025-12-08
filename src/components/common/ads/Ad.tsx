@@ -1,8 +1,7 @@
 import Image from "next/image";
 import { useEffect, useId, useState } from "react";
-import { IMAGE_BASE_URL } from "@/constants/site";
+import type { AdPosition, Ad as AdType } from "@/types/ad";
 
-// Window interface'ini extend et
 declare global {
 	interface Window {
 		pigeon?: {
@@ -11,20 +10,21 @@ declare global {
 	}
 }
 
-interface AdData {
-	type?: "html" | "image";
-	code?: string;
-	image?: string;
-	link?: string;
-	title?: string;
-}
+const parseDimensions = (
+	dimensions: string | null,
+): { width: number; height: number } => {
+	if (!dimensions) return { width: 300, height: 250 };
+	const [w, h] = dimensions.split("x").map(Number);
+	return { width: w || 300, height: h || 250 };
+};
 
 interface AdItemProps {
-	ad: AdData;
+	ad: AdType;
+	maxWidth?: number;
 }
 
-const AdItem = ({ ad }: AdItemProps) => {
-	const [isAdLoaded, setIsAdLoaded] = useState(false);
+const AdItem = ({ ad, maxWidth }: AdItemProps) => {
+	const [isGptAdLoaded, setIsGptAdLoaded] = useState(false);
 	const [mounted, setMounted] = useState(false);
 	const uniqueId = useId();
 
@@ -32,18 +32,16 @@ const AdItem = ({ ad }: AdItemProps) => {
 		setMounted(true);
 	}, []);
 
+	const isGptAd = ad.type === "html" && ad.code?.includes("googletag");
+
 	useEffect(() => {
-		if (!mounted) return;
+		if (!mounted || !isGptAd) return;
 
 		const checkAdLoad = () => {
-			if (window.pigeon?.ads && window.pigeon.ads.length > 0) {
-				setIsAdLoaded(true);
-			} else {
-				setIsAdLoaded(false);
-			}
+			setIsGptAdLoaded(!!window.pigeon?.ads?.length);
 		};
 
-		const handleAdLoaded = () => setIsAdLoaded(true);
+		const handleAdLoaded = () => setIsGptAdLoaded(true);
 
 		if (window.pigeon) {
 			checkAdLoad();
@@ -52,7 +50,6 @@ const AdItem = ({ ad }: AdItemProps) => {
 		}
 
 		document.addEventListener("pigeonAdLoaded", handleAdLoaded);
-
 		const timeout = setTimeout(checkAdLoad, 3000);
 
 		return () => {
@@ -60,35 +57,48 @@ const AdItem = ({ ad }: AdItemProps) => {
 			document.removeEventListener("pigeonAdLoaded", handleAdLoaded);
 			clearTimeout(timeout);
 		};
-	}, [mounted]);
+	}, [mounted, isGptAd]);
 
 	if (!mounted) return null;
 
-	if (ad?.type === "html" && ad?.code) {
+	if (ad.type === "html" && ad.code) {
+		if (isGptAd) {
+			return (
+				<div
+					id={`ad-container-${uniqueId}`}
+					className={isGptAdLoaded ? "block" : "hidden"}
+					dangerouslySetInnerHTML={{ __html: ad.code }}
+				/>
+			);
+		}
+
 		return (
 			<div
 				id={`ad-container-${uniqueId}`}
-				className={isAdLoaded ? "block" : "hidden"}
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: Ad content from trusted API
 				dangerouslySetInnerHTML={{ __html: ad.code }}
 			/>
 		);
 	}
 
-	if (ad?.image) {
+	if (ad.type === "image" && ad.image) {
+		const { width, height } = parseDimensions(ad.dimensions);
+		const finalWidth = maxWidth ? Math.min(width, maxWidth) : width;
+		const aspectRatio = width / height;
+		const finalHeight = Math.round(finalWidth / aspectRatio);
+
 		return (
 			<a
-				href={ad.link}
+				href={ad.link || "#"}
 				target="_blank"
 				rel="noopener noreferrer"
 				className="block"
 			>
 				<Image
-					className="w-full h-auto"
-					src={`${IMAGE_BASE_URL}/ads/${ad.image}`}
-					alt={ad.title || "Reklam görseli"}
-					width={300}
-					height={250}
+					src={ad.image}
+					alt={ad.name}
+					width={finalWidth}
+					height={finalHeight}
+					style={{ width: finalWidth, height: "auto" }}
 					unoptimized
 				/>
 			</a>
@@ -98,37 +108,114 @@ const AdItem = ({ ad }: AdItemProps) => {
 	return null;
 };
 
+export type AdVariant =
+	| "sidebar-left"
+	| "sidebar-right"
+	| "sidebar"
+	| "banner"
+	| "inline"
+	| "footer"
+	| "content-middle";
+
 interface AdProps {
-	position: "left" | "right" | "center";
-	ad?: AdData;
+	ad?: AdType;
+	variant?: AdVariant;
+	className?: string;
 }
 
-export default function Ad({ position, ad }: AdProps) {
+const SIDEBAR_MAX_WIDTH = 120;
+
+const variantStyles: Record<AdVariant, string> = {
+	"sidebar-left": "hidden xl:block fixed left-2 top-52 z-40",
+	"sidebar-right": "hidden xl:block fixed right-2 top-52 z-40",
+	sidebar: "hidden xl:block fixed right-2 top-52 z-40", // Varsayılan olarak sağda göster
+	banner: "flex justify-center my-4",
+	inline: "",
+	footer: "flex justify-center my-6 py-4",
+	"content-middle": "flex justify-center my-8",
+};
+export default function Ad({
+	ad,
+	variant = "inline",
+	className = "",
+}: AdProps) {
 	if (!ad) return null;
 
-	switch (position) {
-		case "left":
-			return (
-				<aside className="hidden xl:block fixed left-2 top-52 z-40 w-28">
-					<AdItem ad={ad} />
-				</aside>
-			);
+	const isFixedSidebar =
+		variant === "sidebar-left" ||
+		variant === "sidebar-right" ||
+		variant === "sidebar";
 
-		case "right":
-			return (
-				<aside className="hidden xl:block fixed right-2 top-52 z-40 w-28">
-					<AdItem ad={ad} />
-				</aside>
-			);
+	const { width } = parseDimensions(ad.dimensions);
+	const sidebarWidth = isFixedSidebar
+		? Math.min(width, SIDEBAR_MAX_WIDTH)
+		: undefined;
 
-		case "center":
-			return (
-				<div className="max-w-4xl mx-auto my-4">
-					<AdItem ad={ad} />
-				</div>
-			);
+	const baseStyle = variantStyles[variant];
 
-		default:
-			return null;
+	if (isFixedSidebar) {
+		return (
+			<aside
+				className={`${baseStyle} ${className}`.trim()}
+				style={{ width: sidebarWidth }}
+			>
+				<AdItem ad={ad} maxWidth={sidebarWidth} />
+			</aside>
+		);
 	}
+
+	return (
+		<div className={`${baseStyle} ${className}`.trim()}>
+			<AdItem ad={ad} />
+		</div>
+	);
+}
+
+// Position'dan variant'a otomatik mapping
+const positionToVariant: Record<AdPosition, AdVariant> = {
+	home_header: "banner",
+	home_left: "sidebar-left",
+	home_right: "sidebar-right",
+	category_header: "banner",
+	brand_header: "banner",
+	campaign_header: "banner",
+	content_middle: "content-middle",
+	footer: "footer",
+	sidebar: "sidebar",
+};
+
+interface AdsProps {
+	ads: AdType[];
+	positions?: AdPosition[];
+	className?: string;
+}
+
+// Otomatik position-based rendering
+export function Ads({ ads, positions, className }: AdsProps) {
+	if (!ads?.length) return null;
+
+	const filteredAds = positions
+		? ads.filter((ad) => positions.includes(ad.position as AdPosition))
+		: ads;
+
+	return (
+		<>
+			{filteredAds.map((ad) => {
+				const variant = positionToVariant[ad.position as AdPosition];
+				if (!variant) return null;
+
+				return (
+					<Ad key={ad.id} ad={ad} variant={variant} className={className} />
+				);
+			})}
+		</>
+	);
+}
+
+// Helper: Belirli position'daki reklamı bul
+export function getAdByPosition(
+	ads: AdType[],
+	position: AdPosition,
+): AdType | undefined {
+	return ads?.find((ad) => ad.position === position);
 }

@@ -1,14 +1,20 @@
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
-import Ad from "@/components/common/ads/Ad";
 import BrandContent from "@/components/common/brand/BrandContent";
 import BrandHeader from "@/components/common/brand/BrandHeader";
 import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
 
+const Ads = dynamic(
+	() =>
+		import("@/components/common/ads/Ad").then((mod) => ({ default: mod.Ads })),
+	{ ssr: false },
+);
+
 export async function getServerSideProps(context) {
 	try {
-		let query = new URLSearchParams(context.query).toString();
+		const query = new URLSearchParams(context.query).toString();
 		const url = `/brands/${context.params.slug}?${query}`;
 		const data = await serverApiRequest(url, "get");
 
@@ -28,11 +34,11 @@ export async function getServerSideProps(context) {
 	}
 }
 
-export default function Category({ brand, ads, url, items }) {
+export default function Brand({ brand, ads, url, items }) {
+	console.log("hocam", ads);
 	const router = useRouter();
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}${router.asPath}`;
 
-	// Handle missing brand data
 	if (!brand) {
 		return (
 			<Layout>
@@ -61,13 +67,23 @@ export default function Category({ brand, ads, url, items }) {
 					cardType: "summary_large_image",
 				}}
 			/>
+
+			{/* Sidebar */}
+			<Ads ads={ads} positions={["sidebar"]} />
+
 			<BrandHeader brand={brand} />
-			<Ad
-				position="center"
-				ad={ads?.find((item) => item.position == "brand_header")}
-			></Ad>
+
+			{/* Header banner */}
+			<Ads ads={ads} positions={["brand_header"]} />
+
 			<section className="container">
+				{/* Content middle */}
+				<Ads ads={ads} positions={["content_middle"]} />
+
 				<BrandContent items={items} url={url} brand={brand} />
+
+				{/* Footer */}
+				<Ads ads={ads} positions={["footer"]} />
 			</section>
 		</Layout>
 	);
