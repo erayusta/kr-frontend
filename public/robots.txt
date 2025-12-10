@@ -1,5 +1,2 @@
-User-agent: *
-Disallow: /uploads
-Disallow: /?page=
-Disallow: /wp-content/
-Sitemap: https://www.kampanyaradar.com/sitemap.xml
+User-Agent: *
+Disallow: /
