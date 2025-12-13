@@ -84,7 +84,7 @@ export default function CampaignContent({ campaign, ads }) {
 						campaign?.itemType !==
 							"product" && (
 								<Card className="mb-8">
-									<CardHeader className="border-b bg-blue-50">
+									<CardHeader className="border-b bg-[#fffaf4]">
 										<div className="flex items-center justify-between">
 											<div className="flex items-center gap-2">
 												<div className="p-2 bg-blue-100 rounded-lg">
@@ -124,7 +124,7 @@ export default function CampaignContent({ campaign, ads }) {
 										</div>
 									</CardHeader>
 
-									<CardContent className="p-6">
+									<CardContent className="p-6 bg-[#fffaf4]">
 										<div
 											ref={contentRef}
 											className="prose prose-gray max-w-none campaign-content"
@@ -134,7 +134,7 @@ export default function CampaignContent({ campaign, ads }) {
 
 									{/* Kampanya Linki */}
 									{campaign.link && (
-										<div className="px-6 pb-6">
+										<div className="px-6 pb-6 bg-[#fffaf4]">
 											<Button
 												asChild
 												size="lg"
@@ -144,6 +144,7 @@ export default function CampaignContent({ campaign, ads }) {
 													href={campaign.link}
 													target="_blank"
 													rel="noopener noreferrer"
+													className="flex px-4"
 												>
 													<ExternalLink className="h-4 w-4 mr-2" />
 													Kampanyaya Git
