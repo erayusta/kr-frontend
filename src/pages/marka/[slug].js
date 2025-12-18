@@ -35,7 +35,6 @@ export async function getServerSideProps(context) {
 }
 
 export default function Brand({ brand, ads, url, items }) {
-	console.log("hocam", ads);
 	const router = useRouter();
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}${router.asPath}`;
 

@@ -95,7 +95,7 @@ const AuthDialog = () => {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button className="h-9 flex gap-x-5 bg-orange-500 px-4 text-sm font-medium text-white transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-600">
+				<Button className="h-9 flex gap-x-2 bg-orange-500 px-4 text-sm font-medium text-white transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-600">
 					<User2 size={20} />
 					<span>Giriş Yap</span>
 				</Button>

@@ -5,7 +5,7 @@ class MyDocument extends Document {
 		return (
 			<Html lang="tr">
 				<Head />
-				<body className={`antialiased  bg-gradient-to-b from-[#FFFAF4]`}>
+				<body className={`antialiased bg-[#fffaf4]`}>
 					<Main />
 					<NextScript />
 				</body>

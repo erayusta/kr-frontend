@@ -126,13 +126,18 @@ interface AdProps {
 const SIDEBAR_MAX_WIDTH = 120;
 
 const variantStyles: Record<AdVariant, string> = {
-	"sidebar-left": "hidden xl:block fixed left-2 top-52 z-40",
-	"sidebar-right": "hidden xl:block fixed right-2 top-52 z-40",
-	sidebar: "hidden xl:block fixed right-2 top-52 z-40", // Varsayılan olarak sağda göster
-	banner: "flex justify-center my-4",
-	inline: "",
-	footer: "flex justify-center my-6 py-4",
-	"content-middle": "flex justify-center my-8",
+	"sidebar-left":
+		"hidden xl:block fixed left-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-white/50",
+	"sidebar-right":
+		"hidden xl:block fixed right-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-white/50",
+	sidebar:
+		"hidden xl:block fixed right-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-white/50",
+	banner: "flex justify-center my-4 p-3 border border-gray-100 rounded-lg",
+	inline: "p-2 border border-gray-100/50 rounded",
+	footer:
+		"flex justify-center my-6 py-4 px-3 border border-gray-100 rounded-lg",
+	"content-middle":
+		"flex justify-center my-8 p-4 border border-gray-100 rounded-lg",
 };
 export default function Ad({
 	ad,

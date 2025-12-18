@@ -23,7 +23,6 @@ export async function getServerSideProps(context) {
 			`/campaigns/${context.params.slug}`,
 			"get",
 		);
-
 		if (!response || !response.data) {
 			return {
 				notFound: true,
