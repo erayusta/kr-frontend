@@ -47,20 +47,34 @@ export default function CampaignProductHeader({ campaign }) {
 		}).format(price);
 	};
 
+	// Button styles as objects for inline styling (fallback for Tailwind issues)
+	const primaryButtonStyle = {
+		backgroundColor: "#f97316",
+		color: "white",
+		padding: "12px 24px",
+		borderRadius: "12px",
+		fontWeight: 600,
+		display: "inline-flex",
+		alignItems: "center",
+		gap: "8px",
+		textDecoration: "none",
+		transition: "background-color 0.2s",
+	};
+
 	return (
 		<section className="border-b border-gray-200">
 			{/* Breadcrumb */}
 			<div className="container mx-auto py-2">
 				<nav className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
-					<a href="#" className="hover:text-orange-500 transition-colors">
+					<span className="hover:text-orange-500 transition-colors cursor-pointer">
 						Ana Sayfa
-					</a>
-					{categories.map((category, index) => (
+					</span>
+					{categories.map((category) => (
 						<span key={category.id} className="flex items-center gap-2">
 							<ChevronRight className="h-3 w-3" />
-							<a href="#" className="hover:text-orange-500 transition-colors">
+							<span className="hover:text-orange-500 transition-colors cursor-pointer">
 								{category.name}
-							</a>
+							</span>
 						</span>
 					))}
 					{brandName && (
@@ -74,11 +88,11 @@ export default function CampaignProductHeader({ campaign }) {
 
 			{/* Main Header Content */}
 			<div className="container mx-auto px-4 py-2">
-				<div className=" rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+				<div className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 					<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
 						{/* Product Image */}
 						<div className="lg:col-span-4 flex items-center justify-center">
-							<div className="relative w-full max-w-[300px] aspect-square  rounded-xl p-4 flex items-center justify-center">
+							<div className="relative w-full max-w-[300px] aspect-square rounded-xl p-4 flex items-center justify-center">
 								<img
 									src={getImageUrl(campaign.image)}
 									alt={campaign.title}
@@ -99,7 +113,10 @@ export default function CampaignProductHeader({ campaign }) {
 									{/* Category Badge */}
 									{categories.length > 0 && (
 										<div className="flex flex-wrap gap-2">
-											<span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-xs font-semibold rounded-full">
+											<span
+												className="inline-flex items-center gap-1 px-3 py-1 text-white text-xs font-semibold rounded-full"
+												style={{ backgroundColor: "#14b8a6" }}
+											>
 												<Tag className="h-3 w-3" />
 												{categories[0]?.name?.toUpperCase()}: KAMPANYA
 											</span>
@@ -109,10 +126,10 @@ export default function CampaignProductHeader({ campaign }) {
 
 								{/* Price Section */}
 								<div className="flex flex-col lg:flex-row lg:items-center gap-4 p-4 rounded-xl">
-									<div className="flex items-center justify-between gap-4">
+									<div className="flex items-center justify-between gap-4 w-full">
 										<div className="flex gap-4">
 											{brandLogo && (
-												<div className="w-16 h-16  rounded-lg border border-gray-200 p-2 flex items-center justify-center">
+												<div className="w-16 h-16 rounded-lg border border-gray-200 p-2 flex items-center justify-center bg-white">
 													<img
 														src={brandLogo}
 														alt={brandName}
@@ -121,7 +138,10 @@ export default function CampaignProductHeader({ campaign }) {
 												</div>
 											)}
 											<div>
-												<p className="text-xs text-orange-600 font-semibold uppercase tracking-wide">
+												<p
+													className="text-xs font-semibold uppercase tracking-wide"
+													style={{ color: "#ea580c" }}
+												>
 													{stores.length > 0
 														? `${stores.length} Fiyat Arasında En Ucuz`
 														: "Kampanya Fiyatı"}
@@ -133,7 +153,10 @@ export default function CampaignProductHeader({ campaign }) {
 														<span className="text-lg font-semibold">TL</span>
 													</p>
 												) : (
-													<p className="text-lg font-semibold text-orange-600 mt-1">
+													<p
+														className="text-lg font-semibold mt-1"
+														style={{ color: "#ea580c" }}
+													>
 														Fiyat için siteyi ziyaret edin
 													</p>
 												)}
@@ -146,7 +169,13 @@ export default function CampaignProductHeader({ campaign }) {
 													href={lowestPrice.link}
 													target="_blank"
 													rel="noopener noreferrer"
-													className="lg:ml-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+													style={primaryButtonStyle}
+													onMouseEnter={(e) =>
+														(e.currentTarget.style.backgroundColor = "#ea580c")
+													}
+													onMouseLeave={(e) =>
+														(e.currentTarget.style.backgroundColor = "#f97316")
+													}
 												>
 													Mağazaya Git
 													<ChevronRight className="h-4 w-4" />
@@ -158,7 +187,13 @@ export default function CampaignProductHeader({ campaign }) {
 													href={campaign.link}
 													target="_blank"
 													rel="noopener noreferrer"
-													className="lg:ml-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+													style={primaryButtonStyle}
+													onMouseEnter={(e) =>
+														(e.currentTarget.style.backgroundColor = "#ea580c")
+													}
+													onMouseLeave={(e) =>
+														(e.currentTarget.style.backgroundColor = "#f97316")
+													}
 												>
 													Kampanyaya Git
 													<ChevronRight className="h-4 w-4" />
@@ -173,13 +208,21 @@ export default function CampaignProductHeader({ campaign }) {
 									{/* Remaining Days Badge */}
 									{remainingDays !== null && (
 										<div
-											className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
-												remainingDays < 0
-													? "bg-red-100 text-red-700"
-													: remainingDays <= 7
-														? "bg-orange-100 text-orange-700"
-														: "bg-green-100 text-green-700"
-											}`}
+											className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
+											style={{
+												backgroundColor:
+													remainingDays < 0
+														? "#fee2e2"
+														: remainingDays <= 7
+															? "#ffedd5"
+															: "#dcfce7",
+												color:
+													remainingDays < 0
+														? "#b91c1c"
+														: remainingDays <= 7
+															? "#c2410c"
+															: "#15803d",
+											}}
 										>
 											<Clock className="h-4 w-4" />
 											{remainingDays < 0 ? (
@@ -196,11 +239,19 @@ export default function CampaignProductHeader({ campaign }) {
 
 									{/* Action Buttons */}
 									<div className="flex items-center gap-3">
-										<button className="inline-flex items-center gap-2 px-4 py-2 border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 text-gray-700 rounded-xl text-sm font-medium transition-all duration-200">
+										<button
+											type="button"
+											className="inline-flex items-center gap-2 px-4 py-2 border-2 border-gray-200 hover:border-orange-300 text-gray-700 rounded-xl text-sm font-medium transition-all duration-200"
+											style={{ backgroundColor: "transparent" }}
+										>
 											<Heart className="h-4 w-4" />
 											Favorilere Ekle
 										</button>
-										<button className="inline-flex items-center gap-2 px-4 py-2 border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 text-gray-700 rounded-xl text-sm font-medium transition-all duration-200">
+										<button
+											type="button"
+											className="inline-flex items-center gap-2 px-4 py-2 border-2 border-gray-200 hover:border-orange-300 text-gray-700 rounded-xl text-sm font-medium transition-all duration-200"
+											style={{ backgroundColor: "transparent" }}
+										>
 											<Bell className="h-4 w-4" />
 											Fiyat Alarmı Kur
 										</button>

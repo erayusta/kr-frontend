@@ -132,7 +132,7 @@ const variantStyles: Record<AdVariant, string> = {
 		"hidden xl:block fixed right-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-white/50",
 	sidebar:
 		"hidden xl:block fixed right-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-white/50",
-	banner: "flex justify-center my-4 p-3 border border-gray-100 rounded-lg",
+	banner: "flex justify-center my-4 p-3 ",
 	inline: "p-2 border border-gray-100/50 rounded",
 	footer:
 		"flex justify-center my-6 py-4 px-3 border border-gray-100 rounded-lg",

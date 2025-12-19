@@ -36,46 +36,44 @@ export default function CampaignHeader({ campaign }) {
 	return (
 		<section className="xl:mx-auto xl:px-36 bg-[#fffaf4]">
 			{/* Breadcrumb */}
-			<div className="border-b bg-white">
-				<div className="container px-4 py-3">
-					<Breadcrumb>
-						<BreadcrumbList>
-							<BreadcrumbItem>
-								<BreadcrumbLink
-									href="/"
-									className="text-gray-600 hover:text-gray-900"
-								>
-									Anasayfa
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-							<BreadcrumbSeparator>
-								<ChevronRight className="h-4 w-4" />
-							</BreadcrumbSeparator>
-							{campaign.categories && campaign.categories[0] && (
-								<>
-									<BreadcrumbItem>
-										<BreadcrumbLink
-											href={`/kategori/${campaign.categories[0].slug}`}
-											className="text-gray-600 hover:text-gray-900"
-										>
-											{campaign.categories[0].name}
-										</BreadcrumbLink>
-									</BreadcrumbItem>
-									<BreadcrumbSeparator>
-										<ChevronRight className="h-4 w-4" />
-									</BreadcrumbSeparator>
-								</>
-							)}
-							<BreadcrumbItem>
-								<BreadcrumbPage className="text-gray-900 font-medium">
-									{campaign.title.length > 40
-										? campaign.title.substring(0, 40) + "..."
-										: campaign.title}
-								</BreadcrumbPage>
-							</BreadcrumbItem>
-						</BreadcrumbList>
-					</Breadcrumb>
-				</div>
+			<div className="container px-4 py-3">
+				<Breadcrumb>
+					<BreadcrumbList>
+						<BreadcrumbItem>
+							<BreadcrumbLink
+								href="/"
+								className="text-gray-600 hover:text-gray-900"
+							>
+								Anasayfa
+							</BreadcrumbLink>
+						</BreadcrumbItem>
+						<BreadcrumbSeparator>
+							<ChevronRight className="h-4 w-4" />
+						</BreadcrumbSeparator>
+						{campaign.categories && campaign.categories[0] && (
+							<>
+								<BreadcrumbItem>
+									<BreadcrumbLink
+										href={`/kategori/${campaign.categories[0].slug}`}
+										className="text-gray-600 hover:text-gray-900"
+									>
+										{campaign.categories[0].name}
+									</BreadcrumbLink>
+								</BreadcrumbItem>
+								<BreadcrumbSeparator>
+									<ChevronRight className="h-4 w-4" />
+								</BreadcrumbSeparator>
+							</>
+						)}
+						<BreadcrumbItem>
+							<BreadcrumbPage className="text-gray-900 font-medium">
+								{campaign.title.length > 40
+									? campaign.title.substring(0, 40) + "..."
+									: campaign.title}
+							</BreadcrumbPage>
+						</BreadcrumbItem>
+					</BreadcrumbList>
+				</Breadcrumb>
 			</div>
 
 			{/* Ana Header */}
