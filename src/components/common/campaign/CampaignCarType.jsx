@@ -45,7 +45,13 @@ export default function CampaignCarType({ campaign }) {
 					"Form başarıyla gönderildi. En kısa sürede sizinle iletişime geçeceğiz.",
 			});
 
-			setTimeout(() => toggleForm(), 2000);
+			// Form'u temizle
+			setFormData({
+				name: "",
+				email: "",
+				phone: "",
+				consent: false,
+			});
 		} catch (error) {
 			console.error("Form gönderimi başarısız:", error.response);
 			toast({
@@ -112,7 +118,7 @@ export default function CampaignCarType({ campaign }) {
 	};
 
 	return (
-		<div class="flex flex-col md:flex-row w-full gap-0">
+		<div className="flex flex-col md:flex-row w-full gap-0">
 			{/* SOL TARAF GÖRSEL GALERİ */}
 			<div className="w-12/12  md:w-3/12">
 				<div className="space-y-4">

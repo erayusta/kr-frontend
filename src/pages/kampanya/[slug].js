@@ -110,7 +110,7 @@ export default function Campaign({ campaign, categories, isGone, ads }) {
 			/>
 
 			{/* Sidebar */}
-			<Ads ads={ads} positions={["sidebar"]} />
+			<Ads ads={ads} positions={["sidebar"]} itemType="campaign" />
 
 			{campaign?.lead_form &&
 				CampaignForm &&
@@ -118,6 +118,9 @@ export default function Campaign({ campaign, categories, isGone, ads }) {
 				campaign?.itemType !== "product" && (
 					<CampaignForm form={campaign.lead_form} campaignId={campaign.id} />
 				)}
+
+			{/* Header banner - Header'ın üstünde gösterilir */}
+			<Ads ads={ads} positions={["campaign_header"]} itemType="campaign" />
 
 			{campaign?.car ? (
 				<CampaignCarHeader campaign={campaign} />
@@ -127,16 +130,13 @@ export default function Campaign({ campaign, categories, isGone, ads }) {
 				<CampaignHeader campaign={campaign} />
 			)}
 
-			{/* Header banner */}
-			<Ads ads={ads} positions={["campaign_header"]} />
-
 			{/* Content middle */}
-			<Ads ads={ads} positions={["content_middle"]} />
+			<Ads ads={ads} positions={["content_middle"]} itemType="campaign" />
 
 			<CampaignContent ads={ads} campaign={campaign} />
 
 			{/* Footer */}
-			<Ads ads={ads} positions={["footer"]} />
+			<Ads ads={ads} positions={["footer"]} itemType="campaign" />
 
 			<section className="md:container">
 				<LatestCampaigns data={categories} />

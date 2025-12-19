@@ -1,9 +1,12 @@
-import { Calendar, ChevronRight, ExternalLink, Info } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useRef } from "react";
+"use client";
+
+import { AlertCircle, Calendar, Info } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import Ad from "../ads/Ad";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Ad, { getAdByPosition } from "../ads/Ad";
 import CampaignCarType from "./CampaignCarType";
 import CampaignCouponType from "./CampaignCouponType";
 import CampaignProductType from "./CampaignProductType";
@@ -11,6 +14,10 @@ import CampaignRealEstateType from "./CampaignRealEstateType";
 
 export default function CampaignContent({ campaign, ads }) {
 	const contentRef = useRef(null);
+	const [activeTab, setActiveTab] = useState("description");
+	const nameId = useId();
+	const emailId = useId();
+	const phoneId = useId();
 	// Fix images in HTML content
 	useEffect(() => {
 		if (contentRef.current) {
@@ -74,120 +81,237 @@ export default function CampaignContent({ campaign, ads }) {
 	const specialContent = renderSpecialContent();
 
 	return (
-		<section className="mx-auto px-4 xl:mx-auto xl:px-36 antialiased py-4 bg-[#fffaf4]">
-			<div className="container px-4">
-				<div className="">
+		<section className="bg-[#FFFAF4] py-8">
+			<div className="xl:mx-auto xl:px-36">
+				<div className="container px-4">
 					{/* Özel İçerik (Ürün, Araba, Gayrimenkul) */}
 					{specialContent && <div className="mb-8">{specialContent}</div>}
-					{/* Kampanya Detayları */}
-					{campaign.content &&
-						campaign?.itemType !==
-							"product" && (
-								<Card className="mb-8">
-									<CardHeader className="border-b bg-[#fffaf4]">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center gap-2">
-												<div className="p-2 bg-blue-100 rounded-lg">
-													<Info className="h-5 w-5 text-blue-600" />
-												</div>
-												<h2 className="text-xl font-semibold text-gray-900">
-													Kampanya Detayları
-												</h2>
-											</div>
 
-											{(campaign.start_date || campaign.end_date) && (
-												<div className="flex items-center gap-2 text-sm text-gray-600">
-													<Calendar className="h-4 w-4" />
-													<span>
-														{campaign.start_date &&
-															new Date(campaign.start_date).toLocaleDateString(
-																"tr-TR",
-																{
-																	day: "numeric",
-																	month: "long",
-																	year: "numeric",
-																},
-															)}
-														{" - "}
-														{campaign.end_date &&
-															new Date(campaign.end_date).toLocaleDateString(
-																"tr-TR",
-																{
-																	day: "numeric",
-																	month: "long",
-																	year: "numeric",
-																},
-															)}
-													</span>
-												</div>
+					<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+						{/* Sol Taraf - İçerik */}
+						<div className={`${(campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product") ? "lg:col-span-12" : "lg:col-span-8"}`}>
+							{campaign.content && campaign?.itemType !== "product" && campaign?.item_type !== "product" && campaign?.itemType !== "car" && campaign?.item_type !== "car" && (
+								<Card className="overflow-hidden border-2 border-gray-200">
+									{/* Tab Navigation */}
+									<div className="flex border-b-2 border-gray-200 bg-white">
+										<button
+											type="button"
+											onClick={() => setActiveTab("description")}
+											className={`flex-1 px-6 py-4 font-semibold text-base transition-all relative ${
+												activeTab === "description"
+													? "text-orange-600 bg-orange-50"
+													: "text-gray-600 hover:bg-gray-50"
+											}`}
+										>
+											Kampanya Açıklaması
+											{activeTab === "description" && (
+												<div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500" />
 											)}
-										</div>
-									</CardHeader>
+										</button>
+										<button
+											type="button"
+											onClick={() => setActiveTab("terms")}
+											className={`flex-1 px-6 py-4 font-semibold text-base transition-all relative ${
+												activeTab === "terms"
+													? "text-orange-600 bg-orange-50"
+													: "text-gray-600 hover:bg-gray-50"
+											}`}
+										>
+											Kampanya Şartları
+											{activeTab === "terms" && (
+												<div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500" />
+											)}
+										</button>
+									</div>
 
-									<CardContent className="p-6 bg-[#fffaf4]">
-										<div
-											ref={contentRef}
-											className="prose prose-gray max-w-none campaign-content"
-											dangerouslySetInnerHTML={{ __html: campaign.content }}
-										/>
+									{/* Tab Content */}
+									<CardContent className="p-6 lg:p-8 bg-white">
+										{activeTab === "description" && (
+											<div
+												ref={contentRef}
+												className="prose prose-gray max-w-none campaign-content"
+												dangerouslySetInnerHTML={{ __html: campaign.content }}
+											/>
+										)}
+
+										{activeTab === "terms" && (
+											<div className="space-y-4">
+												<div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+													<Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+													<div>
+														<h3 className="font-semibold text-blue-900 mb-2">
+															Kampanya Genel Şartları
+														</h3>
+														<ul className="space-y-2 text-sm text-blue-800">
+															<li>
+																• Kampanya belirtilen tarihler arasında
+																geçerlidir.
+															</li>
+															<li>
+																• Kampanya stoklarla sınırlıdır, stoklar
+																tükendiğinde sona erebilir.
+															</li>
+															<li>
+																• Fiyatlar ve kampanya koşulları değişiklik
+																gösterebilir.
+															</li>
+															<li>
+																• Kampanyadan yararlanmak için ilgili mağaza
+																veya web sitesini ziyaret ediniz.
+															</li>
+														</ul>
+													</div>
+												</div>
+
+												{(campaign.start_date || campaign.end_date) && (
+													<div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+														<Calendar className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+														<div>
+															<h3 className="font-semibold text-amber-900 mb-2">
+																Kampanya Tarihleri
+															</h3>
+															<p className="text-sm text-amber-800">
+																Başlangıç:{" "}
+																{campaign.start_date
+																	? new Date(
+																			campaign.start_date,
+																		).toLocaleDateString("tr-TR", {
+																			day: "numeric",
+																			month: "long",
+																			year: "numeric",
+																		})
+																	: "-"}
+															</p>
+															<p className="text-sm text-amber-800">
+																Bitiş:{" "}
+																{campaign.end_date
+																	? new Date(
+																			campaign.end_date,
+																		).toLocaleDateString("tr-TR", {
+																			day: "numeric",
+																			month: "long",
+																			year: "numeric",
+																		})
+																	: "-"}
+															</p>
+														</div>
+													</div>
+												)}
+
+												{(campaign.coupon_code || campaign.couponCode) && (
+													<div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+														<AlertCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+														<div>
+															<h3 className="font-semibold text-green-900 mb-2">
+																Kupon Kodu
+															</h3>
+															<p className="text-sm text-green-800 mb-2">
+																Kampanyadan faydalanmak için aşağıdaki kupon
+																kodunu kullanabilirsiniz:
+															</p>
+															<code className="inline-block bg-white px-4 py-2 rounded border border-green-300 font-mono font-bold text-green-900">
+																{campaign.coupon_code || campaign.couponCode}
+															</code>
+														</div>
+													</div>
+												)}
+											</div>
+										)}
 									</CardContent>
-
-									{/* Kampanya Linki */}
-									{campaign.link && (
-										<div className="px-6 pb-6 bg-[#fffaf4]">
-											<Button
-												asChild
-												size="lg"
-												className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
-											>
-												<Link
-													href={campaign.link}
-													target="_blank"
-													rel="noopener noreferrer"
-													className="flex px-4"
-												>
-													<ExternalLink className="h-4 w-4 mr-2" />
-													Kampanyaya Git
-													<ChevronRight className="h-4 w-4 ml-1" />
-												</Link>
-											</Button>
-										</div>
-									)}
-								</Card>,
+								</Card>
 							)}
-					<Ad
-						position="center"
-						ad={ads.find((item) => item.position == "campaign_content_one")}
-					/>
+						</div>
 
-					<Ad
-						position="left"
-						ad={ads.find((item) => item.position === "campaign_left")}
-					/>
-					<Ad
-						position="right"
-						ad={ads.find((item) => item.position === "campaign_right")}
-					/>
+						{/* Sağ Taraf - Form - Car ve Product için gösterilmez, kendi formları var */}
+						{!(campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product") && (
+							<div className="lg:col-span-4">
+								<div className="sticky top-4 space-y-6">
+									{/* Kampanya Haberdar Olma Formu */}
+									<Card className="border-2 border-orange-200 overflow-hidden">
+									<div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6">
+										<h3 className="text-xl font-bold text-white mb-2">
+											Kampanya Haberdar Olma Formu
+										</h3>
+										<p className="text-white/90 text-sm">
+											Kampanya ile ilgili güncellemelerden haberdar olmak için
+											bilgilerinizi paylaşın.
+										</p>
+									</div>
+									<CardContent className="p-6 bg-white space-y-4">
+										<div className="space-y-2">
+											<Label
+												htmlFor={nameId}
+												className="text-gray-700 font-medium"
+											>
+												Ad ve Soyad
+											</Label>
+											<Input
+												id={nameId}
+												placeholder="Adınızı ve soyadınızı girin"
+												className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+											/>
+										</div>
 
-					{/* Reklamlar - Grid Düzeninde */}
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-						{ads?.find((item) => item.position == "campaign_content_one") && (
-							<Ad
-								position="center"
-								ad={ads.find((item) => item.position == "campaign_content_one")}
-							/>
-						)}
-						{ads?.find((item) => item.position == "campaign_content_two") && (
-							<Ad
-								position="center"
-								ad={ads.find((item) => item.position == "campaign_content_two")}
-							/>
-						)}
-						{ads?.find((item) => item.position == "campaign_right") && (
-							<Ad
-								position="right"
-								ad={ads.find((item) => item.position == "campaign_right")}
-							/>
+										<div className="space-y-2">
+											<Label
+												htmlFor={emailId}
+												className="text-gray-700 font-medium"
+											>
+												E-Posta Adresi
+											</Label>
+											<Input
+												id={emailId}
+												type="email"
+												placeholder="E-posta adresinizi girin"
+												className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+											/>
+										</div>
+
+										<div className="space-y-2">
+											<Label
+												htmlFor={phoneId}
+												className="text-gray-700 font-medium"
+											>
+												Telefon
+											</Label>
+											<Input
+												id={phoneId}
+												type="tel"
+												placeholder="Telefon numaranızı girin"
+												className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+											/>
+										</div>
+
+										<Button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-6 text-base rounded-xl shadow-lg">
+											Hemen Başvur
+										</Button>
+
+										<p className="text-xs text-gray-500 text-center mt-4">
+											İletişiminizde Kampanya Türlerini Seçiniz
+										</p>
+
+										<div className="flex flex-wrap gap-2 justify-center">
+											{campaign.categories?.map((category) => (
+												<span
+													key={category.id}
+													className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200"
+												>
+													{category.name}
+												</span>
+											))}
+										</div>
+									</CardContent>
+								</Card>
+
+								{/* Reklam */}
+								{getAdByPosition(ads, "sidebar", "campaign") && (
+									<Ad
+										variant="sidebar"
+										ad={getAdByPosition(ads, "sidebar", "campaign")}
+									/>
+									)}
+								</div>
+							</div>
 						)}
 					</div>
 				</div>
@@ -195,75 +319,76 @@ export default function CampaignContent({ campaign, ads }) {
 
 			{/* Custom Styles for Campaign Content */}
 			<style jsx global>{`
-        .campaign-content h1,
-        .campaign-content h2,
-        .campaign-content h3,
-        .campaign-content h4,
-        .campaign-content h5,
-        .campaign-content h6 {
-          color: #111827;
-          font-weight: 600;
-          margin-top: 1.5rem;
-          margin-bottom: 0.75rem;
-        }
-        
-        .campaign-content ul,
-        .campaign-content ol {
-          margin-left: 1.5rem;
-          margin-top: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
-        
-        .campaign-content li {
-          margin-top: 0.25rem;
-          margin-bottom: 0.25rem;
-        }
-        
-        .campaign-content p {
-          margin-top: 0.5rem;
-          margin-bottom: 0.5rem;
-          line-height: 1.7;
-        }
-        
-        .campaign-content img {
-          max-width: 100%;
-          height: auto;
-          border-radius: 0.5rem;
-          margin: 1rem 0;
-        }
-        
-        .campaign-content strong {
-          font-weight: 600;
-          color: #111827;
-        }
-        
-        .campaign-content a {
-          color: #2563eb;
-          text-decoration: underline;
-        }
-        
-        .campaign-content a:hover {
-          color: #1d4ed8;
-        }
-        
-        .campaign-content table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 1rem 0;
-        }
-        
-        .campaign-content table th,
-        .campaign-content table td {
-          border: 1px solid #e5e7eb;
-          padding: 0.5rem;
-          text-align: left;
-        }
-        
-        .campaign-content table th {
-          background-color: #f9fafb;
-          font-weight: 600;
-        }
-      `}</style>
+				.campaign-content h1,
+				.campaign-content h2,
+				.campaign-content h3,
+				.campaign-content h4,
+				.campaign-content h5,
+				.campaign-content h6 {
+					color: #111827;
+					font-weight: 600;
+					margin-top: 1.5rem;
+					margin-bottom: 0.75rem;
+				}
+
+				.campaign-content ul,
+				.campaign-content ol {
+					margin-left: 1.5rem;
+					margin-top: 0.5rem;
+					margin-bottom: 0.5rem;
+				}
+
+				.campaign-content li {
+					margin-top: 0.25rem;
+					margin-bottom: 0.25rem;
+				}
+
+				.campaign-content p {
+					margin-top: 0.5rem;
+					margin-bottom: 0.5rem;
+					line-height: 1.7;
+				}
+
+				.campaign-content img {
+					max-width: 100%;
+					height: auto;
+					border-radius: 0.5rem;
+					margin: 1rem 0;
+				}
+
+				.campaign-content strong,
+				.campaign-content em {
+					font-weight: 600;
+					color: #111827;
+				}
+
+				.campaign-content a {
+					color: #f97316;
+					text-decoration: underline;
+				}
+
+				.campaign-content a:hover {
+					color: #ea580c;
+				}
+
+				.campaign-content table {
+					width: 100%;
+					border-collapse: collapse;
+					margin: 1rem 0;
+				}
+
+				.campaign-content table th,
+				.campaign-content table td {
+					border: 1px solid #e5e7eb;
+					padding: 0.5rem;
+					text-align: left;
+				}
+
+				.campaign-content table th {
+					background-color: #f9fafb;
+					font-weight: 600;
+				}
+			`}</style>
 		</section>
 	);
 }

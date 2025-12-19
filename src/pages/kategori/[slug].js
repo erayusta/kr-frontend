@@ -68,21 +68,21 @@ export default function Category({ category, items, ads, url }) {
 			/>
 
 			{/* Sidebar (home hariç sayfalar için) */}
-			<Ads ads={ads} positions={["sidebar"]} />
+			<Ads ads={ads} positions={["sidebar"]} itemType="category" />
 
 			<CategoryHeader category={category} />
 
 			{/* Header banner */}
-			<Ads ads={ads} positions={["category_header"]} />
+			<Ads ads={ads} positions={["category_header"]} itemType="category" />
 
 			<section className="container">
 				{/* Content middle */}
-				<Ads ads={ads} positions={["content_middle"]} />
+				<Ads ads={ads} positions={["content_middle"]} itemType="category" />
 
 				<CategoryContent url={url} items={items} category={category} />
 
 				{/* Footer */}
-				<Ads ads={ads} positions={["footer"]} />
+				<Ads ads={ads} positions={["footer"]} itemType="category" />
 			</section>
 		</Layout>
 	);

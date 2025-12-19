@@ -127,17 +127,17 @@ const SIDEBAR_MAX_WIDTH = 120;
 
 const variantStyles: Record<AdVariant, string> = {
 	"sidebar-left":
-		"hidden xl:block fixed left-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-white/50",
+		"hidden xl:block fixed left-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-[#fffaf4]/80 backdrop-blur-sm",
 	"sidebar-right":
-		"hidden xl:block fixed right-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-white/50",
+		"hidden xl:block fixed right-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-[#fffaf4]/80 backdrop-blur-sm",
 	sidebar:
-		"hidden xl:block fixed right-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-white/50",
-	banner: "flex justify-center my-4 p-3 ",
-	inline: "p-2 border border-gray-100/50 rounded",
+		"hidden xl:block fixed right-2 top-52 z-40 p-2 border border-gray-200/50 rounded-lg bg-[#fffaf4]/80 backdrop-blur-sm",
+	banner: "flex justify-center my-4 p-3 bg-[#fffaf4]",
+	inline: "p-2 border border-gray-200/50 rounded bg-white/50",
 	footer:
-		"flex justify-center my-6 py-4 px-3 border border-gray-100 rounded-lg",
+		"flex justify-center my-6 py-4 px-3 border border-gray-200 rounded-lg bg-[#fffaf4]",
 	"content-middle":
-		"flex justify-center my-8 p-4 border border-gray-100 rounded-lg",
+		"flex justify-center my-8 p-4 border border-gray-200 rounded-lg bg-[#fffaf4]",
 };
 export default function Ad({
 	ad,
@@ -192,16 +192,29 @@ const positionToVariant: Record<AdPosition, AdVariant> = {
 interface AdsProps {
 	ads: AdType[];
 	positions?: AdPosition[];
+	itemType?: "general" | "brand" | "category" | "campaign" | string;
 	className?: string;
 }
 
 // Otomatik position-based rendering
-export function Ads({ ads, positions, className }: AdsProps) {
+export function Ads({ ads, positions, itemType, className }: AdsProps) {
 	if (!ads?.length) return null;
 
-	const filteredAds = positions
-		? ads.filter((ad) => positions.includes(ad.position as AdPosition))
-		: ads;
+	let filteredAds = ads;
+
+	// Position filtreleme
+	if (positions && positions.length > 0) {
+		filteredAds = filteredAds.filter((ad) =>
+			positions.includes(ad.position as AdPosition),
+		);
+	}
+
+	// Item type filtreleme - general veya belirtilen item_type ile eşleşen reklamları göster
+	if (itemType) {
+		filteredAds = filteredAds.filter(
+			(ad) => ad.item_type === "general" || ad.item_type === itemType,
+		);
+	}
 
 	return (
 		<>
@@ -221,6 +234,25 @@ export function Ads({ ads, positions, className }: AdsProps) {
 export function getAdByPosition(
 	ads: AdType[],
 	position: AdPosition,
+	itemType?: "general" | "brand" | "category" | "campaign" | string,
 ): AdType | undefined {
-	return ads?.find((ad) => ad.position === position);
+	if (!ads?.length) return undefined;
+
+	let filteredAds = ads.filter((ad) => ad.position === position);
+
+	// Item type filtreleme - general veya belirtilen item_type ile eşleşen reklamları göster
+	if (itemType && filteredAds.length > 0) {
+		const typeFiltered = filteredAds.filter(
+			(ad) => ad.item_type === "general" || ad.item_type === itemType,
+		);
+		// Eğer type'a göre filtreleme sonucu bulunduysa onu kullan, yoksa general olanları kullan
+		if (typeFiltered.length > 0) {
+			return typeFiltered[0];
+		}
+		// General reklam varsa onu döndür
+		const generalAd = filteredAds.find((ad) => ad.item_type === "general");
+		if (generalAd) return generalAd;
+	}
+
+	return filteredAds[0];
 }

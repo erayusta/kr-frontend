@@ -2,12 +2,10 @@ import {
 	Calendar,
 	ChevronRight,
 	Clock,
-	Heart,
-	Share2,
-	Tag,
+	ShoppingBag,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -16,8 +14,6 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { IMAGE_BASE_URL } from "@/constants/site";
 import { remainingDay } from "@/utils/campaign";
 
@@ -34,194 +30,160 @@ export default function CampaignHeader({ campaign }) {
 	const isExpired = remainingDays < 0;
 
 	return (
-		<section className="xl:mx-auto xl:px-36 bg-[#fffaf4]">
+		<section className="bg-[#FFFAF4]">
 			{/* Breadcrumb */}
-			<div className="container px-4 py-3">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink
-								href="/"
-								className="text-gray-600 hover:text-gray-900"
-							>
-								Anasayfa
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator>
-							<ChevronRight className="h-4 w-4" />
-						</BreadcrumbSeparator>
-						{campaign.categories && campaign.categories[0] && (
-							<>
-								<BreadcrumbItem>
-									<BreadcrumbLink
-										href={`/kategori/${campaign.categories[0].slug}`}
-										className="text-gray-600 hover:text-gray-900"
-									>
-										{campaign.categories[0].name}
-									</BreadcrumbLink>
-								</BreadcrumbItem>
-								<BreadcrumbSeparator>
-									<ChevronRight className="h-4 w-4" />
-								</BreadcrumbSeparator>
-							</>
-						)}
-						<BreadcrumbItem>
-							<BreadcrumbPage className="text-gray-900 font-medium">
-								{campaign.title.length > 40
-									? campaign.title.substring(0, 40) + "..."
-									: campaign.title}
-							</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
+			<div className="xl:mx-auto xl:px-36">
+				<div className="container px-4 py-4">
+					<Breadcrumb>
+						<BreadcrumbList>
+							<BreadcrumbItem>
+								<BreadcrumbLink
+									href="/"
+									className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+								>
+									Anasayfa
+								</BreadcrumbLink>
+							</BreadcrumbItem>
+							<BreadcrumbSeparator>
+								<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+							</BreadcrumbSeparator>
+							{campaign.categories?.[0] && (
+								<>
+									<BreadcrumbItem>
+										<BreadcrumbLink
+											href={`/kategori/${campaign.categories[0].slug}`}
+											className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+										>
+											{campaign.categories[0].name}
+										</BreadcrumbLink>
+									</BreadcrumbItem>
+									<BreadcrumbSeparator>
+										<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+									</BreadcrumbSeparator>
+								</>
+							)}
+							{campaign.brands?.[0] && (
+								<>
+									<BreadcrumbItem>
+										<BreadcrumbLink
+											href={`/marka/${campaign.brands[0].slug}`}
+											className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+										>
+											{campaign.brands[0].name}
+										</BreadcrumbLink>
+									</BreadcrumbItem>
+									<BreadcrumbSeparator>
+										<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+									</BreadcrumbSeparator>
+								</>
+							)}
+							<BreadcrumbItem>
+								<BreadcrumbPage className="text-gray-900 font-medium text-sm">
+									{campaign.title.length > 50
+										? `${campaign.title.substring(0, 50)}...`
+										: campaign.title}
+								</BreadcrumbPage>
+							</BreadcrumbItem>
+						</BreadcrumbList>
+					</Breadcrumb>
+				</div>
 			</div>
 
-			{/* Ana Header */}
-			<div className="container px-4 py-8">
-				<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-					{/* Sol Taraf - Kampanya Bilgileri */}
-					<div className="lg:col-span-8 space-y-6">
-						{/* Marka ve Kategori */}
-						<div className="flex flex-wrap items-center gap-3">
-							{campaign.brands && campaign.brands[0] && (
-								<Link href={`/marka/${campaign.brands[0].slug}`}>
-									<Card className="px-4 py-2 hover:shadow-md transition-shadow cursor-pointer bg-white">
-										<img
-											className="h-10 object-contain"
-											src={campaign.brands[0].logo}
-											alt={campaign.brands[0].name}
-										/>
-									</Card>
-								</Link>
-							)}
+			{/* Hero Section */}
+			<div className="xl:mx-auto xl:px-36 pb-8">
+				<div className="container px-4">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-2xl shadow-2xl">
+						{/* Sol Taraf - Lacivert Alan */}
+						<div className="bg-gradient-to-br from-[#1e3a8a] via-[#1e40af] to-[#2563eb] p-8 lg:p-12 flex flex-col justify-between min-h-[400px] relative overflow-hidden">
+							{/* Dekoratif Pattern */}
+							<div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32" />
+							<div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
 
-							{campaign.categories &&
-								campaign.categories.map((category, index) => (
-									<Badge
-										key={index}
-										variant="secondary"
-										className="px-3 py-1.5 text-sm font-medium"
-									>
-										<Tag className="h-3 w-3 mr-1.5" />
-										{category.name}
-									</Badge>
-								))}
-						</div>
+							<div className="relative z-10 space-y-6">
+								{/* Icon */}
+								<div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+									<ShoppingBag className="h-8 w-8 text-white" />
+								</div>
 
-						{/* Başlık */}
-						<div>
-							<h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
-								{campaign.title}
-							</h1>
-						</div>
-
-						{/* Süre ve Paylaşım */}
-						<div className="flex flex-wrap items-center gap-4">
-							{/* Süre Bilgisi */}
-							<div
-								className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
-									isExpired
-										? "bg-red-100 text-red-700"
-										: remainingDays <= 7
-											? "bg-orange-100 text-orange-700"
-											: "bg-green-100 text-green-700"
-								}`}
-							>
-								<Clock className="h-4 w-4" />
-								<span className="font-medium text-sm">
-									{isExpired
-										? "Kampanya Sona Erdi"
-										: remainingDays === 0
-											? "Son Gün!"
-											: `${remainingDays} Gün Kaldı`}
-								</span>
+								{/* Başlık */}
+								<div>
+									<h1 className="text-3xl lg:text-4xl font-bold text-white leading-tight mb-4">
+										{campaign.title}
+									</h1>
+									{campaign.brands?.[0] && (
+										<Link
+											href={`/marka/${campaign.brands[0].slug}`}
+											className="inline-block"
+										>
+											<div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 hover:bg-white/20 transition-all">
+												<Image
+													src={campaign.brands[0].logo}
+													alt={campaign.brands[0].name}
+													width={100}
+													height={40}
+													className="h-8 w-auto object-contain"
+												/>
+											</div>
+										</Link>
+									)}
+								</div>
 							</div>
 
-							{/* Tarih Aralığı */}
-							{(campaign.start_date || campaign.end_date) && (
-								<div className="inline-flex items-center gap-2 text-gray-600 text-sm">
-									<Calendar className="h-4 w-4" />
-									<span>
-										{campaign.start_date &&
-											new Date(campaign.start_date).toLocaleDateString(
-												"tr-TR",
-												{
-													day: "numeric",
-													month: "long",
-												},
-											)}
-										{" - "}
-										{campaign.end_date &&
-											new Date(campaign.end_date).toLocaleDateString("tr-TR", {
-												day: "numeric",
-												month: "long",
-												year: "numeric",
-											})}
-									</span>
-								</div>
-							)}
+							{/* Alt Kısım - Süre Bilgisi */}
+							<div className="relative z-10 flex items-center gap-4">
+								{!isExpired && (
+									<div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6 py-3 rounded-xl font-bold text-lg shadow-lg">
+										<Clock className="h-5 w-5" />
+										<span>
+											{remainingDays === 0
+												? "Son Gün!"
+												: `Son ${remainingDays} Gün`}
+										</span>
+									</div>
+								)}
+								{isExpired && (
+									<div className="inline-flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-xl font-bold text-lg shadow-lg">
+										<Clock className="h-5 w-5" />
+										<span>Kampanya Sona Erdi</span>
+									</div>
+								)}
+
+								{(campaign.start_date || campaign.end_date) && (
+									<div className="flex items-center gap-2 text-white/80 text-sm">
+										<Calendar className="h-4 w-4" />
+										<span>
+											{campaign.end_date &&
+												new Date(campaign.end_date).toLocaleDateString(
+													"tr-TR",
+													{
+														day: "numeric",
+														month: "long",
+														year: "numeric",
+													},
+												)}
+										</span>
+									</div>
+								)}
+							</div>
 						</div>
 
-						{/* Aksiyon Butonları */}
-						<div className="flex gap-3">
-							<Button
-								variant="outline"
-								size="lg"
-								className="rounded-full hover:bg-gray-50"
-								disabled
-							>
-								<Heart className="h-5 w-5 mr-2" />
-								Kaydet
-							</Button>
-
-							<Button
-								variant="outline"
-								size="lg"
-								className="rounded-full hover:bg-gray-50"
-								asChild
-							>
-								<Link
-									target="_blank"
-									href={`https://twitter.com/intent/tweet?text=${campaign.title}&url=${process.env.NEXT_PUBLIC_BASE_URL}/kampanya/${campaign.slug}`}
-								>
-									<Share2 className="h-5 w-5 mr-2" />
-									Paylaş
-								</Link>
-							</Button>
-						</div>
-					</div>
-
-					{/* Sağ Taraf - Kampanya Görseli */}
-					<div className="lg:col-span-4">
-						<Card className="p-0 border-0 shadow-lg">
-							<div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-								<img
+						{/* Sağ Taraf - Ürün Görseli */}
+						<div className="relative bg-gradient-to-br from-gray-50 to-white min-h-[400px] flex items-center justify-center p-8">
+							<div className="relative w-full h-full">
+								<Image
 									src={getImageUrl(campaign.image)}
 									alt={campaign.title}
-									className="w-full h-full object-cover"
+									fill
+									className="object-contain"
+									sizes="(max-width: 1024px) 100vw, 50vw"
+									priority
 									onError={(e) => {
-										e.target.onerror = null;
-										e.target.src =
+										e.currentTarget.src =
 											"https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800";
 									}}
 								/>
-								{/* Gradient Overlay */}
-								<div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
-
-								{/* Campaign Type Badge */}
-								{campaign.item_type && (
-									<Badge className="absolute top-4 right-4 bg-white/90 text-gray-900 backdrop-blur-sm">
-										{campaign.item_type === "product" && "Ürün Kampanyası"}
-										{campaign.item_type === "car" && "Otomotiv Kampanyası"}
-										{campaign.item_type === "real_estate" &&
-											"Gayrimenkul Kampanyası"}
-										{!["product", "car", "real_estate"].includes(
-											campaign.item_type,
-										) && "Kampanya"}
-									</Badge>
-								)}
 							</div>
-						</Card>
+						</div>
 					</div>
 				</div>
 			</div>

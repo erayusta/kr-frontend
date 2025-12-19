@@ -367,7 +367,7 @@ export default function CampaignContent({ campaign }) {
 													),
 												)
 											) : productData?.gtin ? (
-												<div className="flex justify-between py-2.5 px-3 text-sm">
+												<div className="flex justify-between py-2.5 px-3 text-sm bg-[#fffaf4]">
 													<span className="text-gray-500">Ürün Kodu</span>
 													<span className="text-gray-900 font-medium">
 														{productData.gtin}

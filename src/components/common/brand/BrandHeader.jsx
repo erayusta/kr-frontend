@@ -19,7 +19,7 @@ export default function ({ brand }) {
 	const handleClose = () => setOpen(false);
 
 	return (
-		<section className="w-full py-3  shadow  bg-white dark:bg-gray-800">
+		<section className="w-full py-3 shadow bg-[#fffaf4] dark:bg-gray-800">
 			<div className="md:container px-4">
 				<div className="grid items-center gap-10 grid-cols-1 md:grid-cols-1">
 					<div className="flex gap-x-3 items-center justify-between">

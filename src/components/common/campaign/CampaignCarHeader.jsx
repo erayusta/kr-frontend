@@ -8,14 +8,9 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getImageUrl } from "@/utils/imageUtils";
 
 export default function CampaignCarHeader({ campaign }) {
-	const getImageUrl = (image) => {
-		if (!image)
-			return "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800";
-		if (image.startsWith("http")) return image;
-		return `${IMAGE_BASE_URL}/${image}`;
-	};
 
 	const remainingDays = campaign.remainingDays ?? 2;
 	const isExpired = remainingDays < 0;
@@ -25,7 +20,7 @@ export default function CampaignCarHeader({ campaign }) {
 			<div className="relative overflow-hidden rounded-md">
 				{/* Background */}
 				<img
-					src={getImageUrl(campaign.image)}
+					src={getImageUrl(campaign.image, "car")}
 					alt={campaign.title}
 					className="absolute inset-0 w-full h-full object-cover opacity-30"
 				/>
