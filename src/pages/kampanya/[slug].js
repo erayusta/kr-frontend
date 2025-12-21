@@ -45,7 +45,6 @@ export async function getServerSideProps(context) {
 }
 
 export default function Campaign({ campaign, categories, isGone, ads }) {
-	console.log("hocam", ads);
 	const [CampaignForm, setCampaignForm] = useState(null);
 	const router = useRouter();
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/kampanya/${campaign?.slug || router.query.slug}`;

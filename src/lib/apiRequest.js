@@ -47,7 +47,6 @@ const apiRequest = async (url, method, data = {}, isAuth = false) => {
 		console.log(`[API Success] ${method.toUpperCase()} ${fullUrl}`);
 		return response.data;
 	} catch (error) {
-		console.log("hocam error", error);
 
 		if (error.response) {
 			// Log the exact URL that failed with 500

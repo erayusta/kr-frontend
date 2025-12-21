@@ -1,4 +1,3 @@
-// components/CampaignCouponCode.js
 import { Button } from '@/components/ui/button';
 import { Ticket } from 'lucide-react';
 

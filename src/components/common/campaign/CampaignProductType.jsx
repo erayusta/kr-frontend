@@ -266,7 +266,7 @@ export default function CampaignContent({ campaign }) {
 										</div>
 									))
 								) : (
-									<div className=" rounded-xl border border-gray-100 p-8 text-center">
+									<Card className=" rounded-lg overflow-hidden bg-transparent">
 										<Store className="h-10 w-10 text-gray-300 mx-auto mb-3" />
 										<p className="text-gray-500 text-sm">
 											Bu kampanya için mağaza fiyatı bulunmamaktadır.
@@ -282,7 +282,7 @@ export default function CampaignContent({ campaign }) {
 												<ExternalLink className="h-4 w-4" />
 											</a>
 										)}
-									</div>
+									</Card>
 								)}
 							</div>
 						)}

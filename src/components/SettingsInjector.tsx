@@ -15,7 +15,6 @@ export default function SettingsInjector() {
 		fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`)
 			.then((res) => res.json())
 			.then((data: SettingsResponse) => {
-				console.log("hocam", data.data.head_after_code);
 				const settings = data.data || {};
 
 				// Inject head_after_code using DOMParser

@@ -61,7 +61,7 @@ export default function Home({
 	ads,
 }: HomeProps) {
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/`;
-
+	console.log("hocam",ads);
 	return (
 		<Layout>
 			<NextSeo
@@ -95,7 +95,7 @@ export default function Home({
 			{/* Sidebar reklamları */}
 			<Ads ads={ads} positions={["home_left", "home_right"]} />
 
-			<section className="mx-auto px-4 xl:mx-auto xl:px-36 min-h-screen antialiased">
+			<section className="mx-auto px-4 xl:mx-auto xl:px-36 min-h-screen antialiased mr">
 				{/* Header banner */}
 				<Ads ads={ads} positions={["home_header"]} />
 
