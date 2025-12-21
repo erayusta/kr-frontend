@@ -151,26 +151,24 @@ const SIDEBAR_MAX_WIDTH = 120;
 
 /**
  * Sidebar positioning (MVP):
- * - Container varsayımı: 1280px (Tailwind xl container)
+ * - Container varsayımı: 1280px
  * - Gutter: (100vw - containerWidth)/2
- * - Reklamı content'ten dışarıya doğru GUTTER_GAP kadar boşlukla konumlandır
- * - Ekran kenarına yapışmasın diye MIN_EDGE_GAP ile clamp
+ * - Content ile araya GUTTER_GAP koy
+ * - Ekran kenarına yapışmasın diye MIN_EDGE_GAP clamp
  *
- * TOP için class yerine inline style kullanıyoruz:
- * Tailwind class override / build problemi olmasın diye kesin çözüm.
+ * TOP için inline style (tailwind override/bundle sorunlarına karşı kesin çözüm)
  */
 const CONTAINER_WIDTH = 1280;
 const GUTTER_GAP = 24;
 const MIN_EDGE_GAP = 16;
 
-// ✅ Burayı ayarla (px): yukarıdan ne kadar aşağı insin?
+// Yukarıdan boşluk (px)
 const TOP_OFFSET_PX = 140;
 
 const calcGutterOffset = (w: number) =>
   `max(${MIN_EDGE_GAP}px, calc((100vw - ${CONTAINER_WIDTH}px) / 2 - ${w}px - ${GUTTER_GAP}px))`;
 
 const variantStyles: Record<AdVariant, string> = {
-  // top-* YOK: top'u inline style ile veriyoruz
   "sidebar-left":
     "block fixed z-[9999] p-2 border border-gray-200/50 rounded-lg bg-[#fffaf4]/80 backdrop-blur-sm shadow-lg",
   "sidebar-right":
@@ -225,7 +223,7 @@ export default function Ad({
       <aside
         className={`${baseStyle} ${className}`.trim()}
         style={{
-          top: TOP_OFFSET_PX, // ✅ yukarıdan boşluk burada
+          top: TOP_OFFSET_PX,
           width: w,
           minWidth: w,
           minHeight: "100px",
@@ -286,11 +284,32 @@ export function Ads({ ads, positions, itemType, className }: AdsProps) {
 
   return (
     <>
-      {filteredAds.map((ad) => {
-        const variant = positionToVariant[ad.position as AdPosition];
-        if (!variant) return null;
-
-        return <Ad key={ad.id} ad={ad} variant={variant} className={className} />;
+      {filteredAds.flatMap((ad) => {
+        const position = ad.position as AdPosition;
+        const variant = positionToVariant[position];
+        if (!variant) return [];
+  
+        // sidebar => aynı reklamı sol + sağ bas
+        if (position === "sidebar") {
+          return [
+            <Ad
+              key={`${ad.id}-left`}
+              ad={ad}
+              variant="sidebar-left"
+              className={className}
+            />,
+            <Ad
+              key={`${ad.id}-right`}
+              ad={ad}
+              variant="sidebar-right"
+              className={className}
+            />,
+          ];
+        }
+  
+        return [
+          <Ad key={`${ad.id}-${variant}`} ad={ad} variant={variant} className={className} />,
+        ];
       })}
     </>
   );
