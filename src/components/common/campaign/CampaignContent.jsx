@@ -12,11 +12,12 @@ import CampaignRealEstateType from "./CampaignRealEstateType";
 
 export default function CampaignContent({ campaign, ads }) {
 	const contentRef = useRef(null);
-	const [activeTab, setActiveTab] = useState("description");
 	const nameId = useId();
 	const emailId = useId();
 	const phoneId = useId();
+
 	// Fix images in HTML content
+
 	useEffect(() => {
 		if (contentRef.current) {
 			const images = contentRef.current.querySelectorAll("img");
@@ -87,226 +88,119 @@ export default function CampaignContent({ campaign, ads }) {
 
 					<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 						{/* Sol Taraf - İçerik */}
-						<div className={`${(campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product") ? "lg:col-span-12" : "lg:col-span-8"}`}>
-							{campaign.content && campaign?.itemType !== "product" && campaign?.item_type !== "product" && campaign?.itemType !== "car" && campaign?.item_type !== "car" && (
-								<Card className="overflow-hidden border-2 border-gray-200">
-									{/* Tab Navigation */}
-									<div className="flex border-b-2 border-gray-200 bg-white">
-										<button
-											type="button"
-											onClick={() => setActiveTab("description")}
-											className={`flex-1 px-6 py-4 font-semibold text-base transition-all relative ${
-												activeTab === "description"
-													? "text-orange-600 bg-orange-50"
-													: "text-gray-600 hover:bg-gray-50"
-											}`}
-										>
-											Kampanya Açıklaması
-											{activeTab === "description" && (
-												<div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500" />
-											)}
-										</button>
-										<button
-											type="button"
-											onClick={() => setActiveTab("terms")}
-											className={`flex-1 px-6 py-4 font-semibold text-base transition-all relative ${
-												activeTab === "terms"
-													? "text-orange-600 bg-orange-50"
-													: "text-gray-600 hover:bg-gray-50"
-											}`}
-										>
-											Kampanya Şartları
-											{activeTab === "terms" && (
-												<div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500" />
-											)}
-										</button>
-									</div>
-
-									{/* Tab Content */}
-									<CardContent className="p-6 lg:p-8 bg-white">
-										{activeTab === "description" && (
+						<div
+							className={`${campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product" ? "lg:col-span-12" : "lg:col-span-8"}`}
+						>
+							{campaign.content &&
+								campaign?.itemType !== "product" &&
+								campaign?.item_type !== "product" &&
+								campaign?.itemType !== "car" &&
+								campaign?.item_type !== "car" && (
+									<Card className="overflow-hidden border-2 border-gray-200">
+										{/* Tab Content */}
+										<CardContent className="p-6 lg:p-8 bg-[#fffaf4]">
 											<div
 												ref={contentRef}
 												className="prose prose-gray max-w-none campaign-content"
 												dangerouslySetInnerHTML={{ __html: campaign.content }}
 											/>
-										)}
-
-										{activeTab === "terms" && (
-											<div className="space-y-4">
-												<div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-													<Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-													<div>
-														<h3 className="font-semibold text-blue-900 mb-2">
-															Kampanya Genel Şartları
-														</h3>
-														<ul className="space-y-2 text-sm text-blue-800">
-															<li>
-																• Kampanya belirtilen tarihler arasında
-																geçerlidir.
-															</li>
-															<li>
-																• Kampanya stoklarla sınırlıdır, stoklar
-																tükendiğinde sona erebilir.
-															</li>
-															<li>
-																• Fiyatlar ve kampanya koşulları değişiklik
-																gösterebilir.
-															</li>
-															<li>
-																• Kampanyadan yararlanmak için ilgili mağaza
-																veya web sitesini ziyaret ediniz.
-															</li>
-														</ul>
-													</div>
-												</div>
-
-												{(campaign.start_date || campaign.end_date) && (
-													<div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-														<Calendar className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-														<div>
-															<h3 className="font-semibold text-amber-900 mb-2">
-																Kampanya Tarihleri
-															</h3>
-															<p className="text-sm text-amber-800">
-																Başlangıç:{" "}
-																{campaign.start_date
-																	? new Date(
-																			campaign.start_date,
-																		).toLocaleDateString("tr-TR", {
-																			day: "numeric",
-																			month: "long",
-																			year: "numeric",
-																		})
-																	: "-"}
-															</p>
-															<p className="text-sm text-amber-800">
-																Bitiş:{" "}
-																{campaign.end_date
-																	? new Date(
-																			campaign.end_date,
-																		).toLocaleDateString("tr-TR", {
-																			day: "numeric",
-																			month: "long",
-																			year: "numeric",
-																		})
-																	: "-"}
-															</p>
-														</div>
-													</div>
-												)}
-
-												{(campaign.coupon_code || campaign.couponCode) && (
-													<div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-														<AlertCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-														<div>
-															<h3 className="font-semibold text-green-900 mb-2">
-																Kupon Kodu
-															</h3>
-															<p className="text-sm text-green-800 mb-2">
-																Kampanyadan faydalanmak için aşağıdaki kupon
-																kodunu kullanabilirsiniz:
-															</p>
-															<code className="inline-block bg-white px-4 py-2 rounded border border-green-300 font-mono font-bold text-green-900">
-																{campaign.coupon_code || campaign.couponCode}
-															</code>
-														</div>
-													</div>
-												)}
-											</div>
-										)}
-									</CardContent>
-								</Card>
-							)}
+										</CardContent>
+									</Card>
+								)}
 						</div>
 
 						{/* Sağ Taraf - Form - Car ve Product için gösterilmez, kendi formları var */}
-						{!(campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product") && (
+						{!(
+							campaign?.itemType === "car" ||
+							campaign?.item_type === "car" ||
+							campaign?.itemType === "product" ||
+							campaign?.item_type === "product"
+						) && (
 							<div className="lg:col-span-4">
 								<div className="sticky top-4 space-y-6">
 									{/* Kampanya Haberdar Olma Formu */}
 									<Card className="border-2 border-orange-200 overflow-hidden">
-									<div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6">
-										<h3 className="text-xl font-bold text-white mb-2">
-											Kampanya Haberdar Olma Formu
-										</h3>
-										<p className="text-white/90 text-sm">
-											Kampanya ile ilgili güncellemelerden haberdar olmak için
-											bilgilerinizi paylaşın.
-										</p>
-									</div>
-									<CardContent className="p-6 bg-white space-y-4">
-										<div className="space-y-2">
-											<Label
-												htmlFor={nameId}
-												className="text-gray-700 font-medium"
-											>
-												Ad ve Soyad
-											</Label>
-											<Input
-												id={nameId}
-												placeholder="Adınızı ve soyadınızı girin"
-												className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
-											/>
+										<div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6">
+											<h3 className="text-xl font-bold text-white mb-2">
+												Kampanya Haberdar Olma Formu
+											</h3>
+											<p className="text-white/90 text-sm">
+												Kampanya ile ilgili güncellemelerden haberdar olmak için
+												bilgilerinizi paylaşın.
+											</p>
 										</div>
-
-										<div className="space-y-2">
-											<Label
-												htmlFor={emailId}
-												className="text-gray-700 font-medium"
-											>
-												E-Posta Adresi
-											</Label>
-											<Input
-												id={emailId}
-												type="email"
-												placeholder="E-posta adresinizi girin"
-												className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
-											/>
-										</div>
-
-										<div className="space-y-2">
-											<Label
-												htmlFor={phoneId}
-												className="text-gray-700 font-medium"
-											>
-												Telefon
-											</Label>
-											<Input
-												id={phoneId}
-												type="tel"
-												placeholder="Telefon numaranızı girin"
-												className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
-											/>
-										</div>
-
-										<Button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-6 text-base rounded-xl shadow-lg">
-											Hemen Başvur
-										</Button>
-
-										<p className="text-xs text-gray-500 text-center mt-4">
-											İletişiminizde Kampanya Türlerini Seçiniz
-										</p>
-
-										<div className="flex flex-wrap gap-2 justify-center">
-											{campaign.categories?.map((category) => (
-												<span
-													key={category.id}
-													className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200"
+										<CardContent className="p-6 bg-white space-y-4">
+											<div className="space-y-2">
+												<Label
+													htmlFor={nameId}
+													className="text-gray-700 font-medium"
 												>
-													{category.name}
-												</span>
-											))}
-										</div>
-									</CardContent>
-								</Card>
+													Ad ve Soyad
+												</Label>
+												<Input
+													id={nameId}
+													placeholder="Adınızı ve soyadınızı girin"
+													className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+												/>
+											</div>
 
-								{/* Reklam */}
-								{getAdByPosition(ads, "sidebar", "campaign") && (
-									<Ad
-										variant="sidebar"
-										ad={getAdByPosition(ads, "sidebar", "campaign")}
-									/>
+											<div className="space-y-2">
+												<Label
+													htmlFor={emailId}
+													className="text-gray-700 font-medium"
+												>
+													E-Posta Adresi
+												</Label>
+												<Input
+													id={emailId}
+													type="email"
+													placeholder="E-posta adresinizi girin"
+													className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+												/>
+											</div>
+
+											<div className="space-y-2">
+												<Label
+													htmlFor={phoneId}
+													className="text-gray-700 font-medium"
+												>
+													Telefon
+												</Label>
+												<Input
+													id={phoneId}
+													type="tel"
+													placeholder="Telefon numaranızı girin"
+													className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+												/>
+											</div>
+
+											<Button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-6 text-base rounded-xl shadow-lg">
+												Hemen Başvur
+											</Button>
+
+											<p className="text-xs text-gray-500 text-center mt-4">
+												İletişiminizde Kampanya Türlerini Seçiniz
+											</p>
+
+											<div className="flex flex-wrap gap-2 justify-center">
+												{campaign.categories?.map((category) => (
+													<span
+														key={category.id}
+														className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200"
+													>
+														{category.name}
+													</span>
+												))}
+											</div>
+										</CardContent>
+									</Card>
+
+									{/* Reklam */}
+									{getAdByPosition(ads, "sidebar", "campaign") && (
+										<Ad
+											variant="sidebar"
+											ad={getAdByPosition(ads, "sidebar", "campaign")}
+										/>
 									)}
 								</div>
 							</div>

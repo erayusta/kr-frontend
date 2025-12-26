@@ -34,7 +34,6 @@ export default function App({ Component, pageProps }: AppProps) {
 		<NoSSR>
 			<MenuProvider>
 				<SettingsInjector />
-
 				<Head>
 					<link
 						rel="alternate"

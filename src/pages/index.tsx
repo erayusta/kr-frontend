@@ -61,7 +61,7 @@ export default function Home({
 	ads,
 }: HomeProps) {
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/`;
-	console.log("hocam",ads);
+
 	return (
 		<Layout>
 			<NextSeo
