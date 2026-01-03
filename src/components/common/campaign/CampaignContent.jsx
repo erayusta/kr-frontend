@@ -1,5 +1,4 @@
-import { AlertCircle, Calendar, Info } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,6 +14,8 @@ export default function CampaignContent({ campaign, ads }) {
 	const nameId = useId();
 	const emailId = useId();
 	const phoneId = useId();
+	const isActual = campaign?.itemType === "actual";
+	const htmlContent = isActual ? campaign?.actual_content : campaign?.content;
 
 	// Fix images in HTML content
 
@@ -47,7 +48,7 @@ export default function CampaignContent({ campaign, ads }) {
 				};
 			});
 		}
-	}, [campaign.content]);
+	}, [htmlContent]);
 
 	// Kampanya tipine göre özel içerik göster
 	const renderSpecialContent = () => {
@@ -67,9 +68,9 @@ export default function CampaignContent({ campaign, ads }) {
 			return <CampaignProductType campaign={campaign} />;
 		}
 		if (
-			(campaign?.itemType == "real-estate" ||
-				campaign?.item_type == "real-estate" ||
-				campaign?.item_type == "real_estate") &&
+			(campaign?.itemType === "real-estate" ||
+				campaign?.item_type === "real-estate" ||
+				campaign?.item_type === "real_estate") &&
 			(campaign.real_estate || campaign.realEstate)
 		) {
 			return <CampaignRealEstateType campaign={campaign} />;
@@ -80,7 +81,7 @@ export default function CampaignContent({ campaign, ads }) {
 	const specialContent = renderSpecialContent();
 
 	return (
-		<section className="bg-[#FFFAF4] py-8">
+		<section className="bg-[#FFFAF4] py-8 mt-6">
 			<div className="xl:mx-auto xl:px-36">
 				<div className="container px-4">
 					{/* Özel İçerik (Ürün, Araba, Gayrimenkul) */}
@@ -91,7 +92,7 @@ export default function CampaignContent({ campaign, ads }) {
 						<div
 							className={`${campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product" ? "lg:col-span-12" : "lg:col-span-8"}`}
 						>
-							{campaign.content &&
+							{htmlContent &&
 								campaign?.itemType !== "product" &&
 								campaign?.item_type !== "product" &&
 								campaign?.itemType !== "car" &&
@@ -102,7 +103,7 @@ export default function CampaignContent({ campaign, ads }) {
 											<div
 												ref={contentRef}
 												className="prose prose-gray max-w-none campaign-content"
-												dangerouslySetInnerHTML={{ __html: campaign.content }}
+												dangerouslySetInnerHTML={{ __html: htmlContent }}
 											/>
 										</CardContent>
 									</Card>
@@ -177,21 +178,6 @@ export default function CampaignContent({ campaign, ads }) {
 											<Button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-6 text-base rounded-xl shadow-lg">
 												Hemen Başvur
 											</Button>
-
-											<p className="text-xs text-gray-500 text-center mt-4">
-												İletişiminizde Kampanya Türlerini Seçiniz
-											</p>
-
-											<div className="flex flex-wrap gap-2 justify-center">
-												{campaign.categories?.map((category) => (
-													<span
-														key={category.id}
-														className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200"
-													>
-														{category.name}
-													</span>
-												))}
-											</div>
 										</CardContent>
 									</Card>
 

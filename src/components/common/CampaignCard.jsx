@@ -107,11 +107,12 @@ const CampaignCard = ({
 				</div>
 				<div className="px-2 py-2">
 					<Link title={title} href={`/kampanya/${slug}`}>
-						<h3 className="text-sm text-blue-950 mt-2 h-[75px]">{title}</h3>
+						<h3 className="text-sm text-blue-950 mt-2 h-20 line-clamp-3">
+							{title}
+						</h3>
 					</Link>
 					<Button asChild variant="outline" className="w-full rounded-b-lg">
 						<Link title={title} href={`/kampanya/${slug}`}>
-							{" "}
 							Bilgi Al <ChevronRight size={18}></ChevronRight>
 						</Link>
 					</Button>
@@ -171,11 +172,12 @@ const CampaignCard = ({
 
 			<div className="px-2 py-2">
 				<Link title={title} href={`/kampanya/${slug}`}>
-					<h3 className="text-sm text-blue-950 mt-2 h-[75px]">{title}</h3>
+					<h3 className="text-sm text-blue-950 mt-2 h-20 line-clamp-3">
+						{title}
+					</h3>
 				</Link>
 				<Button asChild variant="outline" className="w-full rounded-b-lg">
 					<Link title={title} href={`/kampanya/${slug}`}>
-						{" "}
 						Bilgi Al <ChevronRight size={18}></ChevronRight>
 					</Link>
 				</Button>

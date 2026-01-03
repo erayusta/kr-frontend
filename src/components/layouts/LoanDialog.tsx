@@ -1,6 +1,7 @@
 // components/layout/LoanDialog.tsx
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -29,8 +30,14 @@ const LOAN_TYPES: LoanType[] = [
 ];
 
 export const LoanDialog = () => {
+	const [open, setOpen] = useState(false);
+
+	const handleSelectLoan = () => {
+		setOpen(false);
+	};
+
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button className="flex items-center gap-2" variant="ghost">
 					<ChevronDownIcon className="h-4 w-4" />
@@ -52,7 +59,7 @@ export const LoanDialog = () => {
 							className="flex w-full justify-between items-center gap-2"
 							variant="ghost"
 						>
-							<Link href={loan.href}>
+							<Link href={loan.href} onClick={handleSelectLoan}>
 								<div
 									className="product-des"
 									dangerouslySetInnerHTML={{ __html: getIcon(loan.iconKey) }}

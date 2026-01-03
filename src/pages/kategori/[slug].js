@@ -75,7 +75,7 @@ export default function Category({ category, items, ads, url }) {
 			{/* Header banner */}
 			<Ads ads={ads} positions={["category_header"]} itemType="category" />
 
-			<section className="container">
+			<section className="container pt-6">
 				{/* Content middle */}
 				<Ads ads={ads} positions={["content_middle"]} itemType="category" />
 

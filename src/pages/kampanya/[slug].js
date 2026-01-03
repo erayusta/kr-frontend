@@ -45,6 +45,7 @@ export async function getServerSideProps(context) {
 }
 
 export default function Campaign({ campaign, categories, isGone, ads }) {
+	console.log("hocam test", campaign);
 	const [CampaignForm, setCampaignForm] = useState(null);
 	const router = useRouter();
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/kampanya/${campaign?.slug || router.query.slug}`;
@@ -110,13 +111,6 @@ export default function Campaign({ campaign, categories, isGone, ads }) {
 
 			{/* Sidebar */}
 			<Ads ads={ads} positions={["sidebar"]} itemType="campaign" />
-
-			{campaign?.lead_form &&
-				CampaignForm &&
-				!campaign.car &&
-				campaign?.itemType !== "product" && (
-					<CampaignForm form={campaign.lead_form} campaignId={campaign.id} />
-				)}
 
 			{/* Header banner - Header'ın üstünde gösterilir */}
 			<Ads ads={ads} positions={["campaign_header"]} itemType="campaign" />

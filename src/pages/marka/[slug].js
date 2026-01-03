@@ -75,7 +75,7 @@ export default function Brand({ brand, ads, url, items }) {
 			{/* Header banner */}
 			<Ads ads={ads} positions={["brand_header"]} itemType="brand" />
 
-			<section className="container">
+			<section className="container pt-6">
 				{/* Content middle */}
 				<Ads ads={ads} positions={["content_middle"]} itemType="brand" />
 

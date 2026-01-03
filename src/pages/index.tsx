@@ -95,7 +95,7 @@ export default function Home({
 			{/* Sidebar reklamları */}
 			<Ads ads={ads} positions={["home_left", "home_right"]} />
 
-			<section className="mx-auto px-4 xl:mx-auto xl:px-36 min-h-screen antialiased mr">
+			<section className="mx-auto px-4 xl:mx-auto xl:px-36 min-h-screen antialiased mr pt-6">
 				{/* Header banner */}
 				<Ads ads={ads} positions={["home_header"]} />
 
