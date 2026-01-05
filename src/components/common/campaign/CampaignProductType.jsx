@@ -40,6 +40,11 @@ export default function CampaignContent({ campaign }) {
 	// Computed values
 	const productData = campaign?.product || campaign?.item || {};
 	const stores = productData?.stores || [];
+	const latestPrices = Array.isArray(productData?.latest_prices)
+		? productData.latest_prices
+		: Array.isArray(productData?.latestPrices)
+			? productData.latestPrices
+			: [];
 	const attributes = productData?.attributes || {};
 	const brandLogo = campaign?.brands?.[0]?.logo;
 	const brandName = campaign?.brands?.[0]?.name;
@@ -53,6 +58,43 @@ export default function CampaignContent({ campaign }) {
 	const sortedStores = [...stores]
 		.filter((s) => s.price)
 		.sort((a, b) => a.price - b.price);
+
+	const latestStores = useMemo(() => {
+		if (!Array.isArray(latestPrices) || latestPrices.length === 0) return [];
+
+		const storeByBrand = new Map(
+			(stores || [])
+				.filter((s) => s?.storeBrand)
+				.map((s) => [s.storeBrand, s]),
+		);
+
+		const arr = latestPrices
+			.filter((p) => p?.store)
+			.map((p) => {
+				const matchedStore = storeByBrand.get(p.store);
+				const priceNum = Number(p.price);
+
+				return {
+					...(matchedStore || {}),
+					storeId: matchedStore?.storeId || p.store,
+					storeBrand: p.store,
+					price: Number.isFinite(priceNum) ? priceNum : null,
+					link: matchedStore?.link || campaign?.link || "#",
+					image_link: matchedStore?.image_link || null,
+					stock_availability:
+						matchedStore?.stock_availability ||
+						(priceNum > 0 ? "in stock" : "out of stock"),
+					in_stock:
+						typeof matchedStore?.in_stock === "boolean"
+							? matchedStore.in_stock
+							: priceNum > 0,
+				};
+			})
+			.filter((s) => Number(s.price) > 0)
+			.sort((a, b) => a.price - b.price);
+
+		return arr;
+	}, [latestPrices, stores, campaign?.link]);
 
 	// -------------------- NEW: API PRICE FETCH --------------------
 	const gtin = productData?.gtin;
@@ -204,8 +246,15 @@ export default function CampaignContent({ campaign }) {
 	}, [apiPrices, campaign?.link]);
 
 	// Önce backend stores doluysa onu göster, boşsa API’dan geleni göster
-	const displayStores =
-		sortedStores.length > 0 ? sortedStores : apiStoresLatest;
+	const hasLatestStores = latestStores.length > 0;
+	const hasBackendStores = sortedStores.length > 0;
+	const shouldUseApi = !hasLatestStores && !hasBackendStores;
+
+	const displayStores = hasLatestStores
+		? latestStores
+		: hasBackendStores
+			? sortedStores
+			: apiStoresLatest;
 	const totalStoresCount = displayStores.length;
 	// ------------------------------------------------------------------------
 
@@ -321,14 +370,14 @@ export default function CampaignContent({ campaign }) {
 						{activeTab === TABS.PRICES && (
 							<div className="space-y-3">
 								{/* NEW: Loading / Error states */}
-								{apiLoading && sortedStores.length === 0 && (
+								{apiLoading && shouldUseApi && (
 									<Card className="rounded-lg bg-transparent p-4 border border-gray-100">
 										<p className="text-sm text-gray-500">
 											Fiyatlar yükleniyor...
 										</p>
 									</Card>
 								)}
-								{apiError && sortedStores.length === 0 && (
+								{apiError && shouldUseApi && (
 									<Card className="rounded-lg bg-transparent p-4 border border-gray-100">
 										<p className="text-sm text-red-600">{apiError}</p>
 									</Card>
@@ -378,7 +427,8 @@ export default function CampaignContent({ campaign }) {
 												{/* Price & Status */}
 												<div className="text-right flex-shrink-0">
 													<div className="flex items-center justify-end gap-1 mb-1">
-														{store.in_stock ? (
+														{(store.in_stock ??
+															store.stock_availability === "in stock") ? (
 															<>
 																<CheckCircle className="h-3 w-3 text-green-500" />
 																<span className="text-xs text-green-600">

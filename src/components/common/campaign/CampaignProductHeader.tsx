@@ -30,14 +30,53 @@ export default function CampaignProductHeader({ campaign }) {
 	);
 
 	const productData = campaign?.product || campaign?.item || {};
-	const stores = productData?.stores || [];
-	const lowestPrice = stores
-		.filter((s) => s.price && s.stock_availability === "in stock")
-		.sort((a, b) => a.price - b.price)[0];
+	const stores = Array.isArray(productData?.stores) ? productData.stores : [];
+	const latestPrices = Array.isArray(productData?.latest_prices)
+		? productData.latest_prices
+		: Array.isArray(productData?.latestPrices)
+			? productData.latestPrices
+			: [];
+
+	const storeByBrand = new Map(
+		stores
+			.filter((s) => s?.storeBrand)
+			.map((s) => [s.storeBrand, s] as const),
+	);
+
+	const latestStores =
+		latestPrices.length > 0
+			? latestPrices.filter((p) => p?.store).map((p) => {
+					const matchedStore = storeByBrand.get(p.store);
+					const priceNum = Number(p.price);
+
+					return {
+						...(matchedStore || {}),
+						storeBrand: p.store,
+						price: Number.isFinite(priceNum) ? priceNum : null,
+						link: matchedStore?.link || campaign?.link || null,
+						stock_availability:
+							matchedStore?.stock_availability ||
+							(priceNum > 0 ? "in stock" : "out of stock"),
+					};
+				})
+			: stores;
+
+	const lowestPrice = latestStores
+		.filter((s) => {
+			const priceNum = Number(s?.price);
+			const isInStock =
+				typeof s?.stock_availability === "string"
+					? s.stock_availability === "in stock"
+					: true;
+			return Number.isFinite(priceNum) && priceNum > 0 && isInStock;
+		})
+		.sort((a, b) => Number(a.price) - Number(b.price))[0];
 
 	const brandLogo = campaign?.brands?.[0]?.logo;
 	const brandName = campaign?.brands?.[0]?.name;
 	const categories = campaign?.categories || [];
+	const priceSourceCount =
+		latestPrices.length > 0 ? latestPrices.length : stores.length;
 
 	const formatPrice = (price) => {
 		if (!price) return "";
@@ -142,8 +181,8 @@ export default function CampaignProductHeader({ campaign }) {
 													className="text-xs font-semibold uppercase tracking-wide"
 													style={{ color: "#ea580c" }}
 												>
-													{stores.length > 0
-														? `${stores.length} Fiyat Arasında En Ucuz`
+													{priceSourceCount > 0
+														? `${priceSourceCount} Fiyat Arasında En Ucuz`
 														: "Kampanya Fiyatı"}
 												</p>
 												<p className="text-xs text-gray-500">{brandName}</p>
