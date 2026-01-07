@@ -278,7 +278,7 @@ const AuthDialog = () => {
 										rules={{
 											required: "Telefon numarası gerekli",
 											pattern: {
-												value: /^\+90 \([1-9]\d{2}\) \d{3}-\d{4}$/,
+												value: /^\+90 \(5\d{2}\) \d{3}-\d{4}$/,
 												message: "Geçersiz telefon numarası",
 											},
 											shouldUnregister: false,
@@ -292,7 +292,7 @@ const AuthDialog = () => {
 													"0",
 													" ",
 													"(",
-													/[1-9]/,
+													"5",
 													/\d/,
 													/\d/,
 													")",

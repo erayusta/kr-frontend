@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { IMAGE_BASE_URL } from "@/constants/site";
 import apiRequest from "@/lib/apiRequest";
+import { normalizeTRMobilePhone } from "@/lib/phone";
 
 export default function CampaignCarType({ campaign }) {
 	console.log("car hocam", campaign);
@@ -29,13 +30,24 @@ export default function CampaignCarType({ campaign }) {
 	});
 	const onSubmit = async (e) => {
 		e.preventDefault();
+
+		const normalizedPhone = normalizeTRMobilePhone(formData.phone);
+		if (!normalizedPhone) {
+			toast({
+				title: "Hata!",
+				description: "Lütfen geçerli bir cep telefonu numarası girin.",
+				variant: "destructive",
+			});
+			return;
+		}
+
 		try {
 			const payload = {
 				campaign_id: campaign.id,
 				name: formData.name || "İsimsiz",
 				email: formData.email || "",
-				phone: formData.phone || "",
-				form_data: formData,
+				phone: normalizedPhone.e164,
+				form_data: { ...formData, phone: normalizedPhone.e164 },
 			};
 
 			await apiRequest("/leads", "post", payload);
@@ -398,8 +410,11 @@ export default function CampaignCarType({ campaign }) {
 							onChange={(e) =>
 								setFormData({ ...formData, phone: e.target.value })
 							}
+							autoComplete="tel"
+							inputMode="numeric"
 							placeholder="05xx xxx xx xx"
 							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+							required
 						/>
 					</div>
 

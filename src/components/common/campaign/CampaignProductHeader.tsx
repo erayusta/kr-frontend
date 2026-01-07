@@ -1,4 +1,5 @@
 import { Bell, ChevronRight, Clock, Heart, Tag } from "lucide-react";
+import { useFavorite } from "@/hooks/useFavorite";
 
 export default function CampaignProductHeader({ campaign }) {
 	const getImageUrl = (image) => {
@@ -77,6 +78,9 @@ export default function CampaignProductHeader({ campaign }) {
 	const categories = campaign?.categories || [];
 	const priceSourceCount =
 		latestPrices.length > 0 ? latestPrices.length : stores.length;
+
+	const favoriteId = campaign?.id ?? campaign?._id ?? campaign?.slug;
+	const { isFavorite, toggle, canToggle } = useFavorite("campaign", favoriteId);
 
 	const formatPrice = (price) => {
 		if (!price) return "";
@@ -280,11 +284,21 @@ export default function CampaignProductHeader({ campaign }) {
 									<div className="flex items-center gap-3">
 										<button
 											type="button"
-											className="inline-flex items-center gap-2 px-4 py-2 border-2 border-gray-200 hover:border-orange-300 text-gray-700 rounded-xl text-sm font-medium transition-all duration-200"
+											disabled={!canToggle}
+											aria-pressed={isFavorite}
+											onClick={toggle}
+											className={`inline-flex items-center gap-2 px-4 py-2 border-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+												isFavorite
+													? "border-orange-400 text-orange-700 bg-orange-50"
+													: "border-gray-200 hover:border-orange-300 text-gray-700"
+											}`}
 											style={{ backgroundColor: "transparent" }}
 										>
-											<Heart className="h-4 w-4" />
-											Favorilere Ekle
+											<Heart
+												className="h-4 w-4"
+												fill={isFavorite ? "currentColor" : "none"}
+											/>
+											{isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
 										</button>
 										<button
 											type="button"

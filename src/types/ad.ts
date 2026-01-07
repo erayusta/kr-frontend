@@ -9,7 +9,11 @@ export type AdPosition =
 	| "campaign_header"
 	| "content_middle"
 	| "footer"
-	| "sidebar";
+	| "sidebar"
+	| "post_content_one"
+	| "post_content_two"
+	| "post_right"
+	| "post_left";
 
 export type AdDevice = "desktop" | "mobile" | "both";
 export type AdItemType = "general" | "brand" | "category" | "campaign" | string;

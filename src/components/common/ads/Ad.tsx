@@ -253,6 +253,10 @@ const positionToVariant: Record<AdPosition, AdVariant> = {
   content_middle: "content-middle",
   footer: "footer",
   sidebar: "sidebar",
+  post_content_one: "inline",
+  post_content_two: "inline",
+  post_right: "inline",
+  post_left: "inline",
 };
 
 interface AdsProps {

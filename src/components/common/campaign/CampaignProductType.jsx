@@ -18,6 +18,7 @@ import {
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { normalizeTRMobilePhone } from "@/lib/phone";
 
 const TABS = {
 	PRICES: "prices",
@@ -176,6 +177,16 @@ export default function CampaignContent({ campaign }) {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+
+		const normalizedPhone = normalizeTRMobilePhone(formData.phone);
+		if (!normalizedPhone) {
+			toast({
+				title: "Hata!",
+				description: "Lütfen geçerli bir cep telefonu numarası girin.",
+				variant: "destructive",
+			});
+			return;
+		}
 
 		if (!formData.consent) {
 			toast({
@@ -721,6 +732,8 @@ export default function CampaignContent({ campaign }) {
 										id="phone-input"
 										value={formData.phone}
 										onChange={(e) => handleInputChange("phone", e.target.value)}
+										autoComplete="tel"
+										inputMode="numeric"
 										placeholder="05xx xxx xx xx"
 										className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
 										required

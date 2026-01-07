@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
-import { useEffect, useState } from "react";
 import CampaignCarHeader from "@/components/common/campaign/CampaignCarHeader";
 import CampaignContent from "@/components/common/campaign/CampaignContent";
 import CampaignHeader from "@/components/common/campaign/CampaignHeader";
@@ -45,21 +44,8 @@ export async function getServerSideProps(context) {
 }
 
 export default function Campaign({ campaign, categories, isGone, ads }) {
-	const [CampaignForm, setCampaignForm] = useState(null);
 	const router = useRouter();
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/kampanya/${campaign?.slug || router.query.slug}`;
-
-	useEffect(() => {
-		if (typeof window !== "undefined" && campaign?.lead_form) {
-			import("@/components/common/campaign/CampaignForm")
-				.then((module) => {
-					setCampaignForm(() => module.default);
-				})
-				.catch((error) => {
-					console.error("Failed to load CampaignForm:", error);
-				});
-		}
-	}, [campaign]);
 
 	if (isGone) {
 		return (

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { remainingDay } from "@/utils/campaign";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { useFavorite } from "@/hooks/useFavorite";
 
 const CampaignCard = ({
 	image,
@@ -18,6 +19,7 @@ const CampaignCard = ({
 	const [mounted, setMounted] = useState(false);
 	const [imgSrc, setImgSrc] = useState(image);
 	const [imgError, setImgError] = useState(false);
+	const { isFavorite, toggle, canToggle } = useFavorite("campaign", id ?? slug);
 
 	useEffect(() => {
 		setMounted(true);
@@ -97,11 +99,19 @@ const CampaignCard = ({
 						</Link>
 					)}
 					<Button
-						className=" bottom-5 right-5 absolute bg-black/30 hover:bg-orange-500 rounded-full p-1 shadow-md"
+						disabled={!canToggle}
+						aria-pressed={isFavorite}
+						onClick={toggle}
+						className={`bottom-5 right-5 absolute rounded-full p-1 shadow-md ${
+							isFavorite ? "bg-orange-500" : "bg-black/30 hover:bg-orange-500"
+						}`}
 						size="icon"
 						variant="ghost"
 					>
-						<HeartIcon className="h-4 w-4 text-white" />
+						<HeartIcon
+							className="h-4 w-4 text-white"
+							fill={isFavorite ? "currentColor" : "none"}
+						/>
 						<span className="sr-only">Add to Favorites</span>
 					</Button>
 				</div>
@@ -161,11 +171,19 @@ const CampaignCard = ({
 					</Link>
 				)}
 				<Button
-					className=" bottom-5 right-5 absolute bg-black/30 hover:bg-orange-500 rounded-full p-1 shadow-md"
+					disabled={!canToggle}
+					aria-pressed={isFavorite}
+					onClick={toggle}
+					className={`bottom-5 right-5 absolute rounded-full p-1 shadow-md ${
+						isFavorite ? "bg-orange-500" : "bg-black/30 hover:bg-orange-500"
+					}`}
 					size="icon"
 					variant="ghost"
 				>
-					<HeartIcon className="h-4 w-4 text-white" />
+					<HeartIcon
+						className="h-4 w-4 text-white"
+						fill={isFavorite ? "currentColor" : "none"}
+					/>
 					<span className="sr-only">Add to Favorites</span>
 				</Button>
 			</div>
