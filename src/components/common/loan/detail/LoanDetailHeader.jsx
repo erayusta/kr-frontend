@@ -1,71 +1,113 @@
-
+﻿import Link from "next/link";
 import {
- Breadcrumb,
- BreadcrumbItem,
- BreadcrumbLink,
- BreadcrumbList,
- BreadcrumbPage,
- BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbPage,
+	BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getIcon } from "@/lib/utils";
-import Link from "next/link";
 import LoanApplicationPlan from "./LoanApplicationPlan";
 
-export default function ({ loan }) {
- return (<section className="w-full py-3  shadow  bg-white dark:bg-gray-800">
-  <div className="md:container px-4">
-   <div className="grid items-center gap-10 grid-cols-1 md:grid-cols-1">
-    <Breadcrumb className="breadcrumb">
-     <BreadcrumbList>
-      <BreadcrumbItem>
-       <BreadcrumbLink href="/">Anasayfa</BreadcrumbLink>
-      </BreadcrumbItem>
-      <BreadcrumbSeparator />
-      <BreadcrumbItem>
-       <BreadcrumbLink href="/components">{loan.loanType?.name}</BreadcrumbLink>
-      </BreadcrumbItem>
-      <BreadcrumbSeparator />
-      <BreadcrumbItem>
-       <BreadcrumbPage>{loan.title.substring(0,25)}...</BreadcrumbPage>
-      </BreadcrumbItem>
-     </BreadcrumbList>
-    </Breadcrumb>
-    <div className="flex gap-x-3 md:flex-row flex-col items-center justify-between">
-     <div className="flex flex-col justify-center space-y-4">
-      <div className="space-y-2">
-       <div className="inline-block rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium dark:bg-gray-700 dark:text-gray-200">
-        <img
-         className="object-contain group-hover w-24 h-[40px]"
-         src={loan.data.logo}
-         alt="Image Description"
-        />
-       </div>
-       <h1 className=" text-2xl md:text-3xl w-[85%] font-bold tracking-tighter ">{loan.title}</h1>
-      </div>
-      <div className="flex items-center gap-4">
-        
+export default function LoanDetailHeader({ loan }) {
+	const loanTypeName = loan?.loanType?.name || "";
+	const hasRedirect = Boolean(loan?.data?.redirect);
+	const amount = loan?.data?.amount ?? loan?.data?.loanAmount ?? loan?.meta?.amount;
+	const maturity = loan?.data?.maturity ?? loan?.data?.months ?? loan?.meta?.maturity;
+	const approx = Boolean(loan?.data?.approx ?? loan?.data?.bracket?.approx);
 
-       <div className="text-sm items-center gap-x-3 flex text-gray-500 dark:text-gray-400">
-        <Button size="sm" variant="outline" className="items-center flex gap-4">
-         <div className="text-md" dangerouslySetInnerHTML={{ __html: getIcon(loan.loanType.name) }}></div>
-         <div>{loan.loanType.name}</div>
-        </Button>
-          <Button asChild  size="sm"  className="items-center flex gap-4">
-           <Link rel="nofollow" href={loan.data.redirect} >
-            Hemen Başvur
-           </Link>
+	const backToOffersHref = loan?.loanType?.slug
+		? `/kredi/${loan.loanType.slug}?amount=${amount ?? ""}&maturity=${maturity ?? ""}`
+		: "/kredi";
 
-        </Button>
-       </div>
-      </div>
-     </div>
-     <div className="w-full mt-10">
-      <LoanApplicationPlan data={loan?.data}></LoanApplicationPlan>
-     </div>
+	return (
+		<section className="w-full">
+			<div className="md:container px-4 py-6">
+				<div className="rounded-2xl border bg-gradient-to-br from-orange-50 via-white to-white dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-5 md:p-8 shadow-sm">
+					<Breadcrumb className="breadcrumb mb-5">
+						<BreadcrumbList>
+							<BreadcrumbItem>
+								<BreadcrumbLink href="/">Anasayfa</BreadcrumbLink>
+							</BreadcrumbItem>
+							<BreadcrumbSeparator />
+							<BreadcrumbItem>
+								<BreadcrumbLink href="/kredi">{loanTypeName || "Kredi"}</BreadcrumbLink>
+							</BreadcrumbItem>
+							<BreadcrumbSeparator />
+							<BreadcrumbItem>
+								<BreadcrumbPage>
+									{loan?.title ? `${loan.title.substring(0, 25)}...` : "Detay"}
+								</BreadcrumbPage>
+							</BreadcrumbItem>
+						</BreadcrumbList>
+					</Breadcrumb>
 
-    </div>
-   </div>
-  </div>
- </section>)
+					<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+						<div className="lg:col-span-5">
+							<div className="flex items-start gap-4">
+								<div className="rounded-xl bg-white/70 border p-3 shadow-sm dark:bg-gray-900/40">
+									<img
+										className="object-contain w-28 h-10"
+										src={loan?.data?.logo}
+										alt={loan?.data?.name || "Bank"}
+									/>
+								</div>
+
+								<div className="flex-1 min-w-0">
+									<h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+										{loan?.title}
+									</h1>
+
+									<div className="mt-3 flex flex-wrap gap-2 items-center">
+										<Badge variant="secondary" className="gap-2">
+											<span
+												className="text-sm"
+												dangerouslySetInnerHTML={{ __html: getIcon(loanTypeName) }}
+											/>
+											<span>{loanTypeName || "Kredi"}</span>
+										</Badge>
+
+										{Number.isFinite(Number(amount)) && (
+											<Badge variant="outline">Tutar: {amount}</Badge>
+										)}
+										{Number.isFinite(Number(maturity)) && (
+											<Badge variant="outline">Vade: {maturity} ay</Badge>
+										)}
+										{approx && <Badge variant="success">Yaklasik</Badge>}
+									</div>
+
+									<div className="mt-5 flex flex-col sm:flex-row gap-3">
+										{hasRedirect ? (
+											<Button asChild className="sm:w-auto">
+												<Link rel="nofollow" href={loan.data.redirect}>
+													Hemen Basvur
+												</Link>
+											</Button>
+										) : (
+											<Button disabled className="sm:w-auto">
+												Basvuru linki yok
+											</Button>
+										)}
+
+										<Button asChild variant="outline" className="sm:w-auto">
+											<Link href={backToOffersHref}>Tekliflere Don</Link>
+										</Button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div className="lg:col-span-7">
+							<div className="rounded-xl border bg-white/70 dark:bg-gray-900/40 p-4 md:p-5 shadow-sm">
+								<LoanApplicationPlan data={loan?.data} />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	);
 }

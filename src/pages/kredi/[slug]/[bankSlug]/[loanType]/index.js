@@ -3,21 +3,73 @@ import { NextSeo } from "next-seo";
 import LoanDetailContent from "@/components/common/loan/detail/LoanDetailContent";
 import LoanDetailHeader from "@/components/common/loan/detail/LoanDetailHeader";
 import { Layout } from "@/components/layouts/layout";
-import { loanType } from "@/constants/loan";
-import apiRequest, { fetchData } from "@/lib/apiRequest";
+import { LOAN_TYPES, loanType } from "@/constants/loan";
 import serverApiRequest from "@/lib/serverApiRequest";
 
 export async function getServerSideProps(context) {
 	const { slug, bankSlug } = context.params;
-	const params = new URLSearchParams({
-		maturity: parseInt(context.query.maturity) || 12,
-		amount: context.query.amount || 10000,
-	});
-	const loan = await serverApiRequest(
-		`/loan/${loanType[slug]}/${bankSlug}/detail?${params.toString()}`,
-		"get",
-	);
-	console.log(loan);
+	const amount = Math.max(1000, parseInt(context.query.amount, 10) || 10000);
+	const months = Math.min(36, Math.max(1, parseInt(context.query.maturity, 10) || 12));
+	const bankId = context.query.bankId ? parseInt(context.query.bankId, 10) : null;
+
+	const feLoanType = loanType[slug]; // personal | newCar | mortgage
+	const apiLoanType = feLoanType === "newCar" ? "auto" : feLoanType;
+	const loanTypeName =
+		LOAN_TYPES.find((x) => x.type === feLoanType)?.name || feLoanType;
+
+	let loan = null;
+
+	if (bankId) {
+		const calc = await serverApiRequest("/loans/calculations", "post", {
+			amount,
+			months,
+			loan_type: apiLoanType,
+			banks: [bankId],
+		});
+
+		const item = Array.isArray(calc?.data) ? calc.data[0] : null;
+		if (!item?.bank) {
+			return { notFound: true };
+		}
+
+		const details = item.loan_details || {};
+		const interest = details.interest_rate ?? item?.bracket?.interestRate ?? 0;
+		const monthly = details.monthly_payment ?? 0;
+		const total = details.total_payment ?? 0;
+		const principal = details.amount ?? amount;
+
+		loan = {
+			title: `${item.bank.name} - ${loanTypeName}`,
+			loanType: { type: feLoanType, name: loanTypeName, slug },
+			meta: calc?.meta || null,
+			data: {
+				bankId: item.bank.id,
+				slug: item.bank.slug || bankSlug,
+				name: item.bank.name,
+				logo: item.bank.logo,
+				redirect: null,
+				loanType: feLoanType,
+				loanAmount: principal,
+				amount: principal,
+				maturity: details.months ?? months,
+				months: details.months ?? months,
+				interest,
+				monthlyInstallment: monthly,
+				totalPayment: total,
+				totalInterest: total - principal,
+				bracket: item.bracket || null,
+				approx: item?.bracket?.approx ?? false,
+				paymentPlans: [],
+			},
+		};
+	} else {
+		const params = new URLSearchParams({ maturity: months, amount });
+		loan = await serverApiRequest(
+			`/loan/${feLoanType}/${bankSlug}/detail?${params.toString()}`,
+			"get",
+		);
+	}
+
 	return {
 		props: {
 			loan: loan,

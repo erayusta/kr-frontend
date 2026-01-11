@@ -1,8 +1,8 @@
 export const LOAN_MATURIES = {
-    personal: [3, 6, 9, 12, 18, 24, 30, 36],
-    newCar: [3, 6, 9, 12, 18, 24, 30, 36, 42, 48],
-    mortgage: [6, 12, 18, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180, 240]
-  }
+	personal: [3, 6, 9, 12, 18, 24, 30, 36],
+	newCar: [3, 6, 9, 12, 18, 24, 30, 36],
+	mortgage: [3, 6, 9, 12, 18, 24, 30, 36],
+};
 
   export const LOAN_TYPES = [
   { type: 'personal', name: 'İhtiyaç Kredisi', slug:'ihtiyac-kredisi', icon:'İhtiyaç Kredisi' },

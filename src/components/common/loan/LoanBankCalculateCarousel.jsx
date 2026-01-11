@@ -14,7 +14,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { LOAN_MATURIES } from "@/constants/loan";
 import { Children, useEffect, useState } from "react";
-import apiRequest, { fetchData } from "@/lib/apiRequest";
+import {
+	adaptLoanCalculationsResponseToOffers,
+	parseAmountToNumber,
+	postLoanCalculations,
+} from "@/lib/loanCalculations";
 
 const formSchema = z.object({
   amount: z.string().nullable(),
@@ -100,21 +104,27 @@ const [result, setResult] = useState(offer);
 
  const handleCalculate = async (amount, maturity) => {
   try {
-   if (!amount || !maturity || !loan?.loanType?.type || !offer?.slug) {
+   if (!amount || !maturity || !loan?.loanType?.type) {
      console.warn('Missing required parameters for loan calculation');
      return;
    }
-   
-   let qs = {
-            amount: amount,
-            maturity: maturity,
-            loanType: loan.loanType.type,
-            bank: offer.slug
-        }
-   const params = new URLSearchParams(qs);
 
-   const response = await apiRequest(`/loan-calculate?${params.toString()}`,'get')
-   setResult(response.data)
+   const parsedAmount = parseAmountToNumber(amount);
+   const parsedMonths = parseInt(maturity, 10);
+   const bankId = offer?.bankId ?? offer?.id;
+
+   if (!Number.isFinite(parsedAmount) || parsedAmount < 1000) return;
+   if (!Number.isInteger(parsedMonths) || parsedMonths < 1 || parsedMonths > 36) return;
+   if (!bankId) return;
+
+   const response = await postLoanCalculations({
+    amount: parsedAmount,
+    months: parsedMonths,
+    loanType: loan.loanType.type,
+    bankIds: [bankId],
+   });
+   const { offers } = adaptLoanCalculationsResponseToOffers(response);
+   setResult(offers[0] || {});
   } catch (error) {
    console.error('Loan calculation error:', error);
   }
@@ -157,26 +167,26 @@ const [result, setResult] = useState(offer);
           <li className="flex text-xs justify-between">
             Faiz:
             <span className="text-sky-950" x-text="`%${loan.interestRate}`">
-              %{result?.interestRate}
+              %{result?.interest}
             </span>
           </li>
           <li className="flex text-xs justify-between">
             Aylık Taksit:
             <span className="text-sky-950" x-text="`${loan.monthlyPayment} TL`">
-              {result?.monthlyPayment} TL
+              {result?.monthlyPayment}
             </span>
           </li>
           <li className="flex text-xs justify-between">
             Toplam Tutar:
             <span className="text-sky-950" x-text="`${loan.totalPayment} TL`">
-              {result?.totalPayment} TL
+              {result?.totalPayment}
             </span>
           </li>
         </ul>
-         {result?.redirect ? (
-           <Button asChild><Link href={result.redirect}>Hemen Başvur <ChevronRight /> </Link></Button>
+         {offer?.slug ? (
+           <Button asChild><Link href={`/kredi/${loan?.loanType?.slug}/${offer.slug}/detay?amount=${result?.amount || offer?.amount || 10000}&maturity=${result?.maturity || offer?.maturity || 12}&bankId=${offer?.bankId ?? offer?.id}`}>Detayı Gör <ChevronRight /> </Link></Button>
          ) : (
-           <Button disabled>Hemen Başvur <ChevronRight /> </Button>
+           <Button disabled>Detayı Gör <ChevronRight /> </Button>
          )}
         </>
         }

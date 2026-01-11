@@ -8,7 +8,6 @@ import LoanTable from "@/components/common/loan/LoanTable";
 
 import { Layout } from "@/components/layouts/layout";
 import { loanType } from "@/constants/loan";
-import apiRequest, { fetchData } from "@/lib/apiRequest";
 import serverApiRequest from "@/lib/serverApiRequest";
 
 export async function getServerSideProps(context) {
@@ -56,7 +55,7 @@ export default function LoanIndex({ loan }) {
 			</section>
 
 			<section className="py-12 container md:py-20">
-				<LoanInfoCard></LoanInfoCard>
+				<LoanInfoCard />
 			</section>
 			<section className="mt-[5px] container">
 				<div className=" ml-auto mb-5 px-4 md:px-6 text-center">
