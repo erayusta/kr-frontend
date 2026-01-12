@@ -14,6 +14,7 @@ import { AlertCircle, ArrowRightIcon, Loader2 } from "lucide-react";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import MaskedInput from "react-text-mask";
 import createNumberMask from "@/utils/createNumberMask";
@@ -134,16 +135,49 @@ const LoanCalculateForm = ({
 };
 
 const LoanResultListItem = ({ data, index, loanType }) => {
+	const router = useRouter();
 	const detailHref =
 		data?.slug
 			? `/kredi/${loanTypeSlug[loanType]}/${data.slug}/detay?amount=${data?.amount}&maturity=${data?.maturity}&bankId=${data?.id}`
 			: null;
 
+	const redirectHref = typeof data?.redirect === "string" && data.redirect ? data.redirect : null;
+	const clickHref = redirectHref || detailHref;
+	const isClickable = Boolean(clickHref);
+
+	const handleNavigate = () => {
+		if (!clickHref) return;
+		if (redirectHref) {
+			window.location.assign(clickHref);
+			return;
+		}
+		router.push(clickHref);
+	};
+
 	return (
 		<div
+			role={isClickable ? "button" : undefined}
+			tabIndex={isClickable ? 0 : undefined}
+			onKeyDown={
+				isClickable
+					? (e) => {
+							if (e.key !== "Enter" && e.key !== " ") return;
+							e.preventDefault();
+							handleNavigate();
+						}
+					: undefined
+			}
+			onClick={
+				isClickable
+					? (e) => {
+							if (e?.target?.closest?.("a,button")) return;
+							handleNavigate();
+						}
+					: undefined
+			}
 			className={`border py-3 px-5 md:px-5 relative group hover:bg-gray-100  ${
 				index == 0 ? "border-2 border-green-500" : "bg-white"
-			}  rounded-md border-gray-100`}
+			}  rounded-md border-gray-100 ${isClickable ? "cursor-pointer" : ""}`}
 		>
 			<div className="rounded-lg flex md:flex-row flex-col  md:items-center items-start justify-between">
 				<div className="flex flex-col md:mb-0mb-3  md:items-center items-start space-x-2">
@@ -174,10 +208,25 @@ const LoanResultListItem = ({ data, index, loanType }) => {
 						<p className="font-bold text-sm md:text-lg">{data?.totalPayment}</p>
 					</div>
 					<div className="flex items-center space-x-2 flex md:hidden">
-						{detailHref ? (
-							<Link className="text-gray-600 flex items-center space-x-2" href={detailHref}>
-								<ArrowRightIcon className="h-5 w-5" />
-							</Link>
+						{clickHref ? (
+							redirectHref ? (
+								<a
+									className="text-gray-600 flex items-center space-x-2"
+									href={redirectHref}
+									rel="nofollow noopener noreferrer"
+									onClick={(e) => e.stopPropagation()}
+								>
+									<ArrowRightIcon className="h-5 w-5" />
+								</a>
+							) : (
+								<Link
+									className="text-gray-600 flex items-center space-x-2"
+									href={detailHref}
+									onClick={(e) => e.stopPropagation()}
+								>
+									<ArrowRightIcon className="h-5 w-5" />
+								</Link>
+							)
 						) : (
 							<span className="text-gray-300 flex items-center space-x-2">
 								<ArrowRightIcon className="h-5 w-5" />
@@ -186,10 +235,25 @@ const LoanResultListItem = ({ data, index, loanType }) => {
 					</div>
 				</div>
 				<div className="flex items-center space-x-2 hidden  md:flex">
-					{detailHref ? (
-						<Link className="text-gray-600 flex items-center space-x-2" href={detailHref}>
-							<ArrowRightIcon className="h-5 w-5" />
-						</Link>
+					{clickHref ? (
+						redirectHref ? (
+							<a
+								className="text-gray-600 flex items-center space-x-2"
+								href={redirectHref}
+								rel="nofollow noopener noreferrer"
+								onClick={(e) => e.stopPropagation()}
+							>
+								<ArrowRightIcon className="h-5 w-5" />
+							</a>
+						) : (
+							<Link
+								className="text-gray-600 flex items-center space-x-2"
+								href={detailHref}
+								onClick={(e) => e.stopPropagation()}
+							>
+								<ArrowRightIcon className="h-5 w-5" />
+							</Link>
+						)
 					) : (
 						<span className="text-gray-300 flex items-center space-x-2">
 							<ArrowRightIcon className="h-5 w-5" />

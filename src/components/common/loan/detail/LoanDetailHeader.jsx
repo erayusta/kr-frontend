@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -8,7 +9,6 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { getIcon } from "@/lib/utils";
 import LoanApplicationPlan from "./LoanApplicationPlan";
 
@@ -38,9 +38,7 @@ export default function LoanDetailHeader({ loan }) {
 							</BreadcrumbItem>
 							<BreadcrumbSeparator />
 							<BreadcrumbItem>
-								<BreadcrumbPage>
-									{loan?.title ? `${loan.title.substring(0, 25)}...` : "Detay"}
-								</BreadcrumbPage>
+								<BreadcrumbPage>{loan?.title ? `${loan.title.substring(0, 25)}...` : "Detay"}</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>
@@ -52,7 +50,7 @@ export default function LoanDetailHeader({ loan }) {
 									<img
 										className="object-contain w-28 h-10"
 										src={loan?.data?.logo}
-										alt={loan?.data?.name || "Bank"}
+										alt={loan?.data?.name || "Banka"}
 									/>
 								</div>
 
@@ -70,30 +68,28 @@ export default function LoanDetailHeader({ loan }) {
 											<span>{loanTypeName || "Kredi"}</span>
 										</Badge>
 
-										{Number.isFinite(Number(amount)) && (
-											<Badge variant="outline">Tutar: {amount}</Badge>
-										)}
+										{Number.isFinite(Number(amount)) && <Badge variant="outline">Tutar: {amount}</Badge>}
 										{Number.isFinite(Number(maturity)) && (
 											<Badge variant="outline">Vade: {maturity} ay</Badge>
 										)}
-										{approx && <Badge variant="success">Yaklasik</Badge>}
+										{approx && <Badge variant="success">Yaklaşık</Badge>}
 									</div>
 
 									<div className="mt-5 flex flex-col sm:flex-row gap-3">
 										{hasRedirect ? (
 											<Button asChild className="sm:w-auto">
 												<Link rel="nofollow" href={loan.data.redirect}>
-													Hemen Basvur
+													Hemen Başvur
 												</Link>
 											</Button>
 										) : (
 											<Button disabled className="sm:w-auto">
-												Basvuru linki yok
+												Başvuru linki yok
 											</Button>
 										)}
 
 										<Button asChild variant="outline" className="sm:w-auto">
-											<Link href={backToOffersHref}>Tekliflere Don</Link>
+											<Link href={backToOffersHref}>Tekliflere Dön</Link>
 										</Button>
 									</div>
 								</div>
@@ -101,8 +97,11 @@ export default function LoanDetailHeader({ loan }) {
 						</div>
 
 						<div className="lg:col-span-7">
-							<div className="rounded-xl border bg-white/70 dark:bg-gray-900/40 p-4 md:p-5 shadow-sm">
+							<div className="rounded-xl border bg-white/70 dark:bg-gray-900/40 p-4 md:p-6 shadow-sm">
 								<LoanApplicationPlan data={loan?.data} />
+								{approx && (
+									<p className="mt-4 text-xs text-muted-foreground">Not: Bu teklif yaklaşık.</p>
+								)}
 							</div>
 						</div>
 					</div>
@@ -111,3 +110,4 @@ export default function LoanDetailHeader({ loan }) {
 		</section>
 	);
 }
+

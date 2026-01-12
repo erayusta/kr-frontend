@@ -6,7 +6,7 @@ import {
 	Store,
 	XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import {
 	Area,
 	AreaChart,
@@ -26,6 +26,25 @@ const TABS = {
 	TERMS: "terms",
 };
 
+function PriceHistoryTooltip({ active, payload, label, formatPrice }) {
+	if (!active || !payload || payload.length === 0) return null;
+
+	const point = payload[0];
+	const value = point?.value;
+	const numericValue =
+		typeof value === "number" ? value : value ? Number(value) : null;
+
+	return (
+		<div className="bg-white p-3 rounded-lg shadow-md border text-sm">
+			<p className="font-medium">{label}</p>
+			<p className="text-orange-600 font-semibold">
+				{formatPrice(numericValue)} TL
+			</p>
+			<p className="text-xs text-gray-500 mt-1">GÃ¼nÃ¼n en dÃ¼ÅŸÃ¼k fiyatÄ±</p>
+		</div>
+	);
+}
+
 export default function CampaignContent({ campaign }) {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [activeTab, setActiveTab] = useState(TABS.PRICES);
@@ -35,6 +54,12 @@ export default function CampaignContent({ campaign }) {
 		phone: "",
 		consent: false,
 	});
+
+	const formId = useId();
+	const nameInputId = `${formId}-name-input`;
+	const emailInputId = `${formId}-email-input`;
+	const phoneInputId = `${formId}-phone-input`;
+	const consentInputId = `${formId}-consent-input`;
 
 	const { toast } = useToast();
 
@@ -136,7 +161,7 @@ export default function CampaignContent({ campaign }) {
 			} catch (err) {
 				if (err?.name === "AbortError") return;
 				console.error("Prices API fetch failed:", err);
-				setApiError("Fiyat verisi çekilemedi.");
+				setApiError("Fiyat verisi Ã§ekilemedi.");
 				setApiPrices([]);
 			} finally {
 				setApiLoading(false);
@@ -182,7 +207,7 @@ export default function CampaignContent({ campaign }) {
 		if (!normalizedPhone) {
 			toast({
 				title: "Hata!",
-				description: "Lütfen geçerli bir cep telefonu numarası girin.",
+				description: "LÃ¼tfen geÃ§erli bir cep telefonu numarasÄ± girin.",
 				variant: "destructive",
 			});
 			return;
@@ -190,8 +215,8 @@ export default function CampaignContent({ campaign }) {
 
 		if (!formData.consent) {
 			toast({
-				title: "Uyarı",
-				description: "Lütfen açık rıza metnini kabul edin.",
+				title: "UyarÄ±",
+				description: "LÃ¼tfen aÃ§Ä±k rÄ±za metnini kabul edin.",
 				variant: "destructive",
 			});
 			return;
@@ -199,9 +224,9 @@ export default function CampaignContent({ campaign }) {
 
 		try {
 			toast({
-				title: "Başarılı!",
+				title: "BaÅŸarÄ±lÄ±!",
 				description:
-					"Form başarıyla gönderildi. En kısa sürede sizinle iletişime geçeceğiz.",
+					"Form baÅŸarÄ±yla gÃ¶nderildi. En kÄ±sa sÃ¼rede sizinle iletiÅŸime geÃ§eceÄŸiz.",
 			});
 
 			setFormData({
@@ -211,10 +236,10 @@ export default function CampaignContent({ campaign }) {
 				consent: false,
 			});
 		} catch (error) {
-			console.error("Form gönderimi başarısız:", error);
+			console.error("Form gÃ¶nderimi baÅŸarÄ±sÄ±z:", error);
 			toast({
 				title: "Hata!",
-				description: "Form gönderilemedi, lütfen tekrar deneyin.",
+				description: "Form gÃ¶nderilemedi, lÃ¼tfen tekrar deneyin.",
 				variant: "destructive",
 			});
 		}
@@ -223,13 +248,13 @@ export default function CampaignContent({ campaign }) {
 	// -------------------- NEW: derive store list from API --------------------
 	const apiStoresLatest = useMemo(() => {
 		// apiPrices: [{date:'2025-12-25', store:'migros', price:154}, ...]
-		// Her mağazanın en güncel (tarihi en yeni) fiyatını al
+		// Her maÄŸazanÄ±n en gÃ¼ncel (tarihi en yeni) fiyatÄ±nÄ± al
 		const byStore = new Map();
 
 		for (const p of apiPrices) {
 			if (!p?.store || !p?.date) continue;
 			const priceNum = Number(p.price);
-			// price 0 ise "yok" kabul edelim (istersen kaldırabilirsin)
+			// price 0 ise "yok" kabul edelim (istersen kaldÄ±rabilirsin)
 			if (!Number.isFinite(priceNum) || priceNum <= 0) continue;
 
 			const prev = byStore.get(p.store);
@@ -237,12 +262,12 @@ export default function CampaignContent({ campaign }) {
 				byStore.set(p.store, p);
 				continue;
 			}
-			// string date: YYYY-MM-DD => lexicographic compare çalışır
+			// string date: YYYY-MM-DD => lexicographic compare Ã§alÄ±ÅŸÄ±r
 			if (p.date > prev.date) byStore.set(p.store, p);
 		}
 
 		const arr = Array.from(byStore.values()).map((p) => ({
-			// mevcut UI ile uyum için alanları benzetiyoruz
+			// mevcut UI ile uyum iÃ§in alanlarÄ± benzetiyoruz
 			storeId: p.store,
 			storeBrand: p.store,
 			price: Number(p.price),
@@ -252,11 +277,11 @@ export default function CampaignContent({ campaign }) {
 			_date: p.date,
 		}));
 
-		// fiyat sıralama
+		// fiyat sÄ±ralama
 		return arr.sort((a, b) => a.price - b.price);
 	}, [apiPrices, campaign?.link]);
 
-	// Önce backend stores doluysa onu göster, boşsa API’dan geleni göster
+	// Ã–nce backend stores doluysa onu gÃ¶ster, boÅŸsa APIâ€™dan geleni gÃ¶ster
 	const hasLatestStores = latestStores.length > 0;
 	const hasBackendStores = sortedStores.length > 0;
 	const shouldUseApi = !hasLatestStores && !hasBackendStores;
@@ -271,7 +296,7 @@ export default function CampaignContent({ campaign }) {
 
 	// -------------------- NEW: chart data from API (min price per day) --------------------
 	const priceHistoryData = useMemo(() => {
-		// car gibi tek seri: her günün EN DÜŞÜK (price>0) fiyatı
+		// car gibi tek seri: her gÃ¼nÃ¼n EN DÃœÅÃœK (price>0) fiyatÄ±
 		const minByDate = new Map();
 
 		for (const p of apiPrices) {
@@ -283,7 +308,7 @@ export default function CampaignContent({ campaign }) {
 			if (cur === undefined || priceNum < cur) minByDate.set(p.date, priceNum);
 		}
 
-		const sortedDates = Array.from(minByDate.keys()).sort(); // YYYY-MM-DD => doğru sıralanır
+		const sortedDates = Array.from(minByDate.keys()).sort(); // YYYY-MM-DD => doÄŸru sÄ±ralanÄ±r
 
 		return sortedDates.map((d) => ({
 			date: new Date(`${d}T00:00:00`).toLocaleDateString("tr-TR", {
@@ -296,21 +321,6 @@ export default function CampaignContent({ campaign }) {
 		}));
 	}, [apiPrices]);
 
-	const PriceHistoryTooltip = ({ active, payload, label }) => {
-		if (active && payload && payload.length) {
-			const p = payload[0];
-			return (
-				<div className="bg-white p-3 rounded-lg shadow-md border text-sm">
-					<p className="font-medium">{label}</p>
-					<p className="text-orange-600 font-semibold">
-						{formatPrice(p.value)} TL
-					</p>
-					<p className="text-xs text-gray-500 mt-1">Günün en düşük fiyatı</p>
-				</div>
-			);
-		}
-		return null;
-	};
 	// ------------------------------------------------------------------------
 
 	return (
@@ -338,7 +348,7 @@ export default function CampaignContent({ campaign }) {
 								}`}
 							>
 								<Store className="h-4 w-4" />
-								Mağazalar
+								MaÄŸazalar
 								{totalStoresCount > 0 && (
 									<span
 										className={`px-1.5 py-0.5 rounded text-xs ${
@@ -361,7 +371,7 @@ export default function CampaignContent({ campaign }) {
 										: " border border-gray-200 text-gray-700 hover:border-orange-300"
 								}`}
 							>
-								Ürün Özellikleri
+								ÃœrÃ¼n Ã–zellikleri
 							</button>
 
 							<button
@@ -373,7 +383,7 @@ export default function CampaignContent({ campaign }) {
 										: " border border-gray-200 text-gray-700 hover:border-orange-300"
 								}`}
 							>
-								Kampanya İçeriği
+								Kampanya Ä°Ã§eriÄŸi
 							</button>
 						</div>
 
@@ -384,7 +394,7 @@ export default function CampaignContent({ campaign }) {
 								{apiLoading && shouldUseApi && (
 									<Card className="rounded-lg bg-transparent p-4 border border-gray-100">
 										<p className="text-sm text-gray-500">
-											Fiyatlar yükleniyor...
+											Fiyatlar yÃ¼kleniyor...
 										</p>
 									</Card>
 								)}
@@ -404,9 +414,10 @@ export default function CampaignContent({ campaign }) {
 												{/* Store Logo */}
 												<div className="flex-shrink-0 w-20 h-14 rounded-lg border border-gray-100 p-2 flex items-center justify-center ">
 													{store.image_link ? (
+														// biome-ignore lint/performance/noImgElement: Legacy store images are remote and handled with onError fallback.
 														<img
 															src={store.image_link}
-															alt={store.storeBrand || "Mağaza"}
+															alt={store.storeBrand || "MaÄŸaza"}
 															className="max-w-full max-h-full object-contain"
 															onError={(e) => {
 																e.target.style.display = "none";
@@ -421,7 +432,7 @@ export default function CampaignContent({ campaign }) {
 															store.image_link ? "hidden" : ""
 														}`}
 													>
-														{store.storeBrand || "Mağaza"}
+														{store.storeBrand || "MaÄŸaza"}
 													</span>
 												</div>
 
@@ -450,7 +461,7 @@ export default function CampaignContent({ campaign }) {
 															<>
 																<XCircle className="h-3 w-3 text-red-500" />
 																<span className="text-xs text-red-600">
-																	Tükendi
+																	TÃ¼kendi
 																</span>
 															</>
 														)}
@@ -464,7 +475,7 @@ export default function CampaignContent({ campaign }) {
 													</p>
 
 													<p className="text-xs text-gray-400">
-														Ücretsiz Kargo
+														Ãœcretsiz Kargo
 													</p>
 												</div>
 
@@ -473,7 +484,7 @@ export default function CampaignContent({ campaign }) {
 													target="_blank"
 													rel="noopener noreferrer"
 													className="flex-shrink-0 w-10 h-10 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center text-white transition-colors"
-													aria-label="Mağazaya Git"
+													aria-label="MaÄŸazaya Git"
 												>
 													<ChevronRight className="h-5 w-5" />
 												</a>
@@ -484,7 +495,7 @@ export default function CampaignContent({ campaign }) {
 									<Card className=" rounded-lg overflow-hidden bg-transparent p-4">
 										<Store className="h-10 w-10 text-gray-300 mx-auto mb-3" />
 										<p className="text-gray-500 text-sm">
-											Bu kampanya için mağaza fiyatı bulunmamaktadır.
+											Bu kampanya iÃ§in maÄŸaza fiyatÄ± bulunmamaktadÄ±r.
 										</p>
 										{campaign?.link && (
 											<a
@@ -493,7 +504,7 @@ export default function CampaignContent({ campaign }) {
 												rel="noopener noreferrer"
 												className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors text-sm"
 											>
-												Kampanya Sayfasına Git
+												Kampanya SayfasÄ±na Git
 												<ExternalLink className="h-4 w-4" />
 											</a>
 										)}
@@ -505,7 +516,7 @@ export default function CampaignContent({ campaign }) {
 									<Card className="bg-transparent rounded-xl border border-gray-100">
 										<CardContent className="p-4">
 											<h3 className="text-sm font-semibold text-gray-900 mb-3">
-												Fiyat Geçmişi
+												Fiyat GeÃ§miÅŸi
 											</h3>
 
 											{priceHistoryData.length > 0 ? (
@@ -528,7 +539,7 @@ export default function CampaignContent({ campaign }) {
 																tick={{ fontSize: 12 }}
 																tickLine={{ stroke: "#9ca3af" }}
 															/>
-															<Tooltip content={<PriceHistoryTooltip />} />
+															<Tooltip content={<PriceHistoryTooltip formatPrice={formatPrice} />} />
 															<Area
 																type="monotone"
 																dataKey="price"
@@ -542,7 +553,7 @@ export default function CampaignContent({ campaign }) {
 												</div>
 											) : (
 												<p className="text-gray-500 text-sm">
-													Grafik için geçerli fiyat bulunamadı.
+													Grafik iÃ§in geÃ§erli fiyat bulunamadÄ±.
 												</p>
 											)}
 										</CardContent>
@@ -559,9 +570,10 @@ export default function CampaignContent({ campaign }) {
 										<div className="rounded-xl overflow-hidden bg-gray-50">
 											{productImages.length > 0 ? (
 												<>
+													{/* biome-ignore lint/performance/noImgElement: Gallery uses arbitrary remote URLs and simple sizing. */}
 													<img
 														src={productImages[currentImageIndex]}
-														alt={productData?.title || "Ürün görseli"}
+														alt={productData?.title || "ÃœrÃ¼n gÃ¶rseli"}
 														className="w-full aspect-square object-contain"
 													/>
 													{productImages.length > 1 && (
@@ -570,7 +582,7 @@ export default function CampaignContent({ campaign }) {
 																type="button"
 																onClick={prevImage}
 																className="absolute left-2 top-1/2 -translate-y-1/2  hover:bg-orange-500 hover:text-white text-gray-600 rounded-full p-1.5 shadow transition-colors"
-																aria-label="Önceki görsel"
+																aria-label="Ã–nceki gÃ¶rsel"
 															>
 																<ChevronLeft className="h-4 w-4" />
 															</button>
@@ -578,7 +590,7 @@ export default function CampaignContent({ campaign }) {
 																type="button"
 																onClick={nextImage}
 																className="absolute right-2 top-1/2 -translate-y-1/2  hover:bg-orange-500 hover:text-white text-gray-600 rounded-full p-1.5 shadow transition-colors"
-																aria-label="Sonraki görsel"
+																aria-label="Sonraki gÃ¶rsel"
 															>
 																<ChevronRight className="h-4 w-4" />
 															</button>
@@ -593,7 +605,7 @@ export default function CampaignContent({ campaign }) {
 																				? "bg-orange-500 w-5"
 																				: "bg-gray-300 hover:bg-gray-400"
 																		}`}
-																		aria-label={`Görsel ${idx + 1}`}
+																		aria-label={`GÃ¶rsel ${idx + 1}`}
 																	/>
 																))}
 															</div>
@@ -602,7 +614,7 @@ export default function CampaignContent({ campaign }) {
 												</>
 											) : (
 												<div className="w-full aspect-square flex items-center justify-center">
-													<p className="text-gray-400 text-sm">Görsel yok</p>
+													<p className="text-gray-400 text-sm">GÃ¶rsel yok</p>
 												</div>
 											)}
 										</div>
@@ -611,7 +623,7 @@ export default function CampaignContent({ campaign }) {
 									{/* Product Attributes */}
 									<div>
 										<h3 className="text-base font-semibold text-gray-900 mb-3">
-											Ürün Özellikleri
+											ÃœrÃ¼n Ã–zellikleri
 										</h3>
 										<div className="bg-gray-50 rounded-lg">
 											{Object.entries(attributes).length > 0 ? (
@@ -632,14 +644,14 @@ export default function CampaignContent({ campaign }) {
 												)
 											) : productData?.gtin ? (
 												<div className="flex justify-between py-2.5 px-3 text-sm bg-[#fffaf4]">
-													<span className="text-gray-500">Ürün Kodu</span>
+													<span className="text-gray-500">ÃœrÃ¼n Kodu</span>
 													<span className="text-gray-900 font-medium">
 														{productData.gtin}
 													</span>
 												</div>
 											) : (
 												<p className="text-gray-400 text-center py-6 text-sm">
-													Ürün özellikleri bulunmamaktadır.
+													ÃœrÃ¼n Ã¶zellikleri bulunmamaktadÄ±r.
 												</p>
 											)}
 										</div>
@@ -658,7 +670,7 @@ export default function CampaignContent({ campaign }) {
 									/>
 								) : (
 									<p className="text-gray-400 text-center py-8 text-sm">
-										Kampanya şartları bilgisi bulunmamaktadır.
+										Kampanya ÅŸartlarÄ± bilgisi bulunmamaktadÄ±r.
 									</p>
 								)}
 							</div>
@@ -670,6 +682,7 @@ export default function CampaignContent({ campaign }) {
 						<div className=" rounded-xl border border-gray-100 p-5 sticky top-6">
 							{brandLogo && (
 								<div className="flex justify-center mb-5">
+									{/* biome-ignore lint/performance/noImgElement: Brand logos are external URLs and shown as-is. */}
 									<img
 										src={brandLogo}
 										alt={brandName || "Marka"}
@@ -680,23 +693,23 @@ export default function CampaignContent({ campaign }) {
 
 							<h2 className="text-center font-semibold text-gray-900 mb-5">
 								Formu Doldurun,{" "}
-								<span className="text-orange-500">Size Ulaşalım</span>
+								<span className="text-orange-500">Size UlaÅŸalÄ±m</span>
 							</h2>
 
 							<form onSubmit={handleSubmit} className="space-y-4">
 								<div>
 									<label
-										htmlFor="name-input"
+										htmlFor={nameInputId}
 										className="block text-sm text-gray-700 mb-1"
 									>
 										Ad Soyad <span className="text-red-500">*</span>
 									</label>
 									<input
 										type="text"
-										id="name-input"
+										id={nameInputId}
 										value={formData.name}
 										onChange={(e) => handleInputChange("name", e.target.value)}
-										placeholder="Adınızı ve soyadınızı girin"
+										placeholder="AdÄ±nÄ±zÄ± ve soyadÄ±nÄ±zÄ± girin"
 										className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
 										required
 									/>
@@ -704,14 +717,14 @@ export default function CampaignContent({ campaign }) {
 
 								<div>
 									<label
-										htmlFor="email-input"
+										htmlFor={emailInputId}
 										className="block text-sm text-gray-700 mb-1"
 									>
 										E-posta Adresi <span className="text-red-500">*</span>
 									</label>
 									<input
 										type="email"
-										id="email-input"
+										id={emailInputId}
 										value={formData.email}
 										onChange={(e) => handleInputChange("email", e.target.value)}
 										placeholder="ornek@mail.com"
@@ -722,14 +735,14 @@ export default function CampaignContent({ campaign }) {
 
 								<div>
 									<label
-										htmlFor="phone-input"
+										htmlFor={phoneInputId}
 										className="block text-sm text-gray-700 mb-1"
 									>
-										Telefon Numarası <span className="text-red-500">*</span>
+										Telefon NumarasÄ± <span className="text-red-500">*</span>
 									</label>
 									<input
 										type="tel"
-										id="phone-input"
+										id={phoneInputId}
 										value={formData.phone}
 										onChange={(e) => handleInputChange("phone", e.target.value)}
 										autoComplete="tel"
@@ -743,7 +756,7 @@ export default function CampaignContent({ campaign }) {
 								<div className="flex items-start gap-2 pt-1">
 									<input
 										type="checkbox"
-										id="consent-input"
+										id={consentInputId}
 										checked={formData.consent}
 										onChange={(e) =>
 											handleInputChange("consent", e.target.checked)
@@ -752,10 +765,10 @@ export default function CampaignContent({ campaign }) {
 										required
 									/>
 									<label
-										htmlFor="consent-input"
+										htmlFor={consentInputId}
 										className="text-xs text-gray-500 cursor-pointer leading-relaxed"
 									>
-										Açık rıza metnini okudum ve kabul ediyorum.{" "}
+										AÃ§Ä±k rÄ±za metnini okudum ve kabul ediyorum.{" "}
 										<span className="text-red-500">*</span>
 									</label>
 								</div>

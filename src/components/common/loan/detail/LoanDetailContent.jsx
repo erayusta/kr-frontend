@@ -1,16 +1,62 @@
-﻿import { BadgeInfo } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
 import { LoanPaymentPlansTable } from "./LoanPaymentPlansTable";
 
+function buildPaymentPlan({
+	amount,
+	months,
+	annualInterestRate,
+	monthlyInstallment,
+}) {
+	const principal = Number(amount);
+	const n = Number(months);
+	const yearlyRate = Number(annualInterestRate);
+
+	if (!Number.isFinite(principal) || principal <= 0) return [];
+	if (!Number.isInteger(n) || n <= 0) return [];
+	if (!Number.isFinite(yearlyRate) || yearlyRate < 0) return [];
+
+	const r = yearlyRate / 100 / 12; // annual -> monthly
+	let installment = Number(monthlyInstallment);
+
+	if (!Number.isFinite(installment) || installment <= 0) {
+		if (r === 0) installment = principal / n;
+		else {
+			const pow = Math.pow(1 + r, n);
+			installment = (principal * (r * pow)) / (pow - 1);
+		}
+	}
+
+	let remaining = principal;
+	const plan = [];
+
+	for (let period = 1; period <= n; period += 1) {
+		const interest = r === 0 ? 0 : remaining * r;
+		let principalPayment = installment - interest;
+
+		if (period === n) principalPayment = remaining;
+
+		const installmentAmount = principalPayment + interest;
+		remaining = Math.max(0, remaining - principalPayment);
+
+		plan.push({
+			period,
+			installmentAmount,
+			principal: principalPayment,
+			interest,
+			kkdf: 0,
+			bsmv: 0,
+			remainingPrincipal: remaining,
+		});
+	}
+
+	return plan;
+}
+
 export default function LoanDetailContent({ loan }) {
+	const hasRedirect = Boolean(loan?.data?.redirect);
+
 	const paymentPlans = Array.isArray(loan?.data?.paymentPlans)
 		? loan.data.paymentPlans
 		: [];
@@ -19,6 +65,25 @@ export default function LoanDetailContent({ loan }) {
 		loan?.data?.amount ?? loan?.data?.loanAmount ?? loan?.meta?.amount ?? 10000;
 	const maturity =
 		loan?.data?.maturity ?? loan?.data?.months ?? loan?.meta?.maturity ?? 12;
+	const interestRate =
+		loan?.data?.interest ?? loan?.data?.bracket?.interestRate ?? 0;
+
+	const computedPlans = useMemo(() => {
+		if (paymentPlans.length > 0) return paymentPlans;
+		return buildPaymentPlan({
+			amount,
+			months: maturity,
+			annualInterestRate: interestRate,
+			monthlyInstallment: loan?.data?.monthlyInstallment,
+		});
+	}, [
+		amount,
+		interestRate,
+		maturity,
+		paymentPlans,
+		loan?.data?.monthlyInstallment,
+	]);
+
 	const backToOffersHref = loan?.loanType?.slug
 		? `/kredi/${loan.loanType.slug}?amount=${amount}&maturity=${maturity}`
 		: "/kredi";
@@ -26,32 +91,32 @@ export default function LoanDetailContent({ loan }) {
 	return (
 		<section className="w-full pb-20">
 			<div className="container px-4 md:px-6">
-				<div className="flex mt-10 items-center gap-4">
-					<BadgeInfo />
-					<h2 className="text-2xl font-semibold tracking-tight">Odeme Plani</h2>
+				<div className="mt-10 flex items-end justify-between gap-4">
+					<div>
+						<h2 className="text-2xl font-semibold tracking-tight">
+							Ödeme Planı
+						</h2>
+					</div>
+					<div className="flex gap-2">
+						8009
+						<Button asChild variant="outline">
+							<Link href={backToOffersHref}>Tekliflere Dön</Link>
+						</Button>
+						{hasRedirect ? (
+							<Button asChild className="sm:w-auto">
+								<Link rel="nofollow" href={loan.data.redirect}>
+									Hemen Başvur
+								</Link>
+							</Button>
+						) : (
+							<Button disabled className="sm:w-auto">
+								Basvuru linki yok
+							</Button>
+						)}
+					</div>
 				</div>
 
-				{paymentPlans.length > 0 ? (
-					<LoanPaymentPlansTable paymentPlans={paymentPlans} />
-				) : (
-					<Card className="mt-4 border-dashed">
-						<CardHeader>
-							<CardTitle className="text-lg">Detayli odeme plani henuz yok</CardTitle>
-							<CardDescription>
-								Bu banka icin taksit kirilimi (ana para/faiz/vergiler) su an paylasilmiyor.
-								Aylik taksit ve toplam odeme bilgisini ust bolumden gorebilirsiniz.
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="flex flex-col sm:flex-row gap-3">
-							<Button asChild>
-								<Link href={backToOffersHref}>Tekliflere Don</Link>
-							</Button>
-							<Button asChild variant="outline">
-								<Link href={backToOffersHref}>Tutar/Vade Degistir</Link>
-							</Button>
-						</CardContent>
-					</Card>
-				)}
+				<LoanPaymentPlansTable paymentPlans={computedPlans} />
 			</div>
 		</section>
 	);

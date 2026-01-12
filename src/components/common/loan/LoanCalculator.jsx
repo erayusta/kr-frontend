@@ -136,14 +136,47 @@ const LoanCalculateForm = ({
 };
 
 const LoanResultListItem = ({ data, index, loanType }) => {
+	const router = useRouter();
 	const detailHref =
 		data?.slug
 			? `/kredi/${loanTypeSlug[loanType]}/${data.slug}/detay?amount=${data?.amount}&maturity=${data?.maturity}&bankId=${data?.id}`
 			: null;
 
+	const redirectHref = typeof data?.redirect === "string" && data.redirect ? data.redirect : null;
+	const clickHref = redirectHref || detailHref;
+	const isClickable = Boolean(clickHref);
+
+	const handleNavigate = () => {
+		if (!clickHref) return;
+		if (redirectHref) {
+			window.location.assign(clickHref);
+			return;
+		}
+		router.push(clickHref);
+	};
+
 	return (
 		<div
-			className={`space-y-4 bg-white ${index == 0 && "border-green-500"} border py-5 hover:border-2 hover:shadow-md relative px-3 group hover:gray-100  rounded-md border-gray-100`}
+			role={isClickable ? "button" : undefined}
+			tabIndex={isClickable ? 0 : undefined}
+			onKeyDown={
+				isClickable
+					? (e) => {
+							if (e.key !== "Enter" && e.key !== " ") return;
+							e.preventDefault();
+							handleNavigate();
+						}
+					: undefined
+			}
+			onClick={
+				isClickable
+					? (e) => {
+							if (e?.target?.closest?.("a,button")) return;
+							handleNavigate();
+						}
+					: undefined
+			}
+			className={`space-y-4 bg-white ${index == 0 && "border-green-500"} border py-5 hover:border-2 hover:shadow-md relative px-3 group hover:gray-100  rounded-md border-gray-100 ${isClickable ? "cursor-pointer" : ""}`}
 		>
 			<div className="rounded-lg  md:flex-row flex flex-col gap-y-3 items-center justify-between">
 				<div className="flex flex-col items-center space-x-2">
@@ -175,7 +208,7 @@ const LoanResultListItem = ({ data, index, loanType }) => {
 					</div>
 				</div>
 				<div className="flex items-center">
-					<div className="flex items-center space-x-2 ">
+					<div className="flex items-center space-x-2 " onClick={(e) => e.stopPropagation()}>
 						{detailHref ? (
 							<Button asChild>
 								<Link href={detailHref}>Kredi Detayı</Link>
@@ -349,4 +382,3 @@ export default function LoanCalculator({ loan }) {
 		</>
 	);
 }
-

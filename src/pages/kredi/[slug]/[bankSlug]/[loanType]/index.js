@@ -47,7 +47,7 @@ export async function getServerSideProps(context) {
 				slug: item.bank.slug || bankSlug,
 				name: item.bank.name,
 				logo: item.bank.logo,
-				redirect: null,
+				redirect: item?.redirect ?? null,
 				loanType: feLoanType,
 				loanAmount: principal,
 				amount: principal,

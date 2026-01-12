@@ -100,6 +100,7 @@ export function adaptLoanCalculationsResponseToOffers(response) {
 				name: bank.name,
 				slug: bank.slug,
 				logo: bank.logo,
+				redirect: item?.redirect ?? null,
 				loanType: fromApiLoanType(bracket.loan_type),
 				amount,
 				maturity: months,
@@ -113,4 +114,3 @@ export function adaptLoanCalculationsResponseToOffers(response) {
 
 	return { offers, meta };
 }
-
