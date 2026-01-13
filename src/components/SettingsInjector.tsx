@@ -1,83 +1,97 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useSettings } from "@/hooks/useSettings";
 
 interface Settings {
 	head_after_code?: string;
 	body_after_code?: string;
-}
-
-interface SettingsResponse {
-	data?: Settings;
+	body_end_code?: string;
 }
 
 export default function SettingsInjector() {
+	const { settings } = useSettings();
+	const injectedRef = useRef<{
+		head_after_code?: string;
+		body_after_code?: string;
+		body_end_code?: string;
+	}>({});
+
 	useEffect(() => {
-		// Fetch settings on client side
-		fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`)
-			.then((res) => res.json())
-			.then((data: SettingsResponse) => {
-				const settings = data.data || {};
+		const next = (settings || {}) as Settings;
+		if (!Object.keys(next).length) return;
 
-				// Inject head_after_code using DOMParser
-				if (settings.head_after_code) {
-					const parser = new DOMParser();
-					const doc = parser.parseFromString(
-						settings.head_after_code,
-						"text/html",
-					);
+		const parser = new DOMParser();
 
-					// Get all elements from head and body (in case scripts are in body of parsed HTML)
-					const allElements = [
-						...Array.from(doc.head.children),
-						...Array.from(doc.body.children),
-					];
+		// Inject head_after_code using DOMParser
+		if (
+			next.head_after_code &&
+			injectedRef.current.head_after_code !== next.head_after_code
+		) {
+			injectedRef.current.head_after_code = next.head_after_code;
+			const doc = parser.parseFromString(next.head_after_code, "text/html");
 
-					allElements.forEach((element) => {
-						if (element.tagName === "SCRIPT") {
-							const script = document.createElement("script");
+			const allElements = [
+				...Array.from(doc.head.children),
+				...Array.from(doc.body.children),
+			];
 
-							// Copy all attributes
-							Array.from(element.attributes).forEach((attr) => {
-								script.setAttribute(attr.name, attr.value);
-							});
+			allElements.forEach((element) => {
+				if (element.tagName === "SCRIPT") {
+					const script = document.createElement("script");
 
-							// Copy text content if no src
-							if (!(element as HTMLScriptElement).src) {
-								script.textContent = element.textContent;
-							}
-
-							document.head.appendChild(script);
-						} else {
-							// For other elements (meta, link, style, etc.)
-							document.head.appendChild(element.cloneNode(true));
-						}
+					Array.from(element.attributes).forEach((attr) => {
+						script.setAttribute(attr.name, attr.value);
 					});
+
+					if (!(element as HTMLScriptElement).src) {
+						script.textContent = element.textContent;
+					}
+
+					document.head.appendChild(script);
+				} else {
+					document.head.appendChild(element.cloneNode(true));
 				}
-
-				// Inject body_after_code
-				if (settings.body_after_code) {
-					const parser = new DOMParser();
-					const doc = parser.parseFromString(
-						settings.body_after_code,
-						"text/html",
-					);
-
-					const allElements = [
-						...Array.from(doc.head.children),
-						...Array.from(doc.body.children),
-					];
-
-					allElements.forEach((element) => {
-						document.body.insertBefore(
-							element.cloneNode(true),
-							document.body.firstChild,
-						);
-					});
-				}
-			})
-			.catch((error: any) => {
-				console.error("[Settings Injector Error]", error);
 			});
-	}, []);
+		}
+
+		// Inject body_after_code (body start)
+		if (
+			next.body_after_code &&
+			injectedRef.current.body_after_code !== next.body_after_code
+		) {
+			injectedRef.current.body_after_code = next.body_after_code;
+			const doc = parser.parseFromString(next.body_after_code, "text/html");
+
+			const allElements = [
+				...Array.from(doc.head.children),
+				...Array.from(doc.body.children),
+			];
+
+			allElements.forEach((element) => {
+				document.body.insertBefore(
+					element.cloneNode(true),
+					document.body.firstChild,
+				);
+			});
+		}
+
+		// Inject body_end_code (before </body>)
+		if (
+			next.body_end_code &&
+			injectedRef.current.body_end_code !== next.body_end_code
+		) {
+			injectedRef.current.body_end_code = next.body_end_code;
+			const doc = parser.parseFromString(next.body_end_code, "text/html");
+
+			const allElements = [
+				...Array.from(doc.head.children),
+				...Array.from(doc.body.children),
+			];
+
+			allElements.forEach((element) => {
+				document.body.appendChild(element.cloneNode(true));
+			});
+		}
+	}, [settings]);
 
 	return null;
 }

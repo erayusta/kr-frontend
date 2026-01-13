@@ -1,28 +1,50 @@
 import Script from "next/script";
+import DOMPurify from "isomorphic-dompurify";
+import { useMemo } from "react";
+import { useSettings } from "@/hooks/useSettings";
 
 const Footer = () => {
+	const { settings } = useSettings();
+
+	const social = {
+		facebook: settings?.facebook_url || "https://facebook.com/kampanyaradar",
+		instagram:
+			settings?.instagram_url || "https://www.instagram.com/kampanyaradar/",
+		twitter: settings?.twitter_url || "https://x.com/kampanyaradar",
+		youtube: settings?.youtube_url || "",
+	};
+
+	const footerText =
+		typeof settings?.footer_text === "string" ? settings.footer_text : "";
+
+	const sanitizedFooterHtml = useMemo(() => {
+		if (!footerText?.trim()) return "";
+		return DOMPurify.sanitize(footerText, {
+			ALLOWED_TAGS: ["a", "br", "strong", "em", "b", "i", "u", "p", "span"],
+			ALLOWED_ATTR: ["href", "target", "rel"],
+		});
+	}, [footerText]);
+
 	return (
 		<>
 			<footer className="bg-[#fffaf4] shadow-md">
 				<div className="mx-auto max-w-screen-xl space-y-8 px-4 py-16 sm:px-6 lg:space-y-16 lg:px-8">
 					<div className="sm:flex sm:items-center sm:justify-between">
 						<img
-							className=""
 							src="https://kampanyaradar-static.b-cdn.net/kampanyaradar/general/Mlk7WBxx36Op0Ej.png"
 							width={120}
 							alt="KampanyaRadar Logo"
-						></img>
+						/>
 
 						<ul className="mt-8 flex justify-start gap-6 sm:mt-0 sm:justify-end">
 							<li>
 								<a
-									href="https://facebook.com/kampanyaradar"
+									href={social.facebook}
 									rel="noreferrer"
 									target="_blank"
 									className="text-gray-700 transition hover:opacity-75"
 								>
 									<span className="sr-only">Facebook</span>
-
 									<svg
 										className="h-6 w-6"
 										fill="currentColor"
@@ -40,13 +62,12 @@ const Footer = () => {
 
 							<li>
 								<a
-									href="https://www.instagram.com/kampanyaradar/"
+									href={social.instagram}
 									rel="noreferrer"
 									target="_blank"
 									className="text-gray-700 transition hover:opacity-75"
 								>
 									<span className="sr-only">Instagram</span>
-
 									<svg
 										className="h-6 w-6"
 										fill="currentColor"
@@ -64,13 +85,12 @@ const Footer = () => {
 
 							<li>
 								<a
-									href="https://x.com/kampanyaradar"
+									href={social.twitter}
 									rel="noreferrer"
 									target="_blank"
 									className="text-gray-700 transition hover:opacity-75"
 								>
 									<span className="sr-only">X</span>
-
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										fill="currentColor"
@@ -81,6 +101,27 @@ const Footer = () => {
 									</svg>
 								</a>
 							</li>
+
+							{social.youtube ? (
+								<li>
+									<a
+										href={social.youtube}
+										rel="noreferrer"
+										target="_blank"
+										className="text-gray-700 transition hover:opacity-75"
+									>
+										<span className="sr-only">YouTube</span>
+										<svg
+											className="h-6 w-6"
+											fill="currentColor"
+											viewBox="0 0 24 24"
+											aria-hidden="true"
+										>
+											<path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 00.5 6.2 31.2 31.2 0 000 12a31.2 31.2 0 00.5 5.8 3 3 0 002.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 002.1-2.1A31.2 31.2 0 0024 12a31.2 31.2 0 00-.5-5.8zM9.6 15.5V8.5L15.8 12l-6.2 3.5z" />
+										</svg>
+									</a>
+								</li>
+							) : null}
 						</ul>
 					</div>
 
@@ -197,9 +238,13 @@ const Footer = () => {
 							</ul>
 						</div>
 					</div>
-					<p className="text-xs text-gray-500">
-						&copy; 2021 KampanyaRadar Tüm Haklar Saklıdır.
-					</p>
+
+					{sanitizedFooterHtml ? (
+						<p
+							className="text-xs text-gray-500"
+							dangerouslySetInnerHTML={{ __html: sanitizedFooterHtml }}
+						/>
+					) : null}
 				</div>
 			</footer>
 			<Script src="/akfix.js" strategy="afterInteractive" />
@@ -208,3 +253,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

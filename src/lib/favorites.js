@@ -92,3 +92,17 @@ export function subscribeFavoritesChanged(callback) {
 	};
 }
 
+export function getFavoritesState() {
+	return readState();
+}
+
+export function clearFavorites(type) {
+	const state = readState();
+
+	if (type) {
+		writeState({ ...state, [type]: [] });
+		return;
+	}
+
+	writeState({ ...DEFAULT_STATE });
+}
