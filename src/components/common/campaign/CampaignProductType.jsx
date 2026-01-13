@@ -40,7 +40,7 @@ function PriceHistoryTooltip({ active, payload, label, formatPrice }) {
 			<p className="text-orange-600 font-semibold">
 				{formatPrice(numericValue)} TL
 			</p>
-			<p className="text-xs text-gray-500 mt-1">GÃ¼nÃ¼n en dÃ¼ÅŸÃ¼k fiyatÄ±</p>
+			<p className="text-xs text-gray-500 mt-1">Günün en düşük fiyatı</p>
 		</div>
 	);
 }
@@ -89,9 +89,7 @@ export default function CampaignContent({ campaign }) {
 		if (!Array.isArray(latestPrices) || latestPrices.length === 0) return [];
 
 		const storeByBrand = new Map(
-			(stores || [])
-				.filter((s) => s?.storeBrand)
-				.map((s) => [s.storeBrand, s]),
+			(stores || []).filter((s) => s?.storeBrand).map((s) => [s.storeBrand, s]),
 		);
 
 		const arr = latestPrices
@@ -161,7 +159,7 @@ export default function CampaignContent({ campaign }) {
 			} catch (err) {
 				if (err?.name === "AbortError") return;
 				console.error("Prices API fetch failed:", err);
-				setApiError("Fiyat verisi Ã§ekilemedi.");
+				setApiError("Fiyat verisi çekilemedi.");
 				setApiPrices([]);
 			} finally {
 				setApiLoading(false);
@@ -207,7 +205,7 @@ export default function CampaignContent({ campaign }) {
 		if (!normalizedPhone) {
 			toast({
 				title: "Hata!",
-				description: "LÃ¼tfen geÃ§erli bir cep telefonu numarasÄ± girin.",
+				description: "Lütfen geçerli bir cep telefonu numarası girin.",
 				variant: "destructive",
 			});
 			return;
@@ -215,8 +213,8 @@ export default function CampaignContent({ campaign }) {
 
 		if (!formData.consent) {
 			toast({
-				title: "UyarÄ±",
-				description: "LÃ¼tfen aÃ§Ä±k rÄ±za metnini kabul edin.",
+				title: "Uyarı",
+				description: "Lütfen açık rıza metnini kabul edin.",
 				variant: "destructive",
 			});
 			return;
@@ -224,9 +222,9 @@ export default function CampaignContent({ campaign }) {
 
 		try {
 			toast({
-				title: "BaÅŸarÄ±lÄ±!",
+				title: "Başarılı!",
 				description:
-					"Form baÅŸarÄ±yla gÃ¶nderildi. En kÄ±sa sÃ¼rede sizinle iletiÅŸime geÃ§eceÄŸiz.",
+					"Form başarıyla gönderildi. En kısa sürede sizinle iletişime geçeceğiz.",
 			});
 
 			setFormData({
@@ -236,10 +234,10 @@ export default function CampaignContent({ campaign }) {
 				consent: false,
 			});
 		} catch (error) {
-			console.error("Form gÃ¶nderimi baÅŸarÄ±sÄ±z:", error);
+			console.error("Form gönderimi başarısız:", error);
 			toast({
 				title: "Hata!",
-				description: "Form gÃ¶nderilemedi, lÃ¼tfen tekrar deneyin.",
+				description: "Form gönderilemedi, lütfen tekrar deneyin.",
 				variant: "destructive",
 			});
 		}
@@ -248,13 +246,13 @@ export default function CampaignContent({ campaign }) {
 	// -------------------- NEW: derive store list from API --------------------
 	const apiStoresLatest = useMemo(() => {
 		// apiPrices: [{date:'2025-12-25', store:'migros', price:154}, ...]
-		// Her maÄŸazanÄ±n en gÃ¼ncel (tarihi en yeni) fiyatÄ±nÄ± al
+		// Her mağazanın en güncel (tarihi en yeni) fiyatını al
 		const byStore = new Map();
 
 		for (const p of apiPrices) {
 			if (!p?.store || !p?.date) continue;
 			const priceNum = Number(p.price);
-			// price 0 ise "yok" kabul edelim (istersen kaldÄ±rabilirsin)
+			// price 0 ise "yok" kabul edelim (istersen kaldırabilirsin)
 			if (!Number.isFinite(priceNum) || priceNum <= 0) continue;
 
 			const prev = byStore.get(p.store);
@@ -262,12 +260,12 @@ export default function CampaignContent({ campaign }) {
 				byStore.set(p.store, p);
 				continue;
 			}
-			// string date: YYYY-MM-DD => lexicographic compare Ã§alÄ±ÅŸÄ±r
+			// string date: YYYY-MM-DD => lexicographic compare çalışır
 			if (p.date > prev.date) byStore.set(p.store, p);
 		}
 
 		const arr = Array.from(byStore.values()).map((p) => ({
-			// mevcut UI ile uyum iÃ§in alanlarÄ± benzetiyoruz
+			// mevcut UI ile uyum için alanları benzetiyoruz
 			storeId: p.store,
 			storeBrand: p.store,
 			price: Number(p.price),
@@ -277,11 +275,11 @@ export default function CampaignContent({ campaign }) {
 			_date: p.date,
 		}));
 
-		// fiyat sÄ±ralama
+		// fiyat sıralama
 		return arr.sort((a, b) => a.price - b.price);
 	}, [apiPrices, campaign?.link]);
 
-	// Ã–nce backend stores doluysa onu gÃ¶ster, boÅŸsa APIâ€™dan geleni gÃ¶ster
+	// Önce backend stores doluysa onu göster, boşsa API'den geleni göster
 	const hasLatestStores = latestStores.length > 0;
 	const hasBackendStores = sortedStores.length > 0;
 	const shouldUseApi = !hasLatestStores && !hasBackendStores;
@@ -296,7 +294,7 @@ export default function CampaignContent({ campaign }) {
 
 	// -------------------- NEW: chart data from API (min price per day) --------------------
 	const priceHistoryData = useMemo(() => {
-		// car gibi tek seri: her gÃ¼nÃ¼n EN DÃœÅÃœK (price>0) fiyatÄ±
+		// car gibi tek seri: her günün EN DÜŞÜK (price>0) fiyatı
 		const minByDate = new Map();
 
 		for (const p of apiPrices) {
@@ -308,7 +306,7 @@ export default function CampaignContent({ campaign }) {
 			if (cur === undefined || priceNum < cur) minByDate.set(p.date, priceNum);
 		}
 
-		const sortedDates = Array.from(minByDate.keys()).sort(); // YYYY-MM-DD => doÄŸru sÄ±ralanÄ±r
+		const sortedDates = Array.from(minByDate.keys()).sort(); // YYYY-MM-DD => doğru sıralanır
 
 		return sortedDates.map((d) => ({
 			date: new Date(`${d}T00:00:00`).toLocaleDateString("tr-TR", {
@@ -348,7 +346,7 @@ export default function CampaignContent({ campaign }) {
 								}`}
 							>
 								<Store className="h-4 w-4" />
-								MaÄŸazalar
+								Mağazalar
 								{totalStoresCount > 0 && (
 									<span
 										className={`px-1.5 py-0.5 rounded text-xs ${
@@ -371,7 +369,7 @@ export default function CampaignContent({ campaign }) {
 										: " border border-gray-200 text-gray-700 hover:border-orange-300"
 								}`}
 							>
-								ÃœrÃ¼n Ã–zellikleri
+								Ürün Özellikleri
 							</button>
 
 							<button
@@ -383,7 +381,7 @@ export default function CampaignContent({ campaign }) {
 										: " border border-gray-200 text-gray-700 hover:border-orange-300"
 								}`}
 							>
-								Kampanya Ä°Ã§eriÄŸi
+								Kampanya İçeriği
 							</button>
 						</div>
 
@@ -394,7 +392,7 @@ export default function CampaignContent({ campaign }) {
 								{apiLoading && shouldUseApi && (
 									<Card className="rounded-lg bg-transparent p-4 border border-gray-100">
 										<p className="text-sm text-gray-500">
-											Fiyatlar yÃ¼kleniyor...
+											Fiyatlar yükleniyor...
 										</p>
 									</Card>
 								)}
@@ -417,7 +415,7 @@ export default function CampaignContent({ campaign }) {
 														// biome-ignore lint/performance/noImgElement: Legacy store images are remote and handled with onError fallback.
 														<img
 															src={store.image_link}
-															alt={store.storeBrand || "MaÄŸaza"}
+															alt={store.storeBrand || "Mağaza"}
 															className="max-w-full max-h-full object-contain"
 															onError={(e) => {
 																e.target.style.display = "none";
@@ -432,7 +430,7 @@ export default function CampaignContent({ campaign }) {
 															store.image_link ? "hidden" : ""
 														}`}
 													>
-														{store.storeBrand || "MaÄŸaza"}
+														{store.storeBrand || "Mağaza"}
 													</span>
 												</div>
 
@@ -450,7 +448,7 @@ export default function CampaignContent({ campaign }) {
 												<div className="text-right flex-shrink-0">
 													<div className="flex items-center justify-end gap-1 mb-1">
 														{(store.in_stock ??
-															store.stock_availability === "in stock") ? (
+														store.stock_availability === "in stock") ? (
 															<>
 																<CheckCircle className="h-3 w-3 text-green-500" />
 																<span className="text-xs text-green-600">
@@ -461,7 +459,7 @@ export default function CampaignContent({ campaign }) {
 															<>
 																<XCircle className="h-3 w-3 text-red-500" />
 																<span className="text-xs text-red-600">
-																	TÃ¼kendi
+																	Tükendi
 																</span>
 															</>
 														)}
@@ -475,7 +473,7 @@ export default function CampaignContent({ campaign }) {
 													</p>
 
 													<p className="text-xs text-gray-400">
-														Ãœcretsiz Kargo
+														Ücretsiz Kargo
 													</p>
 												</div>
 
@@ -484,7 +482,7 @@ export default function CampaignContent({ campaign }) {
 													target="_blank"
 													rel="noopener noreferrer"
 													className="flex-shrink-0 w-10 h-10 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center text-white transition-colors"
-													aria-label="MaÄŸazaya Git"
+													aria-label="Mağazaya Git"
 												>
 													<ChevronRight className="h-5 w-5" />
 												</a>
@@ -495,7 +493,7 @@ export default function CampaignContent({ campaign }) {
 									<Card className=" rounded-lg overflow-hidden bg-transparent p-4">
 										<Store className="h-10 w-10 text-gray-300 mx-auto mb-3" />
 										<p className="text-gray-500 text-sm">
-											Bu kampanya iÃ§in maÄŸaza fiyatÄ± bulunmamaktadÄ±r.
+											Bu kampanya için mağaza fiyatı bulunmamaktadır.
 										</p>
 										{campaign?.link && (
 											<a
@@ -504,7 +502,7 @@ export default function CampaignContent({ campaign }) {
 												rel="noopener noreferrer"
 												className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors text-sm"
 											>
-												Kampanya SayfasÄ±na Git
+												Kampanya Sayfasına Git
 												<ExternalLink className="h-4 w-4" />
 											</a>
 										)}
@@ -516,7 +514,7 @@ export default function CampaignContent({ campaign }) {
 									<Card className="bg-transparent rounded-xl border border-gray-100">
 										<CardContent className="p-4">
 											<h3 className="text-sm font-semibold text-gray-900 mb-3">
-												Fiyat GeÃ§miÅŸi
+												Fiyat Geçmişi
 											</h3>
 
 											{priceHistoryData.length > 0 ? (
@@ -539,7 +537,13 @@ export default function CampaignContent({ campaign }) {
 																tick={{ fontSize: 12 }}
 																tickLine={{ stroke: "#9ca3af" }}
 															/>
-															<Tooltip content={<PriceHistoryTooltip formatPrice={formatPrice} />} />
+															<Tooltip
+																content={
+																	<PriceHistoryTooltip
+																		formatPrice={formatPrice}
+																	/>
+																}
+															/>
 															<Area
 																type="monotone"
 																dataKey="price"
@@ -553,7 +557,7 @@ export default function CampaignContent({ campaign }) {
 												</div>
 											) : (
 												<p className="text-gray-500 text-sm">
-													Grafik iÃ§in geÃ§erli fiyat bulunamadÄ±.
+													Grafik için geçerli fiyat bulunamadı.
 												</p>
 											)}
 										</CardContent>
@@ -573,7 +577,7 @@ export default function CampaignContent({ campaign }) {
 													{/* biome-ignore lint/performance/noImgElement: Gallery uses arbitrary remote URLs and simple sizing. */}
 													<img
 														src={productImages[currentImageIndex]}
-														alt={productData?.title || "ÃœrÃ¼n gÃ¶rseli"}
+														alt={productData?.title || "Ürün görseli"}
 														className="w-full aspect-square object-contain"
 													/>
 													{productImages.length > 1 && (
@@ -582,7 +586,7 @@ export default function CampaignContent({ campaign }) {
 																type="button"
 																onClick={prevImage}
 																className="absolute left-2 top-1/2 -translate-y-1/2  hover:bg-orange-500 hover:text-white text-gray-600 rounded-full p-1.5 shadow transition-colors"
-																aria-label="Ã–nceki gÃ¶rsel"
+																aria-label="Önceki görsel"
 															>
 																<ChevronLeft className="h-4 w-4" />
 															</button>
@@ -590,7 +594,7 @@ export default function CampaignContent({ campaign }) {
 																type="button"
 																onClick={nextImage}
 																className="absolute right-2 top-1/2 -translate-y-1/2  hover:bg-orange-500 hover:text-white text-gray-600 rounded-full p-1.5 shadow transition-colors"
-																aria-label="Sonraki gÃ¶rsel"
+																aria-label="Sonraki görsel"
 															>
 																<ChevronRight className="h-4 w-4" />
 															</button>
@@ -605,7 +609,7 @@ export default function CampaignContent({ campaign }) {
 																				? "bg-orange-500 w-5"
 																				: "bg-gray-300 hover:bg-gray-400"
 																		}`}
-																		aria-label={`GÃ¶rsel ${idx + 1}`}
+																		aria-label={`Görsel ${idx + 1}`}
 																	/>
 																))}
 															</div>
@@ -614,7 +618,7 @@ export default function CampaignContent({ campaign }) {
 												</>
 											) : (
 												<div className="w-full aspect-square flex items-center justify-center">
-													<p className="text-gray-400 text-sm">GÃ¶rsel yok</p>
+													<p className="text-gray-400 text-sm">Görsel yok</p>
 												</div>
 											)}
 										</div>
@@ -623,7 +627,7 @@ export default function CampaignContent({ campaign }) {
 									{/* Product Attributes */}
 									<div>
 										<h3 className="text-base font-semibold text-gray-900 mb-3">
-											ÃœrÃ¼n Ã–zellikleri
+											Ürün Özellikleri
 										</h3>
 										<div className="bg-gray-50 rounded-lg">
 											{Object.entries(attributes).length > 0 ? (
@@ -644,14 +648,14 @@ export default function CampaignContent({ campaign }) {
 												)
 											) : productData?.gtin ? (
 												<div className="flex justify-between py-2.5 px-3 text-sm bg-[#fffaf4]">
-													<span className="text-gray-500">ÃœrÃ¼n Kodu</span>
+													<span className="text-gray-500">Ürün Kodu</span>
 													<span className="text-gray-900 font-medium">
 														{productData.gtin}
 													</span>
 												</div>
 											) : (
 												<p className="text-gray-400 text-center py-6 text-sm">
-													ÃœrÃ¼n Ã¶zellikleri bulunmamaktadÄ±r.
+													Ürün özellikleri bulunmamaktadır.
 												</p>
 											)}
 										</div>
@@ -670,7 +674,7 @@ export default function CampaignContent({ campaign }) {
 									/>
 								) : (
 									<p className="text-gray-400 text-center py-8 text-sm">
-										Kampanya ÅŸartlarÄ± bilgisi bulunmamaktadÄ±r.
+										Kampanya şartları bilgisi bulunmamaktadır.
 									</p>
 								)}
 							</div>
@@ -693,7 +697,7 @@ export default function CampaignContent({ campaign }) {
 
 							<h2 className="text-center font-semibold text-gray-900 mb-5">
 								Formu Doldurun,{" "}
-								<span className="text-orange-500">Size UlaÅŸalÄ±m</span>
+								<span className="text-orange-500">Size Ulaşalım</span>
 							</h2>
 
 							<form onSubmit={handleSubmit} className="space-y-4">
@@ -709,7 +713,7 @@ export default function CampaignContent({ campaign }) {
 										id={nameInputId}
 										value={formData.name}
 										onChange={(e) => handleInputChange("name", e.target.value)}
-										placeholder="AdÄ±nÄ±zÄ± ve soyadÄ±nÄ±zÄ± girin"
+										placeholder="Adınızı ve soyAdınızı girin"
 										className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
 										required
 									/>
@@ -738,7 +742,7 @@ export default function CampaignContent({ campaign }) {
 										htmlFor={phoneInputId}
 										className="block text-sm text-gray-700 mb-1"
 									>
-										Telefon NumarasÄ± <span className="text-red-500">*</span>
+										Telefon Numarası<span className="text-red-500">*</span>
 									</label>
 									<input
 										type="tel"
@@ -768,7 +772,7 @@ export default function CampaignContent({ campaign }) {
 										htmlFor={consentInputId}
 										className="text-xs text-gray-500 cursor-pointer leading-relaxed"
 									>
-										AÃ§Ä±k rÄ±za metnini okudum ve kabul ediyorum.{" "}
+										Açık rıza metnini okudum ve kabul ediyorum.{" "}
 										<span className="text-red-500">*</span>
 									</label>
 								</div>

@@ -40,9 +40,9 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 
 	const RemainingBadge = ({ children, className = "" }) => (
 		<div
-			className={`ml-auto shadow-md text-gray-50 px-2 py-1 rounded-md text-xs font-medium shrink-0 ${className}`}
+			className={`ml-auto shadow-md text-gray-50 px-2 py-0.5 rounded-md text-[11px] font-medium shrink-0 whitespace-nowrap ${className}`}
 		>
-			<Clock10Icon className="mr-1 inline-block h-4 w-4" />
+			<Clock10Icon className="mr-1 inline-block h-3.5 w-3.5" />
 			<span>{children}</span>
 		</div>
 	);
@@ -50,10 +50,10 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 	const BrandBadge = () =>
 		brandHref ? (
 			<Link href={brandHref}>
-				<div className="bg-white rounded-full p-2 shadow-md shrink-0">
+				<div className="bg-white rounded-full p-1.5 shadow-md shrink-0">
 					{brand?.logo && (
 						<img
-							className="object-contain group-hover w-20 h-[20px]"
+							className="object-contain group-hover w-16 h-[18px]"
 							src={brand.logo}
 							title={brand.name || "Marka"}
 							alt={brand.name || "Marka"}
@@ -64,7 +64,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 		) : null;
 
 	const TopBadges = ({ children }) => (
-		<div className="absolute top-2 left-4 right-4 flex flex-wrap items-start gap-2">
+		<div className="absolute top-2 left-4 right-4 flex flex-wrap sm:flex-nowrap items-start gap-2">
 			<BrandBadge />
 			{children}
 		</div>
@@ -153,4 +153,3 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 };
 
 export default CampaignCard;
-
