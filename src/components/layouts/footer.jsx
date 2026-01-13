@@ -1,7 +1,11 @@
 import Script from "next/script";
-import DOMPurify from "isomorphic-dompurify";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useSettings } from "@/hooks/useSettings";
+
+function stripHtml(html) {
+	if (!html) return "";
+	return String(html).replace(/<[^>]*>/g, "");
+}
 
 const Footer = () => {
 	const { settings } = useSettings();
@@ -17,12 +21,36 @@ const Footer = () => {
 	const footerText =
 		typeof settings?.footer_text === "string" ? settings.footer_text : "";
 
-	const sanitizedFooterHtml = useMemo(() => {
-		if (!footerText?.trim()) return "";
-		return DOMPurify.sanitize(footerText, {
-			ALLOWED_TAGS: ["a", "br", "strong", "em", "b", "i", "u", "p", "span"],
-			ALLOWED_ATTR: ["href", "target", "rel"],
-		});
+	const [sanitizedFooterHtml, setSanitizedFooterHtml] = useState("");
+
+	useEffect(() => {
+		let cancelled = false;
+
+		if (!footerText?.trim()) {
+			setSanitizedFooterHtml("");
+			return () => {
+				cancelled = true;
+			};
+		}
+
+		import("dompurify")
+			.then((mod) => {
+				if (cancelled) return;
+				const DOMPurify = mod.default;
+				const clean = DOMPurify.sanitize(footerText, {
+					ALLOWED_TAGS: ["a", "br", "strong", "em", "b", "i", "u", "p", "span"],
+					ALLOWED_ATTR: ["href", "target", "rel"],
+				});
+				setSanitizedFooterHtml(clean);
+			})
+			.catch(() => {
+				// If sanitize fails, fall back to plain text.
+				if (!cancelled) setSanitizedFooterHtml("");
+			});
+
+		return () => {
+			cancelled = true;
+		};
 	}, [footerText]);
 
 	return (
@@ -239,11 +267,15 @@ const Footer = () => {
 						</div>
 					</div>
 
-					{sanitizedFooterHtml ? (
-						<p
-							className="text-xs text-gray-500"
-							dangerouslySetInnerHTML={{ __html: sanitizedFooterHtml }}
-						/>
+					{footerText?.trim() ? (
+						sanitizedFooterHtml ? (
+							<p
+								className="text-xs text-gray-500"
+								dangerouslySetInnerHTML={{ __html: sanitizedFooterHtml }}
+							/>
+						) : (
+							<p className="text-xs text-gray-500">{stripHtml(footerText)}</p>
+						)
 					) : null}
 				</div>
 			</footer>
@@ -253,4 +285,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
