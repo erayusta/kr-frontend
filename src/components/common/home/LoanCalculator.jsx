@@ -120,16 +120,16 @@ const LoanCalculateForm = ({
 				</div>
 			</div>
 
-			{isLoading !== true ? (
-				<Button onClick={() => handleGetOffers()} className="w-full">
-					Kredi Hesapla
-				</Button>
-			) : (
-				<Button className="w-full" disabled>
-					<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lütfen Bekleyin Teklifler
-					Listeleniyor...
-				</Button>
-			)}
+				{isLoading !== true ? (
+					<Button onClick={() => handleGetOffers()} className="w-full text-white">
+						Kredi Hesapla
+					</Button>
+				) : (
+					<Button className="w-full text-white" disabled>
+						<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lütfen Bekleyin Teklifler
+						Listeleniyor...
+					</Button>
+				)}
 		</Card>
 	);
 };
