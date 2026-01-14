@@ -110,9 +110,11 @@ export default function Home({
 				{/* Content middle */}
 				<Ads ads={ads} positions={["content_middle"]} />
 
-				<CategoryCampaginCarousel data={categories} />
-				<InfoBox />
-				<LatestPost posts={posts} />
+				<div className="container mx-auto px-4">
+					<CategoryCampaginCarousel data={categories} />
+					<InfoBox />
+					<LatestPost posts={posts} />
+				</div>
 
 				{/* Footer */}
 				<Ads ads={ads} positions={["footer"]} />
