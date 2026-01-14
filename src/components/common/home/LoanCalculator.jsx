@@ -383,7 +383,7 @@ export default function LoanCalculator() {
 			) : (
 				<>
 					<LoanResultCard setResults={setResults} data={results} loanType={loanType} />
-					<Button asChild className="w-full mt-3 justify-center">
+					<Button asChild className="w-full mt-3 justify-center text-white">
 						<Link
 							href={`/kredi/${loanTypeSlug[loanType]}?amount=${parseAmountToNumber(
 								amount,
