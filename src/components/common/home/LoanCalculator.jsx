@@ -87,7 +87,7 @@ const LoanCalculateForm = ({
 	}
 
 	return (
-		<Card className="p-6 space-y-6 mb-2">
+		<Card className="p-6 space-y-6 mb-2 border-none shadow-none">
 			<div className="grid grid-cols-2 gap-4">
 				<div className="space-y-2">
 					<Label htmlFor="amount">Kredi Tutarı</Label>
@@ -155,30 +155,30 @@ const LoanResultListItem = ({ data, index, loanType }) => {
 	};
 
 	return (
-		<div
-			role={isClickable ? "button" : undefined}
-			tabIndex={isClickable ? 0 : undefined}
-			onKeyDown={
-				isClickable
-					? (e) => {
-							if (e.key !== "Enter" && e.key !== " ") return;
-							e.preventDefault();
-							handleNavigate();
-						}
-					: undefined
-			}
-			onClick={
-				isClickable
-					? (e) => {
-							if (e?.target?.closest?.("a,button")) return;
-							handleNavigate();
-						}
-					: undefined
-			}
-			className={`border py-3 px-5 md:px-5 relative group hover:bg-gray-100  ${
-				index == 0 ? "border-2 border-green-500" : "bg-white"
-			}  rounded-md border-gray-100 ${isClickable ? "cursor-pointer" : ""}`}
-		>
+				<div
+					role={isClickable ? "button" : undefined}
+					tabIndex={isClickable ? 0 : undefined}
+					onKeyDown={
+						isClickable
+							? (e) => {
+									if (e.key !== "Enter" && e.key !== " ") return;
+									e.preventDefault();
+									handleNavigate();
+								}
+							: undefined
+					}
+					onClick={
+						isClickable
+							? (e) => {
+									if (e?.target?.closest?.("a,button")) return;
+									handleNavigate();
+								}
+							: undefined
+					}
+					className={`py-3 px-5 md:px-5 relative group hover:bg-gray-50 ${
+					index == 0 ? "" : "bg-white"
+				} rounded-md ${isClickable ? "cursor-pointer" : ""}`}
+				>
 			<div className="rounded-lg flex md:flex-row flex-col  md:items-center items-start justify-between">
 				<div className="flex flex-col md:mb-0mb-3  md:items-center items-start space-x-2">
 					{index == 0 && (
@@ -267,7 +267,7 @@ const LoanResultListItem = ({ data, index, loanType }) => {
 
 const LoanResultCard = ({ data, setResults, loanType }) => {
 	return (
-		<Card className="px-1">
+		<Card className="px-1 border-none shadow-none">
 			<CardHeader className="flex flex-row items-center gap-x-2">
 				<CardTitle className="font-bold">
 					<Button onClick={() => setResults([])} className="px-4 py-2" variant="outline">
