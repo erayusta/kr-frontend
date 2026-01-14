@@ -16,7 +16,7 @@ type Settings = Record<string, unknown> & {
 };
 
 const CACHE_KEY = "kr:settings:v1";
-const ONE_HOUR_MS = 60 * 60 * 1000;
+const CACHE_TTL_MS = 60 * 1000;
 
 function readCache(): { data: Settings; fetchedAt: number } | null {
 	if (typeof window === "undefined") return null;
@@ -58,7 +58,7 @@ export function useSettings(options?: { revalidateIfStale?: boolean }) {
 
 		const cachedNow = readCache();
 		const isFresh =
-			!!cachedNow?.fetchedAt && Date.now() - cachedNow.fetchedAt < ONE_HOUR_MS;
+			!!cachedNow?.fetchedAt && Date.now() - cachedNow.fetchedAt < CACHE_TTL_MS;
 
 		if (cachedNow?.data) {
 			setSettings(cachedNow.data);
