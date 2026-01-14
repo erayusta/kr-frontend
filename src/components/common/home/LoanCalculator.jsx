@@ -121,7 +121,7 @@ const LoanCalculateForm = ({
 			</div>
 
 				{isLoading !== true ? (
-					<Button onClick={() => handleGetOffers()} className="w-full text-white transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+					<Button onClick={() => handleGetOffers()} className="w-full text-white transition-colors duration-200">
 						Kredi Hesapla
 					</Button>
 				) : (
@@ -383,7 +383,7 @@ export default function LoanCalculator() {
 			) : (
 				<>
 					<LoanResultCard setResults={setResults} data={results} loanType={loanType} />
-					<Button asChild className="w-full mt-3 justify-center text-white transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+					<Button asChild className="w-full mt-3 justify-center text-white transition-colors duration-200">
 						<Link
 							href={`/kredi/${loanTypeSlug[loanType]}?amount=${parseAmountToNumber(
 								amount,
