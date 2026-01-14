@@ -87,7 +87,7 @@ const LoanCalculateForm = ({
 	}
 
 	return (
-		<Card className="p-6 space-y-6 mb-2">
+		<Card className="p-6 space-y-6 mb-2 border-none shadow-none">
 			<div className="grid grid-cols-2 gap-4">
 				<div className="space-y-2">
 					<Label htmlFor="amount">Kredi Tutarı</Label>
@@ -120,16 +120,16 @@ const LoanCalculateForm = ({
 				</div>
 			</div>
 
-			{isLoading !== true ? (
-				<Button onClick={() => handleGetOffers()} className="w-full">
-					Kredi Hesapla
-				</Button>
-			) : (
-				<Button className="w-full" disabled>
-					<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lütfen Bekleyin Teklifler
-					Listeleniyor...
-				</Button>
-			)}
+				{isLoading !== true ? (
+					<Button onClick={() => handleGetOffers()} className="w-full text-white transition-colors duration-200 hover:bg-primary/80 focus-visible:ring-2 focus-visible:ring-primary/40">
+						Kredi Hesapla
+					</Button>
+				) : (
+					<Button className="w-full text-white" disabled>
+						<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lütfen Bekleyin Teklifler
+						Listeleniyor...
+					</Button>
+				)}
 		</Card>
 	);
 };
@@ -155,30 +155,30 @@ const LoanResultListItem = ({ data, index, loanType }) => {
 	};
 
 	return (
-		<div
-			role={isClickable ? "button" : undefined}
-			tabIndex={isClickable ? 0 : undefined}
-			onKeyDown={
-				isClickable
-					? (e) => {
-							if (e.key !== "Enter" && e.key !== " ") return;
-							e.preventDefault();
-							handleNavigate();
-						}
-					: undefined
-			}
-			onClick={
-				isClickable
-					? (e) => {
-							if (e?.target?.closest?.("a,button")) return;
-							handleNavigate();
-						}
-					: undefined
-			}
-			className={`border py-3 px-5 md:px-5 relative group hover:bg-gray-100  ${
-				index == 0 ? "border-2 border-green-500" : "bg-white"
-			}  rounded-md border-gray-100 ${isClickable ? "cursor-pointer" : ""}`}
-		>
+				<div
+					role={isClickable ? "button" : undefined}
+					tabIndex={isClickable ? 0 : undefined}
+					onKeyDown={
+						isClickable
+							? (e) => {
+									if (e.key !== "Enter" && e.key !== " ") return;
+									e.preventDefault();
+									handleNavigate();
+								}
+							: undefined
+					}
+					onClick={
+						isClickable
+							? (e) => {
+									if (e?.target?.closest?.("a,button")) return;
+									handleNavigate();
+								}
+							: undefined
+					}
+					className={`py-3 px-5 md:px-5 relative group hover:bg-gray-50 ${
+					index == 0 ? "" : "bg-white"
+				} rounded-md ${isClickable ? "cursor-pointer" : ""}`}
+				>
 			<div className="rounded-lg flex md:flex-row flex-col  md:items-center items-start justify-between">
 				<div className="flex flex-col md:mb-0mb-3  md:items-center items-start space-x-2">
 					{index == 0 && (
@@ -267,7 +267,7 @@ const LoanResultListItem = ({ data, index, loanType }) => {
 
 const LoanResultCard = ({ data, setResults, loanType }) => {
 	return (
-		<Card className="px-1">
+		<Card className="px-1 border-none shadow-none">
 			<CardHeader className="flex flex-row items-center gap-x-2">
 				<CardTitle className="font-bold">
 					<Button onClick={() => setResults([])} className="px-4 py-2" variant="outline">
@@ -352,10 +352,10 @@ export default function LoanCalculator() {
 					</CardHeader>
 					<CardContent className="space-y-4 p-0 md:p-3">
 						<Tabs className="w-full max-w-3xl" defaultValue="personal">
-							<TabsList className="grid grid-cols-3 w-full">
+							<TabsList className="grid grid-cols-3 w-full rounded-full bg-gray-100 p-1">
 								{LOAN_TYPES.map((loan) => (
 									<TabsTrigger
-										className="md:text-md text-xs"
+										className="md:text-md text-xs rounded-full py-2 data-[state=active]:bg-primary data-[state=active]:text-white"
 										onClick={() => handleLoanTabChange(loan.type)}
 										key={loan.type}
 										value={loan.type}
@@ -383,7 +383,7 @@ export default function LoanCalculator() {
 			) : (
 				<>
 					<LoanResultCard setResults={setResults} data={results} loanType={loanType} />
-					<Button asChild className="w-full mt-3 justify-center">
+					<Button asChild className="w-full mt-3 justify-center text-white transition-colors duration-200 hover:bg-primary/80 focus-visible:ring-2 focus-visible:ring-primary/40">
 						<Link
 							href={`/kredi/${loanTypeSlug[loanType]}?amount=${parseAmountToNumber(
 								amount,
