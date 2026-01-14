@@ -352,10 +352,10 @@ export default function LoanCalculator() {
 					</CardHeader>
 					<CardContent className="space-y-4 p-0 md:p-3">
 						<Tabs className="w-full max-w-3xl" defaultValue="personal">
-							<TabsList className="grid grid-cols-3 w-full">
+							<TabsList className="grid grid-cols-3 w-full rounded-full bg-gray-100 p-1">
 								{LOAN_TYPES.map((loan) => (
 									<TabsTrigger
-										className="md:text-md text-xs"
+										className="md:text-md text-xs rounded-full py-2 data-[state=active]:bg-primary data-[state=active]:text-white"
 										onClick={() => handleLoanTabChange(loan.type)}
 										key={loan.type}
 										value={loan.type}
