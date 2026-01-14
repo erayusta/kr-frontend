@@ -24,14 +24,14 @@ const HeroCarousel = ({ data }) => {
                     {data?.map((item) => (
                         <CarouselItem
                             key={item.id}
-                            className="relative aspect-[16/9] sm:aspect-[4/3] md:aspect-[5/3] lg:aspect-[1/1] bg-blue-50"
+                            className="relative aspect-[16/9] sm:aspect-[4/3] md:aspect-[5/3] lg:aspect-[1/1] bg-[#fffaf4]"
                         >
                             <Link href={item.link || "#"} className="block w-full h-full">
                                 <Image
                                     src={item.image}
                                     alt={item.title || "Kampanya"}
                                     fill
-                                    className="object-cover w-full h-full rounded-2xl"
+                                    className="object-contain w-full h-full rounded-2xl"
                                     sizes="100vw"
                                     priority
                                 />
