@@ -2,6 +2,7 @@ import { Newspaper } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import NavbarAvatar from "@/components/common/auth/NavbarAvatar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -23,6 +24,15 @@ export const Header = () => {
 	const { isLoggedIn, profile } = useAuth();
 	const { toast } = useToast();
 
+	// Subtle elevation on scroll for professional feel
+	const [scrolled, setScrolled] = useState(false);
+	useEffect(() => {
+		const onScroll = () => setScrolled(window.scrollY > 8);
+		onScroll();
+		window.addEventListener("scroll", onScroll, { passive: true });
+		return () => window.removeEventListener("scroll", onScroll);
+	}, []);
+
 	const handleCreateCampaign = () => {
 		toast({
 			title: "Yakında!",
@@ -30,7 +40,7 @@ export const Header = () => {
 		});
 	};
 	return (
-		<header className="sticky top-0 z-50 w-full border-b border-border/30">
+		<header className={`sticky top-0 z-50 w-full border-b border-border/30 transition-shadow ${scrolled ? "shadow-sm" : "shadow-none"}`}>
 			<div className="absolute inset-0 bg-background backdrop-blur-xl pointer-events-none" />
 
 			<div className="relative container flex h-16 items-center justify-between px-4 md:px-6">
