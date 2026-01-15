@@ -58,10 +58,10 @@ export default function ({ posts }) {
 					>
 						<CarouselContent>
 							{posts?.map((post) => (
-								<CarouselItem
-									className={"basis-[86%] md:basis-1/4"}
-									key={post.id}
-								>
+                        <CarouselItem
+                            className={"basis-[86%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"}
+                            key={post.id}
+                        >
 									{" "}
 									<PostCard {...post}></PostCard>
 								</CarouselItem>
