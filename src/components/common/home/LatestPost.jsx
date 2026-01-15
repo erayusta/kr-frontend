@@ -14,9 +14,9 @@ import PostCard from "../PostCard";
 
 export default function ({ posts }) {
 	return (
-		<section className="bg-transparent">
-			<Card key={"latest-post"} className="bg-transparent max-w-full">
-				<CardHeader className="flex flex-row items-center justify-between">
+        <section className="bg-transparent">
+            <Card key={"latest-post"} className="max-w-full rounded-2xl border border-gray-200/70 bg-white shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between p-4 sm:p-5 border-b border-gray-100">
 					<div className="flex flex-row items-center  gap-x-3">
 						<Paperclip></Paperclip>
 						<CardTitle className="md:text-xl text-md">
@@ -25,11 +25,11 @@ export default function ({ posts }) {
 						</CardTitle>
 					</div>
 
-                <Button asChild variant="outline" className="text-xs md:text-sm hover:bg-primary/5">
+                <Button asChild variant="outline" className="text-xs md:text-sm hover:bg-accent hover:text-accent-foreground">
                     <Link href="/blog" aria-label="Tüm blog yazılarını gör">Tümünü Gör</Link>
                 </Button>
-				</CardHeader>
-				<CardContent>
+                </CardHeader>
+                <CardContent className="p-3 sm:p-5">
 					<Carousel
 						className="w-full"
 						plugins={[
