@@ -60,7 +60,7 @@ export const Header = () => {
 				</Link>
 
 				<nav className="header-nav hidden w-full ml-auto justify-between items-center md:flex">
-					<div className="flex items-center gap-2 ml-3">
+					<div className="grid grid-cols-2 items-center gap-x-4 ml-3">
 						<CategoryDialog menuItems={menuItems} />
 						<LoanDialog />
 					</div>

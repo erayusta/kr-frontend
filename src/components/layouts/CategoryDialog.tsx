@@ -22,8 +22,11 @@ export const CategoryDialog = ({ menuItems }: CategoryDialogProps) => {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button className="flex items-center gap-2" variant="ghost">
-					<ChevronDownIcon className="h-4 w-4" />
+				<Button
+					className="flex items-center gap-2 px-3 py-2 rounded-md text-sm leading-tight text-foreground hover:bg-accent hover:text-accent-foreground"
+					variant="ghost"
+				>
+					<ChevronDownIcon className="h-5 w-5" />
 					Kategoriler
 				</Button>
 			</DialogTrigger>
