@@ -111,9 +111,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
     const Detail = () => (
         <div className="px-3 sm:px-4 py-3">
             <Link title={title} href={`/kampanya/${slug}`}>
-                <h3 className="text-[13px] sm:text-sm md:text-base font-medium text-blue-950 mt-1 sm:mt-1.5 leading-tight break-words line-clamp-3">
-                    {title}
-                </h3>
+                <h3 className="text-sm font-medium text-blue-950 mt-2 h-[75px] leading-tight break-words line-clamp-3">{title}</h3>
             </Link>
             <Button asChild variant="outline" className="w-full rounded-b-lg mt-2 text-xs sm:text-sm">
                 <Link title={title} href={`/kampanya/${slug}`}>
