@@ -169,12 +169,51 @@ export default function Ad({
   if (ad.device === "mobile" && !isMobile) return null;
   if (ad.device === "desktop" && isMobile) return null;
 
-  // Render as-is without any alignment enforcement; Filament controls layout.
-  return (
-    <div className={className}>
-      <AdItem ad={ad} />
-    </div>
-  );
+  // ——— Minimal position-aware wrapper (no sizing changes beyond dimension presets) ———
+  const pos = ad.position as AdPosition | undefined;
+
+  // Header top-center alignment
+  if (pos === "home_header") {
+    return (
+      <div className={className} style={{ textAlign: "center" }}>
+        <AdItem ad={ad} />
+      </div>
+    );
+  }
+
+  // Fixed sidebars only when a preset width exists; otherwise fallback to inline
+  const dims = parseDimensions((ad as any).dimensions ?? null);
+  const hasWidth = !!dims?.width;
+
+  // Layout constants (container-based gutter)
+  const CONTAINER_WIDTH = 1280;
+  const GUTTER_GAP = 24;
+  const MIN_EDGE_GAP = 16;
+  const TOP_OFFSET_PX = 140;
+  const calcGutterOffset = (w: number) =>
+    `max(${MIN_EDGE_GAP}px, calc((100vw - ${CONTAINER_WIDTH}px) / 2 - ${w}px - ${GUTTER_GAP}px))`;
+
+  const isLeft = pos === "home_left";
+  const isRight = pos === "home_right";
+
+  if ((isLeft || isRight) && hasWidth) {
+    const w = dims!.width!;
+    const sideStyle = isLeft
+      ? ({ left: calcGutterOffset(w) } as const)
+      : ({ right: calcGutterOffset(w) } as const);
+
+    return (
+      <aside
+        className={className}
+        style={{ position: "fixed", zIndex: 9999, top: TOP_OFFSET_PX, width: w, ...sideStyle }}
+      >
+        <AdItem ad={ad} />
+      </aside>
+    );
+  }
+
+  // Fallback: inline flow (no extra alignment/sizing)
+  return <div className={className}><AdItem ad={ad} /></div>;
 }
 
 // Position'dan variant'a otomatik mapping
