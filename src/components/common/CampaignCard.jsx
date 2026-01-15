@@ -88,7 +88,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 	);
 
     const CardImage = () => (
-        <div className="relative w-full h-56 md:h-60 bg-white rounded-t-lg overflow-hidden">
+        <div className="relative w-full h-44 sm:h-52 md:h-60 lg:h-64 bg-white rounded-t-lg overflow-hidden">
             {imgSrc && !imgError ? (
                 <Image
                     alt={title || "Kampanya"}
@@ -96,7 +96,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
                     src={imgSrc}
                     fill
                     className="object-contain"
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                     onError={handleImageError}
                     priority={false}
                 />
@@ -109,11 +109,13 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
     );
 
     const Detail = () => (
-        <div className="px-3 py-3">
+        <div className="px-3 sm:px-4 py-3">
             <Link title={title} href={`/kampanya/${slug}`}>
-                <h3 className="text-sm text-blue-950 mt-1 h-14 line-clamp-2">{title}</h3>
+                <h3 className="text-[13px] sm:text-sm md:text-base font-medium text-blue-950 mt-1 sm:mt-1.5 h-12 sm:h-14 md:h-16 line-clamp-3">
+                    {title}
+                </h3>
             </Link>
-            <Button asChild variant="outline" className="w-full rounded-b-lg mt-2">
+            <Button asChild variant="outline" className="w-full rounded-b-lg mt-2 text-xs sm:text-sm">
                 <Link title={title} href={`/kampanya/${slug}`}>
                     Bilgi Al <ChevronRight size={18} />
                 </Link>
@@ -125,7 +127,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 		return (
             <Card
                 key={id}
-                className="group md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.01] hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/20"
+                className="group md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md transition-transform ease-out duration-200 md:hover:scale-[1.015] md:hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/20"
             >
                 <div className="relative group">
                     <CardImage />
@@ -142,7 +144,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
     return (
         <Card
             key={id}
-            className="group md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.01] hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/20"
+            className="group md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md transition-transform ease-out duration-200 md:hover:scale-[1.015] md:hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/20"
         >
             <div className="relative group">
                 <CardImage />
