@@ -49,7 +49,14 @@ export const Header = () => {
 					href="/"
 					aria-label="KampanyaRadar Anasayfa"
 				>
-					<Image src="/logo.png" alt="KampanyaRadar" width={80} height={80} priority className="h-8 w-auto md:h-9" />
+					<Image
+						src="/logo.png"
+						alt="KampanyaRadar"
+						width={80}
+						height={80}
+						priority
+						className="w-[80px] md:w-[80px] h-auto"
+					/>
 				</Link>
 
 				<nav className="header-nav hidden w-full ml-auto justify-between items-center md:flex">
@@ -61,10 +68,10 @@ export const Header = () => {
 					<div className="flex items-center gap-2">
 						<Button
 							onClick={handleCreateCampaign}
-							className="h-9 gap-2 px-4 text-sm font-medium transition-colors hover:bg-primary/80"
+							className="h-9 gap-x-5 px-4 text-sm font-medium border-none transition-colors hover:bg-primary hover:text-white"
 							variant="outline"
 						>
-							<Newspaper size={18} />
+							<Newspaper size={20} />
 							Kampanya Oluştur
 						</Button>
 						{!isLoggedIn ? (
