@@ -11,71 +11,13 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
 import { IMAGE_BASE_URL } from "@/constants/site";
-import apiRequest from "@/lib/apiRequest";
-import { normalizeTRMobilePhone } from "@/lib/phone";
+import CampaignLeadForm from "@/components/common/campaign/CampaignLeadForm";
 
 export default function CampaignCarType({ campaign }) {
 	console.log("car hocam", campaign);
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
 	const [selectedColorIndex, setSelectedColorIndex] = useState(0);
-
-	const { toast } = useToast();
-	const [formData, setFormData] = useState({
-		name: "",
-		email: "",
-		phone: "",
-		consent: false,
-	});
-	const onSubmit = async (e) => {
-		e.preventDefault();
-
-		const normalizedPhone = normalizeTRMobilePhone(formData.phone);
-		if (!normalizedPhone) {
-			toast({
-				title: "Hata!",
-				description: "Lütfen geçerli bir cep telefonu numarası girin.",
-				variant: "destructive",
-			});
-			return;
-		}
-
-		try {
-			const payload = {
-				campaign_id: campaign.id,
-				name: formData.name || "İsimsiz",
-				email: formData.email || "",
-				phone: normalizedPhone.e164,
-				form_data: { ...formData, phone: normalizedPhone.e164 },
-			};
-
-			await apiRequest("/leads", "post", payload);
-
-			toast({
-				title: "Başarılı!",
-				description:
-					"Form başarıyla gönderildi. En kısa sürede sizinle iletişime geçeceğiz.",
-			});
-
-			// Form'u temizle
-			setFormData({
-				name: "",
-				email: "",
-				phone: "",
-				consent: false,
-			});
-		} catch (error) {
-			console.error("Form gönderimi başarısız:", error.response);
-			toast({
-				title: "Hata!",
-				description:
-					error.response?.data?.error ??
-					"Form gönderilemedi, lütfen tekrar deneyin.",
-				variant: "destructive",
-			});
-		}
-	};
 
 	// car verisini kontrol et - item veya car olabilir
 	const carData = campaign.car || campaign.item;
@@ -354,92 +296,14 @@ export default function CampaignCarType({ campaign }) {
 			</div>
 
 			{/* SAĞ TARAF FORM */}
-			<Card className="w-12/12 md:w-3/12 p-5 space-y-4 bg-transparent">
-				<div className="flex justify-center">
-					<img
-						src={campaign.brands[0].logo ?? ""}
-						alt="görsel yüklenemedi"
-						width={160}
-						height={120}
-						className="rounded-lg object-cover"
-					/>
-				</div>
-
-				<h2 className="text-center font-bold text-lg text-gray-800">
-					FORMU DOLDURUN SİZE ULAŞALIM
-				</h2>
-
-				<form className="space-y-3" onSubmit={onSubmit}>
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
-							Ad Soyad
-						</label>
-						<input
-							type="text"
-							value={formData.name}
-							onChange={(e) =>
-								setFormData({ ...formData, name: e.target.value })
-							}
-							placeholder="Adınızı ve soyadınızı girin"
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-						/>
-					</div>
-
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
-							E-posta Adresi
-						</label>
-						<input
-							type="email"
-							value={formData.email}
-							onChange={(e) =>
-								setFormData({ ...formData, email: e.target.value })
-							}
-							placeholder="ornek@mail.com"
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-						/>
-					</div>
-
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
-							Telefon Numarası
-						</label>
-						<input
-							type="tel"
-							value={formData.phone}
-							onChange={(e) =>
-								setFormData({ ...formData, phone: e.target.value })
-							}
-							autoComplete="tel"
-							inputMode="numeric"
-							placeholder="05xx xxx xx xx"
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-							required
-						/>
-					</div>
-
-					<div className="flex items-start gap-2">
-						<input
-							type="checkbox"
-							checked={formData.consent}
-							onChange={(e) =>
-								setFormData({ ...formData, consent: e.target.checked })
-							}
-							className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-						/>
-						<label className="text-sm text-gray-600">
-							Açık rıza metnini okudum ve kabul ediyorum.
-						</label>
-					</div>
-
-					<button
-						type="submit"
-						className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition-colors"
-					>
-						Teklif Al
-					</button>
-				</form>
-			</Card>
+			<div className="w-12/12 md:w-3/12">
+				<CampaignLeadForm
+					campaign={campaign}
+					brandLogo={campaign.brands?.[0]?.logo}
+					brandName={campaign.brands?.[0]?.name}
+					variant="car"
+				/>
+			</div>
 		</div>
 	);
 }

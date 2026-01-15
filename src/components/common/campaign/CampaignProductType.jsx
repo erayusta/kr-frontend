@@ -17,8 +17,7 @@ import {
 	YAxis,
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
-import { normalizeTRMobilePhone } from "@/lib/phone";
+import CampaignLeadForm from "@/components/common/campaign/CampaignLeadForm";
 
 const TABS = {
 	PRICES: "prices",
@@ -48,20 +47,6 @@ function PriceHistoryTooltip({ active, payload, label, formatPrice }) {
 export default function CampaignContent({ campaign }) {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [activeTab, setActiveTab] = useState(TABS.PRICES);
-	const [formData, setFormData] = useState({
-		name: "",
-		email: "",
-		phone: "",
-		consent: false,
-	});
-
-	const formId = useId();
-	const nameInputId = `${formId}-name-input`;
-	const emailInputId = `${formId}-email-input`;
-	const phoneInputId = `${formId}-phone-input`;
-	const consentInputId = `${formId}-consent-input`;
-
-	const { toast } = useToast();
 
 	// Computed values
 	const productData = campaign?.product || campaign?.item || {};
@@ -194,54 +179,7 @@ export default function CampaignContent({ campaign }) {
 		);
 	};
 
-	const handleInputChange = (field, value) => {
-		setFormData((prev) => ({ ...prev, [field]: value }));
-	};
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-
-		const normalizedPhone = normalizeTRMobilePhone(formData.phone);
-		if (!normalizedPhone) {
-			toast({
-				title: "Hata!",
-				description: "Lütfen geçerli bir cep telefonu numarası girin.",
-				variant: "destructive",
-			});
-			return;
-		}
-
-		if (!formData.consent) {
-			toast({
-				title: "Uyarı",
-				description: "Lütfen açık rıza metnini kabul edin.",
-				variant: "destructive",
-			});
-			return;
-		}
-
-		try {
-			toast({
-				title: "Başarılı!",
-				description:
-					"Form başarıyla gönderildi. En kısa sürede sizinle iletişime geçeceğiz.",
-			});
-
-			setFormData({
-				name: "",
-				email: "",
-				phone: "",
-				consent: false,
-			});
-		} catch (error) {
-			console.error("Form gönderimi başarısız:", error);
-			toast({
-				title: "Hata!",
-				description: "Form gönderilemedi, lütfen tekrar deneyin.",
-				variant: "destructive",
-			});
-		}
-	};
 
 	// -------------------- NEW: derive store list from API --------------------
 	const apiStoresLatest = useMemo(() => {
@@ -683,108 +621,12 @@ export default function CampaignContent({ campaign }) {
 
 					{/* Sidebar - Contact Form */}
 					<div>
-						<div className=" rounded-xl border border-gray-100 p-5 sticky top-6">
-							{brandLogo && (
-								<div className="flex justify-center mb-5">
-									{/* biome-ignore lint/performance/noImgElement: Brand logos are external URLs and shown as-is. */}
-									<img
-										src={brandLogo}
-										alt={brandName || "Marka"}
-										className="h-14 object-contain"
-									/>
-								</div>
-							)}
-
-							<h2 className="text-center font-semibold text-gray-900 mb-5">
-								Formu Doldurun,{" "}
-								<span className="text-orange-500">Size Ulaşalım</span>
-							</h2>
-
-							<form onSubmit={handleSubmit} className="space-y-4">
-								<div>
-									<label
-										htmlFor={nameInputId}
-										className="block text-sm text-gray-700 mb-1"
-									>
-										Ad Soyad <span className="text-red-500">*</span>
-									</label>
-									<input
-										type="text"
-										id={nameInputId}
-										value={formData.name}
-										onChange={(e) => handleInputChange("name", e.target.value)}
-										placeholder="Adınızı ve soyAdınızı girin"
-										className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-										required
-									/>
-								</div>
-
-								<div>
-									<label
-										htmlFor={emailInputId}
-										className="block text-sm text-gray-700 mb-1"
-									>
-										E-posta Adresi <span className="text-red-500">*</span>
-									</label>
-									<input
-										type="email"
-										id={emailInputId}
-										value={formData.email}
-										onChange={(e) => handleInputChange("email", e.target.value)}
-										placeholder="ornek@mail.com"
-										className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-										required
-									/>
-								</div>
-
-								<div>
-									<label
-										htmlFor={phoneInputId}
-										className="block text-sm text-gray-700 mb-1"
-									>
-										Telefon Numarası<span className="text-red-500">*</span>
-									</label>
-									<input
-										type="tel"
-										id={phoneInputId}
-										value={formData.phone}
-										onChange={(e) => handleInputChange("phone", e.target.value)}
-										autoComplete="tel"
-										inputMode="numeric"
-										placeholder="05xx xxx xx xx"
-										className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
-										required
-									/>
-								</div>
-
-								<div className="flex items-start gap-2 pt-1">
-									<input
-										type="checkbox"
-										id={consentInputId}
-										checked={formData.consent}
-										onChange={(e) =>
-											handleInputChange("consent", e.target.checked)
-										}
-										className="mt-0.5 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500 cursor-pointer"
-										required
-									/>
-									<label
-										htmlFor={consentInputId}
-										className="text-xs text-gray-500 cursor-pointer leading-relaxed"
-									>
-										Açık rıza metnini okudum ve kabul ediyorum.{" "}
-										<span className="text-red-500">*</span>
-									</label>
-								</div>
-
-								<button
-									type="submit"
-									className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-lg transition-colors text-sm"
-								>
-									Teklif Al
-								</button>
-							</form>
-						</div>
+						<CampaignLeadForm
+							campaign={campaign}
+							brandLogo={brandLogo}
+							brandName={brandName}
+							variant="product"
+						/>
 					</div>
 				</div>
 			</div>

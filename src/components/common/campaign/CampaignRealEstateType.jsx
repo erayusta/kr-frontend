@@ -23,6 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { IMAGE_BASE_URL } from "@/constants/site";
 import { cn } from "@/lib/utils";
+import CampaignLeadForm from "@/components/common/campaign/CampaignLeadForm";
 
 export default function CampaignRealEstateType({ campaign }) {
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -368,22 +369,13 @@ export default function CampaignRealEstateType({ campaign }) {
 						</CardContent>
 					</Card>
 
-					{/* İletişim Butonu */}
-					<Card className="bg-gradient-to-r from-blue-500 to-blue-600">
-						<CardContent className="p-6 text-white">
-							<h4 className="font-semibold mb-3">Hemen İletişime Geç</h4>
-							<p className="text-sm mb-4 opacity-90">
-								Kampanya fiyatlarından yararlanmak için bizimle iletişime geçin
-							</p>
-							<Button
-								className="w-full bg-white text-blue-600 hover:bg-gray-100"
-								size="lg"
-							>
-								<Phone className="h-4 w-4 mr-2" />
-								Bilgi Al
-							</Button>
-						</CardContent>
-					</Card>
+					{/* Contact Form */}
+					<CampaignLeadForm
+						campaign={campaign}
+						brandLogo={campaign.brands?.[0]?.logo}
+						brandName={campaign.brands?.[0]?.name}
+						variant="product"
+					/>
 
 					{/* Konum */}
 					{realEstateData.maps_url && (
