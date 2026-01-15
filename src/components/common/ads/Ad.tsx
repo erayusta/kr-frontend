@@ -12,10 +12,14 @@ declare global {
 
 const parseDimensions = (
   dimensions: string | null,
-): { width: number; height: number } => {
-  if (!dimensions) return { width: 300, height: 250 };
-  const [w, h] = dimensions.split("x").map(Number);
-  return { width: w || 300, height: h || 250 };
+): { width: number; height: number } | null => {
+  if (!dimensions) return null;
+  if (dimensions.toLowerCase() === "custom") return null;
+  const [wRaw, hRaw] = dimensions.split("x");
+  const w = Number(wRaw);
+  const h = Number(hRaw);
+  if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return null;
+  return { width: w, height: h };
 };
 
 // Device detection hook
@@ -82,11 +86,17 @@ const AdItem = ({ ad, maxWidth }: AdItemProps) => {
   if (!mounted) return null;
 
   if (ad.type === "html" && ad.code) {
+    const dims = parseDimensions(ad.dimensions);
+    const style = dims
+      ? ({ width: dims.width, height: dims.height, overflow: "hidden" } as const)
+      : ({} as const);
+
     if (isGptAd) {
       return (
         <div
           id={`ad-container-${uniqueId}`}
           className={isGptAdLoaded ? "block" : "hidden"}
+          style={style}
           dangerouslySetInnerHTML={{ __html: ad.code }}
         />
       );
@@ -95,12 +105,16 @@ const AdItem = ({ ad, maxWidth }: AdItemProps) => {
     return (
       <div
         id={`ad-container-${uniqueId}`}
+        style={style}
         dangerouslySetInnerHTML={{ __html: ad.code }}
       />
     );
   }
 
   if (ad.type === "image" && ad.image) {
+    const dims = parseDimensions(ad.dimensions);
+    const width = dims?.width;
+    const height = dims?.height;
     return (
       <a
         href={ad.link || "#"}
@@ -108,11 +122,17 @@ const AdItem = ({ ad, maxWidth }: AdItemProps) => {
         rel="noopener noreferrer"
         className="block"
       >
-        {/* Show exactly as provided; no FE-enforced sizing */}
         <img
           src={ad.image}
           alt={ad.name}
-          style={{ maxWidth: "100%", height: "auto", display: "block" }}
+          width={width}
+          height={height}
+          style={{
+            maxWidth: width ? undefined : "100%",
+            width: width ?? "auto",
+            height: height ?? "auto",
+            display: "block",
+          }}
         />
       </a>
     );
