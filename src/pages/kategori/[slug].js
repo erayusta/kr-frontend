@@ -82,7 +82,7 @@ export default function Category({ category, items, ads, url }) {
 				<CategoryContent url={url} items={items} category={category} />
 
 				{/* Footer */}
-				<Ads ads={ads} positions={["footer"]} itemType="category" />
+				<Ads ads={ads} positions={["footer"]} itemType="category" className="mt-8" />
 			</section>
 		</Layout>
 	);

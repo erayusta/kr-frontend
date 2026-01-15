@@ -12,10 +12,14 @@ declare global {
 
 const parseDimensions = (
   dimensions: string | null,
-): { width: number; height: number } => {
-  if (!dimensions) return { width: 300, height: 250 };
-  const [w, h] = dimensions.split("x").map(Number);
-  return { width: w || 300, height: h || 250 };
+): { width: number; height: number } | null => {
+  if (!dimensions) return null;
+  if (dimensions.toLowerCase() === "custom") return null;
+  const [wRaw, hRaw] = dimensions.split("x");
+  const w = Number(wRaw);
+  const h = Number(hRaw);
+  if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return null;
+  return { width: w, height: h };
 };
 
 // Device detection hook
@@ -82,11 +86,17 @@ const AdItem = ({ ad, maxWidth }: AdItemProps) => {
   if (!mounted) return null;
 
   if (ad.type === "html" && ad.code) {
+    const dims = parseDimensions(ad.dimensions);
+    const style = dims
+      ? ({ width: dims.width, height: dims.height, overflow: "hidden" } as const)
+      : ({} as const);
+
     if (isGptAd) {
       return (
         <div
           id={`ad-container-${uniqueId}`}
           className={isGptAdLoaded ? "block" : "hidden"}
+          style={style}
           dangerouslySetInnerHTML={{ __html: ad.code }}
         />
       );
@@ -95,17 +105,16 @@ const AdItem = ({ ad, maxWidth }: AdItemProps) => {
     return (
       <div
         id={`ad-container-${uniqueId}`}
+        style={style}
         dangerouslySetInnerHTML={{ __html: ad.code }}
       />
     );
   }
 
   if (ad.type === "image" && ad.image) {
-    const { width, height } = parseDimensions(ad.dimensions);
-    const finalWidth = maxWidth ? Math.min(width, maxWidth) : width;
-    const aspectRatio = width / height;
-    const finalHeight = Math.round(finalWidth / aspectRatio);
-
+    const dims = parseDimensions(ad.dimensions);
+    const width = dims?.width;
+    const height = dims?.height;
     return (
       <a
         href={ad.link || "#"}
@@ -113,17 +122,17 @@ const AdItem = ({ ad, maxWidth }: AdItemProps) => {
         rel="noopener noreferrer"
         className="block"
       >
-        <Image
+        <img
           src={ad.image}
           alt={ad.name}
-          width={finalWidth}
-          height={finalHeight}
+          width={width}
+          height={height}
           style={{
-            width: finalWidth,
-            height: finalHeight,
-            objectFit: "contain",
+            maxWidth: width ? undefined : "100%",
+            width: width ?? "auto",
+            height: height ?? "auto",
+            display: "block",
           }}
-          unoptimized
         />
       </a>
     );
@@ -147,43 +156,6 @@ interface AdProps {
   className?: string;
 }
 
-const SIDEBAR_MAX_WIDTH = 120;
-
-/**
- * Sidebar positioning (MVP):
- * - Container varsayımı: 1280px
- * - Gutter: (100vw - containerWidth)/2
- * - Content ile araya GUTTER_GAP koy
- * - Ekran kenarına yapışmasın diye MIN_EDGE_GAP clamp
- *
- * TOP için inline style (tailwind override/bundle sorunlarına karşı kesin çözüm)
- */
-const CONTAINER_WIDTH = 1280;
-const GUTTER_GAP = 24;
-const MIN_EDGE_GAP = 16;
-
-// Yukarıdan boşluk (px)
-const TOP_OFFSET_PX = 140;
-
-const calcGutterOffset = (w: number) =>
-  `max(${MIN_EDGE_GAP}px, calc((100vw - ${CONTAINER_WIDTH}px) / 2 - ${w}px - ${GUTTER_GAP}px))`;
-
-const variantStyles: Record<AdVariant, string> = {
-  "sidebar-left":
-    "block fixed z-[9999] p-2 border border-gray-200/50 rounded-lg bg-[#fffaf4]/80 backdrop-blur-sm shadow-lg",
-  "sidebar-right":
-    "block fixed z-[9999] p-2 border border-gray-200/50 rounded-lg bg-[#fffaf4]/80 backdrop-blur-sm shadow-lg",
-  sidebar:
-    "block fixed z-[9999] p-2 border border-gray-200/50 rounded-lg bg-[#fffaf4]/80 backdrop-blur-sm shadow-lg",
-
-  banner: "flex justify-center my-4 p-3 bg-[#fffaf4]",
-  inline: "p-2 border border-gray-200/50 rounded bg-white/50",
-  footer:
-    "flex justify-center my-6 py-4 px-3 border border-gray-200 rounded-lg bg-[#fffaf4]",
-  "content-middle":
-    "flex justify-center my-8 p-4 border border-gray-200 rounded-lg bg-[#fffaf4]",
-};
-
 export default function Ad({
   ad,
   variant = "inline",
@@ -197,49 +169,54 @@ export default function Ad({
   if (ad.device === "mobile" && !isMobile) return null;
   if (ad.device === "desktop" && isMobile) return null;
 
-  const isFixedSidebar =
-    variant === "sidebar-left" ||
-    variant === "sidebar-right" ||
-    variant === "sidebar";
+  // ——— Minimal position-aware wrapper (no sizing changes beyond dimension presets) ———
+  const pos = ad.position as AdPosition | undefined;
 
-  const { width } = parseDimensions(ad.dimensions);
-  const sidebarWidth = isFixedSidebar
-    ? Math.min(width, SIDEBAR_MAX_WIDTH)
-    : undefined;
+  // Header top-center alignment
+  if (pos === "home_header") {
+    const dims = parseDimensions((ad as any).dimensions ?? null);
+    return (
+      <div className={`my-4 ${className || ""}`.trim()} style={{ display: "flex", justifyContent: "center" }}>
+        <div style={{ width: dims?.width ?? undefined, height: dims?.height ?? undefined }}>
+          <AdItem ad={ad} />
+        </div>
+      </div>
+    );
+  }
 
-  const baseStyle = variantStyles[variant];
+  // Fixed sidebars only when a preset width exists; otherwise fallback to inline
+  const dims = parseDimensions((ad as any).dimensions ?? null);
+  const hasWidth = !!dims?.width;
 
-  if (isFixedSidebar) {
-    const w = sidebarWidth ?? SIDEBAR_MAX_WIDTH;
+  // Layout constants (container-based gutter)
+  const CONTAINER_WIDTH = 1280;
+  const GUTTER_GAP = 24;
+  const MIN_EDGE_GAP = 16;
+  const TOP_OFFSET_PX = 140;
+  const calcGutterOffset = (w: number) =>
+    `max(${MIN_EDGE_GAP}px, calc((100vw - ${CONTAINER_WIDTH}px) / 2 - ${w}px - ${GUTTER_GAP}px))`;
 
-    // sidebar-left => left gutter
-    // sidebar-right & sidebar => right gutter
-    const sideStyle =
-      variant === "sidebar-left"
-        ? ({ left: calcGutterOffset(w) } as const)
-        : ({ right: calcGutterOffset(w) } as const);
+  const isLeft = pos === "home_left";
+  const isRight = pos === "home_right";
+
+  if ((isLeft || isRight) && hasWidth) {
+    const w = dims!.width!;
+    const sideStyle = isLeft
+      ? ({ left: calcGutterOffset(w) } as const)
+      : ({ right: calcGutterOffset(w) } as const);
 
     return (
       <aside
-        className={`${baseStyle} ${className}`.trim()}
-        style={{
-          top: TOP_OFFSET_PX,
-          width: w,
-          minWidth: w,
-          minHeight: "100px",
-          ...sideStyle,
-        }}
+        className={className}
+        style={{ position: "fixed", zIndex: 9999, top: TOP_OFFSET_PX, width: w, ...sideStyle }}
       >
-        <AdItem ad={ad} maxWidth={w} />
+        <AdItem ad={ad} />
       </aside>
     );
   }
 
-  return (
-    <div className={`${baseStyle} ${className}`.trim()}>
-      <AdItem ad={ad} />
-    </div>
-  );
+  // Fallback: inline flow (no extra alignment/sizing)
+  return <div className={`my-4 ${className || ""}`.trim()}><AdItem ad={ad} /></div>;
 }
 
 // Position'dan variant'a otomatik mapping

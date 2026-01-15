@@ -13,58 +13,58 @@ import { getIcon } from "@/lib/utils";
 import CampaignCard from "../CampaignCard";
 
 const CategoryCampaginsCarousel = ({ category, style }) => {
-	return (
-		<Card
-			key={category.id}
-			className="bg-transparent max-w-full border-0 shadow-none"
-		>
-			{/* Üst başlık kısmı */}
-			<CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-				<div className="flex items-center gap-x-3">
-					<div
-						dangerouslySetInnerHTML={{ __html: getIcon(category.name) }}
-						className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8"
-					/>
-					<CardTitle className="text-lg md:text-xl font-semibold">
-						{category.name} Kampanyaları
-					</CardTitle>
-				</div>
+    return (
+        <Card
+            key={category.id}
+            className="max-w-full rounded-2xl border border-gray-200/70 bg-white/90 shadow-sm"
+        >
+            {/* Üst başlık kısmı */}
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 sm:p-5 border-b border-gray-100">
+                <div className="flex items-center gap-x-3">
+                    <div
+                        dangerouslySetInnerHTML={{ __html: getIcon(category.name) }}
+                        className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8"
+                    />
+                    <CardTitle className="text-lg md:text-xl font-semibold">
+                        {category.name} Kampanyaları
+                    </CardTitle>
+                </div>
 
-				<Button
-					asChild
-					variant="outline"
-					className="text-xs md:text-sm whitespace-nowrap"
-				>
-					<Link href={`/kategori/${category.slug}`}>Tümünü Gör</Link>
-				</Button>
-			</CardHeader>
+                <Button
+                    asChild
+                    variant="outline"
+                    className="text-xs md:text-sm whitespace-nowrap hover:bg-primary/5"
+                >
+                    <Link href={`/kategori/${category.slug}`}>Tümünü Gör</Link>
+                </Button>
+            </CardHeader>
 
-			{/* Carousel kısmı */}
-			<CardContent className="p-0 md:p-5">
-				<Carousel
-					className="w-full"
-					plugins={[
-						Autoplay({
-							delay: 2500,
+            {/* Carousel kısmı */}
+            <CardContent className="p-3 sm:p-5">
+                <Carousel
+                    className="w-full"
+                    plugins={[
+                        Autoplay({
+                            delay: 2500,
 							stopOnInteraction: false,
 							stopOnMouseEnter: true,
 						}),
 					]}
 				>
-					<CarouselContent className="flex items-stretch">
-						{category.campaigns.map((campaign) => (
-							<CarouselItem
-								key={campaign.id}
-								className={`${
-									style === "one"
-										? "basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
-										: "basis-[85%] sm:basis-1/2"
-								} flex-shrink-0 px-2`}
-							>
-								<CampaignCard {...campaign} />
-							</CarouselItem>
-						))}
-					</CarouselContent>
+                    <CarouselContent className="flex items-stretch">
+                        {category.campaigns.map((campaign) => (
+                            <CarouselItem
+                                key={campaign.id}
+                                className={`${
+                                    style === "one"
+                                        ? "basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                                        : "basis-[85%] sm:basis-1/2"
+                                } flex-shrink-0 px-2`}
+                            >
+                                <CampaignCard {...campaign} />
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
 
 					{style === "one" && (
 						<>

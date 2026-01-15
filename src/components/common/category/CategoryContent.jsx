@@ -1,18 +1,18 @@
 import CampaignCard from "../CampaignCard";
-import React, { useEffect } from 'react'
+import React from 'react'
 import CategoryEmptyCampaigns from "./CategoryEmptyCampaigns";
-import InfiniteScroll from "../InfiniteScroll";
+import LoadMoreList from "../LoadMoreList";
 
 
 export default function ({category, url, items}){
 
 return(<section>
  
-{items && items.length > 0 ? 
-<InfiniteScroll type={"campaigns"} initialItems={items || []} url={url}  />
-:
-<CategoryEmptyCampaigns></CategoryEmptyCampaigns>
-}
+{items && items.length > 0 ? (
+  <LoadMoreList type="campaigns" initialItems={items || []} url={url} pageSize={12} />
+) : (
+  <CategoryEmptyCampaigns />
+)}
 </section>
 )
 

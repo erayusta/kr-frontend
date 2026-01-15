@@ -11,19 +11,33 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { getIcon } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 interface CategoryDialogProps {
-	menuItems: any;
+    menuItems: any;
 }
 
 export const CategoryDialog = ({ menuItems }: CategoryDialogProps) => {
-	if (!Array.isArray(menuItems) || menuItems.length === 0) return null;
+    const router = useRouter();
+    const [open, setOpen] = useState(false);
 
-	return (
-		<Dialog>
+    useEffect(() => {
+        const handleRoute = () => setOpen(false);
+        router.events.on("routeChangeStart", handleRoute);
+        return () => router.events.off("routeChangeStart", handleRoute);
+    }, [router.events]);
+
+    if (!Array.isArray(menuItems) || menuItems.length === 0) return null;
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button className="flex items-center gap-2" variant="ghost">
-					<ChevronDownIcon className="h-4 w-4" />
+				<Button
+					className="flex items-center gap-2 px-3 py-2 rounded-md text-sm leading-tight text-foreground hover:bg-accent hover:text-accent-foreground"
+					variant="ghost"
+				>
+					<ChevronDownIcon className="h-5 w-5" />
 					Kategoriler
 				</Button>
 			</DialogTrigger>
@@ -34,41 +48,41 @@ export const CategoryDialog = ({ menuItems }: CategoryDialogProps) => {
 						Geniş Kampanya Seçeneklerimizi Keşfedin.
 					</DialogDescription>
 				</DialogHeader>
-				<div className="grid gap-y-2">
-					{menuItems.map((category) => (
-						<CategoryItem key={category.slug} category={category} />
-					))}
-				</div>
-			</DialogContent>
-		</Dialog>
-	);
+                <div className="grid gap-y-2">
+                    {menuItems.map((category) => (
+                        <CategoryItem key={category.slug} category={category} onSelect={() => setOpen(false)} />
+                    ))}
+                </div>
+        </DialogContent>
+        </Dialog>
+    );
 };
 
-const CategoryItem = ({ category }: { category: MenuItem }) => {
-	return (
-		<Dialog>
-			<div className="flex justify-between items-center">
-				<Button
-					asChild
-					className="flex w-full justify-start items-center gap-x-4"
-					variant="ghost"
-				>
-					<Link href={`/kategori/${category.slug}`}>
-						<div
-							className="product-des"
-							dangerouslySetInnerHTML={{ __html: getIcon(category.name) }}
-						/>
-						{category.name}
-					</Link>
-				</Button>
-				{category.children && category.children.length > 0 && (
-					<DialogTrigger asChild>
-						<Button variant="outline" className="w-[50px]">
-							<ChevronDownIcon className="h-4 w-4" />
-						</Button>
-					</DialogTrigger>
-				)}
-			</div>
+const CategoryItem = ({ category, onSelect }: { category: any; onSelect: () => void }) => {
+    return (
+        <Dialog>
+            <div className="flex justify-between items-center">
+                <Button
+                    asChild
+                    className="flex w-full justify-start items-center gap-x-4"
+                    variant="ghost"
+                >
+                    <Link href={`/kategori/${category.slug}`} onClick={onSelect}>
+                        <div
+                            className="product-des"
+                            dangerouslySetInnerHTML={{ __html: getIcon(category.name) }}
+                        />
+                        {category.name}
+                    </Link>
+                </Button>
+                {category.children && category.children.length > 0 && (
+                    <DialogTrigger asChild>
+                        <Button variant="outline" className="w-[50px]">
+                            <ChevronDownIcon className="h-4 w-4" />
+                        </Button>
+                    </DialogTrigger>
+                )}
+            </div>
 
 			{category.children && category.children.length > 0 && (
 				<DialogContent className="sm:max-w-[400px]">
@@ -86,19 +100,19 @@ const CategoryItem = ({ category }: { category: MenuItem }) => {
 					</DialogHeader>
 					<div className="grid gap-y-2">
 						{category.children.map((child) => (
-							<Button
-								key={child.slug}
-								asChild
-								className="justify-between items-center w-full"
-								variant="ghost"
-							>
-								<Link href={`/kategori/${child.slug}`}>
-									{child.name}
-									<ChevronRight className="h-4 w-4" />
-								</Link>
-							</Button>
-						))}
-					</div>
+                            <Button
+                                key={child.slug}
+                                asChild
+                                className="justify-between items-center w-full"
+                                variant="ghost"
+                            >
+                                <Link href={`/kategori/${child.slug}`} onClick={onSelect}>
+                                    {child.name}
+                                    <ChevronRight className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        ))}
+                    </div>
 				</DialogContent>
 			)}
 		</Dialog>
