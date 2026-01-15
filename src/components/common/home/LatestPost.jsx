@@ -1,6 +1,7 @@
 import Autoplay from "embla-carousel-autoplay";
 import { Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Carousel,
@@ -24,7 +25,9 @@ export default function ({ posts }) {
 						</CardTitle>
 					</div>
 
-					<Button variant="outline">Tümünü Gör</Button>
+                <Button asChild variant="outline" className="text-xs md:text-sm hover:bg-primary/5">
+                    <Link href="/blog" aria-label="Tüm blog yazılarını gör">Tümünü Gör</Link>
+                </Button>
 				</CardHeader>
 				<CardContent>
 					<Carousel
