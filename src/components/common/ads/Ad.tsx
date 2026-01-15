@@ -176,7 +176,7 @@ export default function Ad({
   if (pos === "home_header") {
     const dims = parseDimensions((ad as any).dimensions ?? null);
     return (
-      <div className={className} style={{ display: "flex", justifyContent: "center" }}>
+      <div className={`my-4 ${className || ""}`.trim()} style={{ display: "flex", justifyContent: "center" }}>
         <div style={{ width: dims?.width ?? undefined, height: dims?.height ?? undefined }}>
           <AdItem ad={ad} />
         </div>
@@ -216,7 +216,7 @@ export default function Ad({
   }
 
   // Fallback: inline flow (no extra alignment/sizing)
-  return <div className={className}><AdItem ad={ad} /></div>;
+  return <div className={`my-4 ${className || ""}`.trim()}><AdItem ad={ad} /></div>;
 }
 
 // Position'dan variant'a otomatik mapping

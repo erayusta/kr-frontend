@@ -50,8 +50,13 @@ export default function LoadMoreList({ initialItems = [], url, type = "campaigns
       </div>
 
       {hasMore && (
-        <div className="flex items-center justify-center mt-6">
-          <Button onClick={loadMore} disabled={loading} className="min-w-[220px]">
+        <div className="flex items-center justify-center mt-8">
+          <Button
+            onClick={loadMore}
+            disabled={loading}
+            variant="outline"
+            className="min-w-[220px] text-sm hover:bg-accent hover:text-accent-foreground"
+          >
             {loading ? (
               <>
                 <LoaderIcon className="mr-2 h-4 w-4 animate-spin" /> Yükleniyor...
@@ -65,4 +70,3 @@ export default function LoadMoreList({ initialItems = [], url, type = "campaigns
     </div>
   );
 }
-
