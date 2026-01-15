@@ -61,7 +61,7 @@ export const Header = () => {
 
 				<nav className="header-nav hidden w-full ml-auto justify-between items-center md:flex">
 					<div className="grid grid-cols-2 items-center gap-x-4 ml-6 md:ml-8 lg:ml-10">
-						<CategoryDialog menuItems={menuItems} />
+						<CategoryDialog menuItems={menuItems?.filter((item) => item?.children?.length !== 0)} />
 						<LoanDialog />
 					</div>
 
