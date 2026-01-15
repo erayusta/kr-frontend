@@ -169,8 +169,17 @@ export default function Ad({
   if (ad.device === "mobile" && !isMobile) return null;
   if (ad.device === "desktop" && isMobile) return null;
 
-  // Render without FE-imposed frame or sizing; let backend/Filament control appearance
-  return <AdItem ad={ad} />;
+  // Render without FE-imposed frame; use position to infer basic alignment if needed
+  const pos = ad?.position as AdPosition | undefined;
+  const textAlign: React.CSSProperties["textAlign"] | undefined =
+    pos === "home_header"
+      ? "center"
+      : pos === "home_left"
+      ? "left"
+      : pos === "home_right"
+      ? "right"
+      : undefined;
+  return <div style={{ textAlign }} className={className}><AdItem ad={ad} /></div>;
 }
 
 // Position'dan variant'a otomatik mapping
