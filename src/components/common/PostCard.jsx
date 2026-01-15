@@ -9,7 +9,7 @@ export default function PostCard({ image, title, id, slug }){
 
 
  return (
-  <Card key={id} className="group max-w-[360px] border border-gray-100 rounded-xl shadow-md hover:shadow-lg transition-colors duration-200">
+  <Card key={id} className="group max-w-[360px] border border-gray-100 rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.01] hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/20">
     <div className="relative w-full h-56 md:h-60 rounded-t-lg overflow-hidden bg-white">
       {image ? (
         <Image

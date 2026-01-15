@@ -125,7 +125,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 		return (
             <Card
                 key={id}
-                className="md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md hover:shadow-lg transition-colors duration-200"
+                className="group md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.01] hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/20"
             >
                 <div className="relative group">
                     <CardImage />
@@ -142,7 +142,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
     return (
         <Card
             key={id}
-            className="md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md hover:shadow-lg transition-colors duration-200"
+            className="group md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.01] hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/20"
         >
             <div className="relative group">
                 <CardImage />
