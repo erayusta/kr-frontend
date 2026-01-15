@@ -174,9 +174,12 @@ export default function Ad({
 
   // Header top-center alignment
   if (pos === "home_header") {
+    const dims = parseDimensions((ad as any).dimensions ?? null);
     return (
-      <div className={className} style={{ textAlign: "center" }}>
-        <AdItem ad={ad} />
+      <div className={className} style={{ display: "flex", justifyContent: "center" }}>
+        <div style={{ width: dims?.width ?? undefined, height: dims?.height ?? undefined }}>
+          <AdItem ad={ad} />
+        </div>
       </div>
     );
   }
