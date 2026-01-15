@@ -31,7 +31,7 @@ export const Header = () => {
 	};
 	return (
 		<header className="sticky top-0 z-50 w-full border-b border-border/30">
-			<div className="absolute inset-0 bg-background/80 backdrop-blur-xl pointer-events-none" />
+			<div className="absolute inset-0 bg-background backdrop-blur-xl pointer-events-none" />
 
 			<div className="relative container flex h-16 items-center justify-between px-4 md:px-6">
 				<Link
