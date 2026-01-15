@@ -88,7 +88,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 	);
 
     const CardImage = () => (
-        <div className="relative w-full h-48 bg-white rounded-t-lg overflow-hidden">
+        <div className="relative w-full h-52 md:h-56 bg-white rounded-t-xl overflow-hidden p-3 ring-1 ring-gray-200/80 shadow-sm transition-colors group-hover:ring-primary/30">
             {imgSrc && !imgError ? (
                 <Image
                     alt={title || "Kampanya"}
@@ -101,7 +101,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
                     priority={false}
                 />
             ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
                     <span className="text-gray-400">Görsel yüklenemedi</span>
                 </div>
             )}

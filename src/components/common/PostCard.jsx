@@ -9,8 +9,8 @@ export default function PostCard({ image, title, id, slug }){
 
 
  return (
-  <Card key={id} className="max-w-[360px] shadow-md hover:shadow-lg transition-colors duration-200">
-    <div className="relative w-full h-48 rounded-t-lg overflow-hidden bg-white">
+  <Card key={id} className="group max-w-[360px] shadow-md hover:shadow-lg transition-colors duration-200">
+    <div className="relative w-full h-52 md:h-56 rounded-t-xl overflow-hidden bg-white p-3 ring-1 ring-gray-200/80 shadow-sm transition-colors group-hover:ring-primary/30">
       {image ? (
         <Image
           alt={title || 'Blog post'}
@@ -22,7 +22,7 @@ export default function PostCard({ image, title, id, slug }){
           priority={false}
         />
       ) : (
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+        <div className="absolute inset-0 bg-gray-50 flex items-center justify-center">
           <MountainIcon className="text-gray-400" size={48} />
         </div>
       )}
