@@ -52,7 +52,7 @@ export const Header = () => {
 					<Image src="/logo.png" alt="KampanyaRadar" width={80} height={80} priority className="h-8 w-auto md:h-9" />
 				</Link>
 
-				<nav className="hidden w-full ml-auto justify-between items-center md:flex">
+				<nav className="header-nav hidden w-full ml-auto justify-between items-center md:flex">
 					<div className="flex items-center gap-2 ml-3">
 						<CategoryDialog menuItems={menuItems} />
 						<LoanDialog />

@@ -61,3 +61,17 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Header navigation typography (match legacy sizing) */
+@layer components {
+  .header-nav a,
+  .header-nav button {
+    font-size: 14px; /* legacy header item size */
+    line-height: 1.25;
+  }
+}
+
+/* Optional utility: smaller list markers when needed */
+@layer utilities {
+  .marker-sm li::marker { font-size: 0.9em; }
+}
