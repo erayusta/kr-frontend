@@ -350,14 +350,6 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 										/>
 										{isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
 									</button>
-									<button
-										type="button"
-										className="inline-flex items-center gap-2 px-4 py-2 border-2 border-gray-200 hover:border-orange-300 text-gray-700 rounded-xl text-sm font-medium transition-all duration-200"
-										style={{ backgroundColor: "transparent" }}
-									>
-										<Bell className="h-4 w-4" />
-										Fiyat Alarmı Kur
-									</button>
 								</div>
 							</div>
 

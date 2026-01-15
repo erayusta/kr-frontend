@@ -1,19 +1,14 @@
-import { useEffect, useId, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Ad, { getAdByPosition } from "../ads/Ad";
 import CampaignCarType from "./CampaignCarType";
 import CampaignCouponType from "./CampaignCouponType";
 import CampaignProductType from "./CampaignProductType";
 import CampaignRealEstateType from "./CampaignRealEstateType";
+import CampaignLeadForm from "./CampaignLeadForm";
 
 export default function CampaignContent({ campaign, ads }) {
 	const contentRef = useRef(null);
-	const nameId = useId();
-	const emailId = useId();
-	const phoneId = useId();
 	const isActual = campaign?.itemType === "actual";
 	const htmlContent = isActual ? campaign?.actual_content : campaign?.content;
 
@@ -119,67 +114,8 @@ export default function CampaignContent({ campaign, ads }) {
 						) && (
 							<div className="lg:col-span-4">
 								<div className="sticky top-4 space-y-6">
-									{/* Kampanya Haberdar Olma Formu */}
-									<Card className="border-2 border-orange-200 overflow-hidden">
-										<div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6">
-											<h3 className="text-xl font-bold text-white mb-2">
-												Kampanya Haberdar Olma Formu
-											</h3>
-											<p className="text-white/90 text-sm">
-												Kampanya ile ilgili güncellemelerden haberdar olmak için
-												bilgilerinizi paylaşın.
-											</p>
-										</div>
-										<CardContent className="p-6 bg-white space-y-4">
-											<div className="space-y-2">
-												<Label
-													htmlFor={nameId}
-													className="text-gray-700 font-medium"
-												>
-													Ad ve Soyad
-												</Label>
-												<Input
-													id={nameId}
-													placeholder="Adınızı ve soyadınızı girin"
-													className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
-												/>
-											</div>
-
-											<div className="space-y-2">
-												<Label
-													htmlFor={emailId}
-													className="text-gray-700 font-medium"
-												>
-													E-Posta Adresi
-												</Label>
-												<Input
-													id={emailId}
-													type="email"
-													placeholder="E-posta adresinizi girin"
-													className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
-												/>
-											</div>
-
-											<div className="space-y-2">
-												<Label
-													htmlFor={phoneId}
-													className="text-gray-700 font-medium"
-												>
-													Telefon
-												</Label>
-												<Input
-													id={phoneId}
-													type="tel"
-													placeholder="Telefon numaranızı girin"
-													className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
-												/>
-											</div>
-
-											<Button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-6 text-base rounded-xl shadow-lg">
-												Hemen Başvur
-											</Button>
-										</CardContent>
-									</Card>
+									{/* Kampanya İletişim Formu */}
+									<CampaignLeadForm variant="product" campaignId={campaign?.id} />
 
 									{/* Reklam */}
 									{getAdByPosition(ads, "sidebar", "campaign") && (
