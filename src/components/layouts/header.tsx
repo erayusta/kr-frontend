@@ -68,7 +68,7 @@ export const Header = () => {
 					<div className="flex items-center gap-2">
 						<Button
 							onClick={handleCreateCampaign}
-							className="h-9 gap-x-5 px-4 text-sm font-medium border-none transition-colors hover:bg-primary hover:text-white"
+							className="h-9 gap-x-5 px-4 text-sm font-medium border-none text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
 							variant="outline"
 						>
 							<Newspaper size={20} />
