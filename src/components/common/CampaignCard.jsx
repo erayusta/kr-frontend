@@ -88,15 +88,15 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 	);
 
     const CardImage = () => (
-        <div className="relative w-full h-44 sm:h-52 md:h-60 lg:h-64 bg-white rounded-t-lg overflow-hidden">
+        <div className="relative w-full h-48 rounded-t-lg overflow-hidden bg-white">
             {imgSrc && !imgError ? (
                 <Image
                     alt={title || "Kampanya"}
                     title={title || "Kampanya"}
                     src={imgSrc}
                     fill
-                    className="object-contain"
-                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     onError={handleImageError}
                     priority={false}
                 />
@@ -127,7 +127,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 		return (
             <Card
                 key={id}
-                className="group md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md transition-transform ease-out duration-200 md:hover:scale-[1.015] md:hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/20"
+                className="md:max-w-md max-w-sm shadow-md hover:shadow-xl transition-transform duration-300 ease-in-out hover:-translate-y-1"
             >
                 <div className="relative group">
                     <CardImage />
@@ -144,7 +144,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
     return (
         <Card
             key={id}
-            className="group md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md transition-transform ease-out duration-200 md:hover:scale-[1.015] md:hover:shadow-lg focus-within:ring-2 focus-within:ring-primary/20"
+            className="md:max-w-md max-w-sm shadow-md hover:shadow-xl transition-transform duration-300 ease-in-out hover:-translate-y-1"
         >
             <div className="relative group">
                 <CardImage />
