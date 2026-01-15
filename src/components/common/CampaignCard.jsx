@@ -88,7 +88,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 	);
 
     const CardImage = () => (
-        <div className="relative w-full h-52 md:h-56 bg-white rounded-t-xl overflow-hidden p-3 ring-1 ring-gray-200/80 shadow-sm transition-colors group-hover:ring-primary/30">
+        <div className="relative w-full h-56 md:h-60 bg-white rounded-t-lg overflow-hidden">
             {imgSrc && !imgError ? (
                 <Image
                     alt={title || "Kampanya"}
@@ -125,7 +125,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 		return (
             <Card
                 key={id}
-                className="md:max-w-md max-w-sm shadow-md hover:shadow-lg transition-colors duration-200"
+                className="md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md hover:shadow-lg transition-colors duration-200"
             >
                 <div className="relative group">
                     <CardImage />
@@ -142,7 +142,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
     return (
         <Card
             key={id}
-            className="md:max-w-md max-w-sm shadow-md hover:shadow-lg transition-colors duration-200"
+            className="md:max-w-md max-w-sm border border-gray-100 rounded-xl shadow-md hover:shadow-lg transition-colors duration-200"
         >
             <div className="relative group">
                 <CardImage />
