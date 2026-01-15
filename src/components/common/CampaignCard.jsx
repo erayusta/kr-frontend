@@ -5,6 +5,7 @@ import { remainingDay } from "@/utils/campaign";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { useFavorite } from "@/hooks/useFavorite";
+import Image from "next/image";
 
 const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => {
 	const [remaining, setRemaining] = useState(null);
@@ -86,70 +87,76 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 		</Button>
 	);
 
-	const Image = () =>
-		imgSrc && !imgError ? (
-			<img
-				alt={title || "Kampanya"}
-				title={title || "Kampanya"}
-				className="w-full hover:bg-black h-48 object-cover rounded-t-lg"
-				src={imgSrc}
-				onError={handleImageError}
-			/>
-		) : (
-			<div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-				<span className="text-gray-400">Görsel yüklenemedi</span>
-			</div>
-		);
+    const CardImage = () => (
+        <div className="relative w-full h-48 bg-white rounded-t-lg overflow-hidden">
+            {imgSrc && !imgError ? (
+                <Image
+                    alt={title || "Kampanya"}
+                    title={title || "Kampanya"}
+                    src={imgSrc}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    onError={handleImageError}
+                    priority={false}
+                />
+            ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                    <span className="text-gray-400">Görsel yüklenemedi</span>
+                </div>
+            )}
+        </div>
+    );
 
-	const Detail = () => (
-		<div className="px-2 py-2">
-			<Link title={title} href={`/kampanya/${slug}`}>
-				<h3 className="text-sm text-blue-950 mt-2 h-20 line-clamp-3">{title}</h3>
-			</Link>
-			<Button asChild variant="outline" className="w-full rounded-b-lg">
-				<Link title={title} href={`/kampanya/${slug}`}>
-					Bilgi Al <ChevronRight size={18} />
-				</Link>
-			</Button>
-		</div>
-	);
+    const Detail = () => (
+        <div className="px-3 py-3">
+            <Link title={title} href={`/kampanya/${slug}`}>
+                <h3 className="text-sm text-blue-950 mt-1 h-14 line-clamp-2">{title}</h3>
+            </Link>
+            <Button asChild variant="outline" className="w-full rounded-b-lg mt-2">
+                <Link title={title} href={`/kampanya/${slug}`}>
+                    Bilgi Al <ChevronRight size={18} />
+                </Link>
+            </Button>
+        </div>
+    );
 
 	if (!mounted) {
 		return (
-			<Card
-				key={id}
-				className="md:max-w-md max-w-sm shadow-md hadow-lg hover:shadow-xl transition-transform duration-300 ease-in-out hover:-translate-y-1"
-			>
-				<div className="relative group:">
-					<Image />
-					<TopBadges>
-						<RemainingBadge className="bg-primary">...</RemainingBadge>
-					</TopBadges>
-					<FavoriteButton />
-				</div>
-				<Detail />
-			</Card>
-		);
-	}
+            <Card
+                key={id}
+                className="md:max-w-md max-w-sm shadow-md hover:shadow-lg transition-colors duration-200"
+            >
+                <div className="relative group">
+                    <CardImage />
+                    <TopBadges>
+                        <RemainingBadge className="bg-primary">...</RemainingBadge>
+                    </TopBadges>
+                    <FavoriteButton />
+                </div>
+                <Detail />
+            </Card>
+        );
+    }
 
-	return (
-		<Card
-			key={id}
-			className="md:max-w-md max-w-sm shadow-md hadow-lg hover:shadow-xl transition-transform duration-300 ease-in-out hover:-translate-y-1"
-		>
-			<div className="relative group:">
-				<Image />
-				<TopBadges>
-					<RemainingBadge className={remaining < 5 ? "bg-red-500" : "bg-primary"}>
-						{remaining < 0 ? "Süresi Doldu" : `${remaining} gün kaldı`}
-					</RemainingBadge>
-				</TopBadges>
-				<FavoriteButton />
-			</div>
+    return (
+        <Card
+            key={id}
+            className="md:max-w-md max-w-sm shadow-md hover:shadow-lg transition-colors duration-200"
+        >
+            <div className="relative group">
+                <CardImage />
+                <TopBadges>
+                    <RemainingBadge className={remaining < 5 ? "bg-red-500" : "bg-primary"}>
+                        {remaining < 0 ? "Süresi Doldu" : `${remaining} gün kaldı`}
+                    </RemainingBadge>
+                </TopBadges>
+                <FavoriteButton />
+            </div>
 
-			<Detail />
-		</Card>
-	);
+            <Detail />
+        </Card>
+    );
 };
 
 export default CampaignCard;
