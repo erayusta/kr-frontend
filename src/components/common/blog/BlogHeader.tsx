@@ -106,102 +106,59 @@ export default function BlogHeader({ post }: BlogHeaderProps) {
 				</div>
 			</div>
 
-			<div className="xl:mx-auto xl:px-36 pb-8">
-				<div className="container px-4">
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden rounded-2xl shadow-2xl border border-gray-200/60 dark:border-gray-800">
-						<div className="bg-gradient-to-br from-white via-orange-50 to-amber-100 dark:from-[#0f172a] dark:via-[#111827] dark:to-[#ea580c] p-8 lg:p-12 flex flex-col justify-between min-h-[340px] relative overflow-hidden">
-							<div className="absolute top-0 right-0 w-64 h-64 bg-black/5 dark:bg-white/5 rounded-full -mr-32 -mt-32" />
-							<div className="absolute bottom-0 left-0 w-48 h-48 bg-black/5 dark:bg-white/5 rounded-full -ml-24 -mb-24" />
+		<div className="xl:mx-auto xl:px-36 pb-4">
+			<div className="container px-4">
+				<div className="space-y-3">
+					{post?.categories?.[0] && (
+						<Button size="sm" variant="outline" className="items-center flex gap-3">
+							{/* biome-ignore lint/security/noDangerouslySetInnerHtml: Icon HTML is controlled locally. */}
+							<div className="text-base" dangerouslySetInnerHTML={{ __html: getIcon(post.categories[0].name) }} />
+							<div>{post.categories[0].name}</div>
+						</Button>
+					)}
 
-							<div className="relative z-10 space-y-6">
-								{post?.categories?.[0] && (
-									<Button
-										size="sm"
-										variant="outline"
-										className="items-center flex gap-3 bg-white/70 border-slate-200 text-slate-900 hover:bg-white dark:bg-white/10 dark:border-white/20 dark:text-white dark:hover:bg-white/20 dark:hover:text-white"
-									>
-										{/* biome-ignore lint/security/noDangerouslySetInnerHtml: Icon HTML is controlled locally. */}
-										<div
-											className="text-base"
-											dangerouslySetInnerHTML={{
-												__html: getIcon(post.categories[0].name),
-											}}
-										/>
-										<div>{post.categories[0].name}</div>
-									</Button>
-								)}
+					<h1 className="text-3xl lg:text-4xl font-bold text-slate-900 leading-tight">
+						{post?.title}
+					</h1>
 
-								<div className="space-y-3">
-									<h1 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
-										{post?.title}
-									</h1>
-
-									{(formattedDate || readingMinutes) && (
-										<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-700 dark:text-white/80 text-sm">
-											{formattedDate && (
-												<span className="inline-flex items-center gap-2">
-													<CalendarDays className="h-4 w-4" />
-													{formattedDate}
-												</span>
-											)}
-											{readingMinutes && (
-												<span className="inline-flex items-center gap-2">
-													<Clock className="h-4 w-4" />
-													{readingMinutes} dk okuma
-												</span>
-											)}
-										</div>
-									)}
-								</div>
-							</div>
-
-							<div className="relative z-10 flex flex-wrap items-center gap-3">
-								<Button
-									disabled={!canToggle}
-									aria-pressed={isFavorite}
-									onClick={toggle}
-									variant="secondary"
-									className="rounded-full hover:bg-orange-500 hover:text-white"
-									title={isFavorite ? "Kaydedildi" : "Kaydet"}
-								>
-									<HeartIcon
-										className="mr-2 h-5 w-5"
-										fill={isFavorite ? "currentColor" : "none"}
-									/>
-									<span className="md:block hidden">
-										{isFavorite ? "Kaydedildi" : "Kaydet"}
-									</span>
-								</Button>
-
-								<Button
-									asChild
-									variant="secondary"
-									className="rounded-full hover:bg-orange-500 hover:text-white"
-								>
-									<Link target="_blank" href={tweetHref}>
-										<Share2Icon className="mr-2 h-5 w-5" />
-										<span className="md:block hidden">Paylaş</span>
-									</Link>
-								</Button>
-							</div>
-						</div>
-
-						<div className="relative bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-950 min-h-[340px]">
-							<Image
-								src={imageSrc}
-								alt={post?.title || "Blog görseli"}
-								fill
-								priority
-								className="object-cover"
-								sizes="(max-width: 1024px) 100vw, 50vw"
-								onError={() => setImageSrc("/sample-info.png")}
-								unoptimized
-							/>
-							<div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-						</div>
-					</div>
+                    {(formattedDate || readingMinutes) && (
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-700 text-sm">
+                                {formattedDate && (
+                                    <span className="inline-flex items-center gap-2">
+                                        <CalendarDays className="h-4 w-4" />{formattedDate}
+                                    </span>
+                                )}
+                                {readingMinutes && (
+                                    <span className="inline-flex items-center gap-2">
+                                        <Clock className="h-4 w-4" />{readingMinutes} dk okuma
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    disabled={!canToggle}
+                                    aria-pressed={isFavorite}
+                                    onClick={toggle}
+                                    variant="outline"
+                                    className="rounded-full text-sm hover:bg-accent hover:text-accent-foreground"
+                                    title={isFavorite ? "Kaydedildi" : "Kaydet"}
+                                >
+                                    <HeartIcon className="mr-2 h-5 w-5" fill={isFavorite ? "currentColor" : "none"} />
+                                    <span>{isFavorite ? "Kaydedildi" : "Kaydet"}</span>
+                                </Button>
+                                <Button asChild variant="outline" className="rounded-full text-sm hover:bg-accent hover:text-accent-foreground">
+                                    <Link target="_blank" href={tweetHref}>
+                                        <Share2Icon className="mr-2 h-5 w-5" />
+                                        <span>Paylaş</span>
+                                    </Link>
+                                </Button>
+                            </div>
+                        </div>
+                    )}
 				</div>
 			</div>
+		</div>
 		</section>
 	);
 }

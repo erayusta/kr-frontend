@@ -30,38 +30,23 @@ export default function ({ posts }) {
                 </Button>
                 </CardHeader>
                 <CardContent className="p-3 sm:p-5">
-					<Carousel
-						className="w-full"
-						plugins={[
-							Autoplay({
-								delay: 2000,
-								stopOnInteraction: false,
-								stopOnMouseEnter: true,
-							}),
-						]}
-						opts={{
-							responsive: [
-								{
-									breakpoint: 768,
-									settings: {
-										slidesToShow: 1,
-									},
-								},
-								{
-									breakpoint: 1024,
-									settings: {
-										slidesToShow: 4,
-									},
-								},
-							],
-						}}
-					>
-						<CarouselContent>
-							{posts?.map((post) => (
-                        <CarouselItem
-                            className={"basis-[86%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"}
-                            key={post.id}
-                        >
+                    <Carousel
+                        className="w-full"
+                        plugins={[
+                            Autoplay({
+                                delay: 2500,
+                                stopOnInteraction: false,
+                                stopOnMouseEnter: true,
+                            }),
+                        ]}
+                        opts={{ loop: true, align: 'start' }}
+                    >
+                        <CarouselContent className="flex items-stretch">
+                            {posts?.map((post) => (
+                                <CarouselItem
+                                    className={"basis-[86%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"}
+                                    key={post.id}
+                                >
 									{" "}
 									<PostCard {...post}></PostCard>
 								</CarouselItem>
