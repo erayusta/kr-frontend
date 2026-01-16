@@ -176,7 +176,7 @@ export default function Ad({
   if (pos === "home_header") {
     const dims = parseDimensions((ad as any).dimensions ?? null);
     return (
-      <div className={`my-4 ${className || ""}`.trim()} style={{ display: "flex", justifyContent: "center" }}>
+      <div className={`${className || ""} mt-2 mb-8`.trim()} style={{ display: "flex", justifyContent: "center" }}>
         <div style={{ width: dims?.width ?? undefined, height: dims?.height ?? undefined }}>
           <AdItem ad={ad} />
         </div>
