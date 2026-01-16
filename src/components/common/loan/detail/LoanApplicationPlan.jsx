@@ -73,19 +73,15 @@ export default function LoanApplicationPlan({ data }) {
 	].filter((x) => typeof x.value === "string" && x.value.trim() !== "");
 
 	return (
-		<div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
-			{items.map((item) => (
-				<div
-					key={item.label}
-					className="rounded-xl border bg-white/60 dark:bg-gray-900/30 p-3 md:p-4"
-				>
-					<p className="text-xs font-medium text-muted-foreground">{item.label}</p>
-					<p className="mt-1 text-base md:text-lg font-semibold text-slate-900 dark:text-white">
-						{item.value}
-					</p>
-				</div>
-			))}
+		<div className="w-full">
+			<div className="divide-y">
+				{items.map((item) => (
+					<div key={item.label} className="flex items-center justify-between py-3">
+						<p className="text-xs md:text-sm text-muted-foreground">{item.label}</p>
+						<p className="text-sm md:text-base font-semibold text-slate-900 dark:text-white">{item.value}</p>
+					</div>
+				))}
+			</div>
 		</div>
 	);
 }
-

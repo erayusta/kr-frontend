@@ -126,8 +126,7 @@ const LoanCalculateForm = ({
 					</Button>
 				) : (
 					<Button className="w-full text-white" disabled>
-						<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lütfen Bekleyin Teklifler
-						Listeleniyor...
+						<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Hesaplanıyor...
 					</Button>
 				)}
 		</Card>

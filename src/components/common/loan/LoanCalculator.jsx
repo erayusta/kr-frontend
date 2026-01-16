@@ -121,13 +121,12 @@ const LoanCalculateForm = ({
 				</div>
 
 				{isLoading !== true ? (
-					<Button onClick={handleCalculate} className="w-full">
+					<Button onClick={handleCalculate} className="w-full text-white">
 						Kredi Hesapla
 					</Button>
 				) : (
-					<Button className="w-full" disabled>
-						<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lütfen Bekleyin Teklifler
-						Listeleniyor...
+					<Button className="w-full text-white" disabled>
+						<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Hesaplanıyor...
 					</Button>
 				)}
 			</div>
@@ -210,11 +209,11 @@ const LoanResultListItem = ({ data, index, loanType }) => {
 				<div className="flex items-center">
 					<div className="flex items-center space-x-2 " onClick={(e) => e.stopPropagation()}>
 						{detailHref ? (
-							<Button asChild>
+							<Button className="text-white" asChild>
 								<Link href={detailHref}>Kredi Detayı</Link>
 							</Button>
 						) : (
-							<Button disabled>Kredi Detayı</Button>
+								<Button className="text-white" disabled>Kredi Detayı</Button>
 						)}
 					</div>
 				</div>
@@ -321,14 +320,14 @@ export default function LoanCalculator({ loan }) {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4  container relative grid grid-cols-1 md:grid-cols-2 ">
-					<Tabs className="w-full bg-transparent" defaultValue={loanType}>
-						<TabsList className="grid grid-cols-3 w-full">
-							{LOAN_TYPES.map((lt) => (
-								<TabsTrigger asChild key={lt.type} className="text-xs" value={lt.type}>
-									<Link href={`/kredi/${lt.slug}`}>{lt.name}</Link>
-								</TabsTrigger>
-							))}
-						</TabsList>
+						<Tabs className="w-full bg-transparent" defaultValue={loanType}>
+							<TabsList className="grid grid-cols-3 w-full bg-[#FFFAF4] p-1 rounded-md">
+								{LOAN_TYPES.map((lt) => (
+									<TabsTrigger asChild key={lt.type} className="text-xs data-[state=active]:bg-primary data-[state=active]:text-white" value={lt.type}>
+										<Link href={`/kredi/${lt.slug}`}>{lt.name}</Link>
+									</TabsTrigger>
+								))}
+							</TabsList>
 
 						{LOAN_TYPES.map((lt) => (
 							<TabsContent key={lt.type} value={lt.type}>

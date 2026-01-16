@@ -22,36 +22,33 @@ export function LoanPaymentPlansTable({ paymentPlans }) {
 	}
 
 	return (
-		<div className="w-full overflow-x-auto">
-			<Table>
-				<TableHeader>
+		<div className="w-full mt-6 rounded-lg border bg-white shadow-sm">
+			<Table className="min-w-[720px]">
+				<TableHeader className="sticky top-0 bg-white">
 					<TableRow>
 						<TableHead className="w-[100px]">Ay</TableHead>
-						<TableHead>Taksit</TableHead>
-						<TableHead>Ana Para</TableHead>
-						<TableHead>Faiz</TableHead>
-
-						<TableHead>Bakiye</TableHead>
+						<TableHead className="text-right">Taksit</TableHead>
+						<TableHead className="text-right">Ana Para</TableHead>
+						<TableHead className="text-right">Faiz</TableHead>
+						<TableHead className="text-right">Bakiye</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{plans.map((item) => (
 						<TableRow key={item.period}>
 							<TableCell className="font-medium">{item.period}</TableCell>
-							<TableCell>{formatPrice(item.installmentAmount)}</TableCell>
-							<TableCell>{formatPrice(item.principal)}</TableCell>
-							<TableCell>{formatPrice(item.interest)}</TableCell>
-							<TableCell>{formatPrice(item.remainingPrincipal)}</TableCell>
+							<TableCell className="text-right">{formatPrice(item.installmentAmount)}</TableCell>
+							<TableCell className="text-right">{formatPrice(item.principal)}</TableCell>
+							<TableCell className="text-right">{formatPrice(item.interest)}</TableCell>
+							<TableCell className="text-right">{formatPrice(item.remainingPrincipal)}</TableCell>
 						</TableRow>
 					))}
 				</TableBody>
 				<TableFooter>
 					<TableRow>
-						<TableCell colSpan={6}>Toplam</TableCell>
-						<TableCell className="text-right">
-							{formatPrice(
-								plans.reduce((acc, item) => acc + item.installmentAmount, 0),
-							)}
+						<TableCell colSpan={4} className="text-right font-semibold">Toplam</TableCell>
+						<TableCell className="text-right font-semibold">
+							{formatPrice(plans.reduce((acc, item) => acc + item.installmentAmount, 0))}
 						</TableCell>
 					</TableRow>
 				</TableFooter>

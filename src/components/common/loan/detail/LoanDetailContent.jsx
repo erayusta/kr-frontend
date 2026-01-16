@@ -91,27 +91,21 @@ export default function LoanDetailContent({ loan }) {
 	return (
 		<section className="w-full pb-20">
 			<div className="container px-4 md:px-6">
-				<div className="mt-10 flex items-end justify-between gap-4">
+				<div className="mt-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
 					<div>
-						<h2 className="text-2xl font-semibold tracking-tight">
-							Ödeme Planı
-						</h2>
+						<h2 className="text-2xl font-semibold tracking-tight mb-1">Ödeme Planı</h2>
+						<p className="text-sm text-muted-foreground">Taksit, ana para ve faiz dağılımı</p>
 					</div>
 					<div className="flex gap-2">
-						8009
 						<Button asChild variant="outline">
 							<Link href={backToOffersHref}>Tekliflere Dön</Link>
 						</Button>
 						{hasRedirect ? (
 							<Button asChild className="sm:w-auto">
-								<Link rel="nofollow" href={loan.data.redirect}>
-									Hemen Başvur
-								</Link>
+								<Link rel="nofollow" href={loan.data.redirect}>Hemen Başvur</Link>
 							</Button>
 						) : (
-							<Button disabled className="sm:w-auto">
-								Basvuru linki yok
-							</Button>
+							<Button disabled className="sm:w-auto">Başvuru linki yok</Button>
 						)}
 					</div>
 				</div>
