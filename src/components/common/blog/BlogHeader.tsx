@@ -145,12 +145,12 @@ export default function BlogHeader({ post }: BlogHeaderProps) {
                                     title={isFavorite ? "Kaydedildi" : "Kaydet"}
                                 >
                                     <HeartIcon className="mr-2 h-5 w-5" fill={isFavorite ? "currentColor" : "none"} />
-                                    <span className="hidden sm:inline">{isFavorite ? "Kaydedildi" : "Kaydet"}</span>
+                                    <span>{isFavorite ? "Kaydedildi" : "Kaydet"}</span>
                                 </Button>
                                 <Button asChild variant="outline" className="rounded-full text-sm hover:bg-accent hover:text-accent-foreground">
                                     <Link target="_blank" href={tweetHref}>
                                         <Share2Icon className="mr-2 h-5 w-5" />
-                                        <span className="hidden sm:inline">Paylaş</span>
+                                        <span>Paylaş</span>
                                     </Link>
                                 </Button>
                             </div>

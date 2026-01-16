@@ -43,7 +43,10 @@ export default function BlogContent({ post, ads }: BlogContentProps) {
 
                             {/* Content (raw HTML from CMS) */}
                             {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Blog content is expected to be HTML from CMS. */}
-                            <div className="mt-5" dangerouslySetInnerHTML={{ __html: post?.content || "" }} />
+                            <div
+                                className="mt-5 rich-content max-w-[70ch] mx-auto"
+                                dangerouslySetInnerHTML={{ __html: post?.content || "" }}
+                            />
                         </div>
                     </div>
                 </div>
