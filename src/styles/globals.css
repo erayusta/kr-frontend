@@ -19,6 +19,29 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  /* Rich blog/content defaults */
+  .rich-content {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #111827; /* slate-900 */
+  }
+  .rich-content h1, .rich-content h2, .rich-content h3 {
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #0f172a; /* slate-900 */
+  }
+  .rich-content p { margin: 0.75rem 0; }
+  .rich-content img, .rich-content video, .rich-content iframe {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1rem auto;
+    border-radius: 0.5rem;
+  }
+  .rich-content table { width: 100%; border-collapse: collapse; }
+  .rich-content table td, .rich-content table th { border: 1px solid #e5e7eb; padding: 0.5rem; }
 }
 
 @layer base {

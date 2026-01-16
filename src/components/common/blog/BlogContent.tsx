@@ -12,32 +12,29 @@ type BlogContentProps = {
 };
 
 export default function BlogContent({ post, ads }: BlogContentProps) {
-	console.log("hocam", ads);
-	const getAd = (position: AdType["position"]) =>
-		ads?.find((item) => item.position === position);
+    const getAd = (position: AdType["position"]) => ads?.find((item) => item.position === position);
 
-	return (
-		<section className="w-full pb-20">
-			<div className="container px-4 md:px-6">
-				<div className="grid gap-8">
-					<div className="mt-5">
-						<div className="mt-4 max-w-5xl grid gap-4 text-sm/relaxed">
-							<div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-4">
-								<Ad variant="inline" ad={getAd("post_content_one")} />
-								<Ad variant="inline" ad={getAd("post_content_two")} />
-								<Ad variant="inline" ad={getAd("post_right")} />
-								<Ad variant="inline" ad={getAd("post_left")} />
-							</div>
+    return (
+        <section className="w-full pb-20">
+            <div className="container px-4 md:px-6">
+                <div className="max-w-5xl mx-auto grid gap-6">
+                    <div className="rounded-2xl border border-gray-200/70 bg-white shadow-sm p-4 sm:p-6">
+                        {/* Ads (optional, shows only if present) */}
+                        {(getAd("post_content_one") || getAd("post_content_two") || getAd("post_left") || getAd("post_right")) && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                <Ad variant="inline" ad={getAd("post_content_one")} />
+                                <Ad variant="inline" ad={getAd("post_content_two")} />
+                                <Ad variant="inline" ad={getAd("post_left")} />
+                                <Ad variant="inline" ad={getAd("post_right")} />
+                            </div>
+                        )}
 
-							{/* biome-ignore lint/security/noDangerouslySetInnerHtml: Blog content is expected to be HTML from CMS. */}
-							<div
-								className="mt-5"
-								dangerouslySetInnerHTML={{ __html: post?.content || "" }}
-							/>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-	);
+                        {/* Content */}
+                        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Blog content is expected to be HTML from CMS. */}
+                        <article className="rich-content" dangerouslySetInnerHTML={{ __html: post?.content || "" }} />
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
 }
