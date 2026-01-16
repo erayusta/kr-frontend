@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import { formatPrice } from "@/utils/loan";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -26,7 +26,7 @@ export default function LoanDetailHeader({ loan }) {
 	return (
 		<section className="w-full">
 			<div className="md:container px-4 py-6">
-				<div className="rounded-2xl border bg-gradient-to-br from-orange-50 via-white to-white dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-5 md:p-8 shadow-sm">
+				<div className="rounded-2xl border bg-white dark:bg-gray-900 p-6 md:p-8 shadow-sm">
 					<Breadcrumb className="breadcrumb mb-5">
 						<BreadcrumbList>
 							<BreadcrumbItem>
@@ -45,47 +45,63 @@ export default function LoanDetailHeader({ loan }) {
 
 					<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 						<div className="lg:col-span-5">
-							<div className="flex items-start gap-4">
-								<div className="rounded-xl bg-white/70 border p-3 shadow-sm dark:bg-gray-900/40">
-									<img
-										className="object-contain w-28 h-10"
-										src={loan?.data?.logo}
-										alt={loan?.data?.name || "Banka"}
-									/>
+							<div className="flex flex-col items-start gap-4">
+								<div className="rounded-xl bg-white/80 border p-3 shadow-sm dark:bg-gray-900/40">
+									{loan?.data?.logo ? (
+										<img
+											className="object-contain w-32 h-12 md:h-14"
+											src={loan.data.logo}
+											alt={loan?.data?.name || "Banka"}
+										/>
+									) : (
+										<div className="w-32 h-12 md:h-14 bg-gray-100 flex items-center justify-center rounded">
+											<span className="text-xs text-gray-400">{loan?.data?.name || "Banka"}</span>
+										</div>
+									)}
 								</div>
 
 								<div className="flex-1 min-w-0">
-									<h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+									<h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white break-words line-clamp-2">
 										{loan?.title}
 									</h1>
 
-									<div className="mt-3 flex flex-wrap gap-2 items-center">
-										<Badge variant="secondary" className="gap-2">
-											<span
-												className="text-sm"
-												dangerouslySetInnerHTML={{ __html: getIcon(loanTypeName) }}
-											/>
-											<span>{loanTypeName || "Kredi"}</span>
-										</Badge>
+									<div className="mt-3 flex flex-col items-start gap-2 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: getIcon(loanTypeName) }} />
+                                  <span className="font-medium">{loanTypeName || "Kredi"}</span>
+                                </div>
 
-										{Number.isFinite(Number(amount)) && <Badge variant="outline">Tutar: {amount}</Badge>}
-										{Number.isFinite(Number(maturity)) && (
-											<Badge variant="outline">Vade: {maturity} ay</Badge>
-										)}
-										{approx && <Badge variant="success">Yaklaşık</Badge>}
-									</div>
+                                {Number.isFinite(Number(amount)) && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">Tutar:</span>
+                                    <span className="font-semibold text-slate-900 dark:text-white">{formatPrice(Number(amount))}</span>
+                                  </div>
+                                )}
+
+                                {Number.isFinite(Number(maturity)) && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">Vade:</span>
+                                    <span className="font-semibold text-slate-900 dark:text-white">{maturity} ay</span>
+                                  </div>
+                                )}
+
+                                {approx && (
+                                  <div className="flex items-center gap-2 text-green-600">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                                    <span>Yaklaşık</span>
+                                  </div>
+                                )}
+                              </div>
 
 									<div className="mt-5 flex flex-col sm:flex-row gap-3">
 										{hasRedirect ? (
-											<Button asChild className="sm:w-auto">
-												<Link rel="nofollow" href={loan.data.redirect}>
+											<Button asChild className="sm:w-auto text-white">
+												<Link target="_blank" rel="nofollow noopener" href={loan.data.redirect}>
 													Hemen Başvur
 												</Link>
 											</Button>
 										) : (
-											<Button disabled className="sm:w-auto">
-												Başvuru linki yok
-											</Button>
+											<Button disabled className="sm:w-auto">Başvuru linki yok</Button>
 										)}
 
 										<Button asChild variant="outline" className="sm:w-auto">
@@ -97,7 +113,8 @@ export default function LoanDetailHeader({ loan }) {
 						</div>
 
 						<div className="lg:col-span-7">
-							<div className="rounded-xl border bg-white/70 dark:bg-gray-900/40 p-4 md:p-6 shadow-sm">
+							<div className="rounded-xl border bg-white dark:bg-gray-900/40 p-4 md:p-6 shadow-sm">
+								<h3 className="text-sm font-medium text-muted-foreground mb-2">Kredi Özeti</h3>
 								<LoanApplicationPlan data={loan?.data} />
 								{approx && (
 									<p className="mt-4 text-xs text-muted-foreground">Not: Bu teklif yaklaşık.</p>
@@ -110,4 +127,3 @@ export default function LoanDetailHeader({ loan }) {
 		</section>
 	);
 }
-

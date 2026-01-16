@@ -184,9 +184,9 @@ const [result, setResult] = useState(offer);
           </li>
         </ul>
          {offer?.slug ? (
-           <Button asChild><Link href={`/kredi/${loan?.loanType?.slug}/${offer.slug}/detay?amount=${result?.amount || offer?.amount || 10000}&maturity=${result?.maturity || offer?.maturity || 12}&bankId=${offer?.bankId ?? offer?.id}`}>Detayı Gör <ChevronRight /> </Link></Button>
+           <Button className="text-white" asChild><Link href={`/kredi/${loan?.loanType?.slug}/${offer.slug}/detay?amount=${result?.amount || offer?.amount || 10000}&maturity=${result?.maturity || offer?.maturity || 12}&bankId=${offer?.bankId ?? offer?.id}`}>Detayı Gör <ChevronRight /> </Link></Button>
          ) : (
-           <Button disabled>Detayı Gör <ChevronRight /> </Button>
+           <Button className="text-white" disabled>Detayı Gör <ChevronRight /> </Button>
          )}
         </>
         }
