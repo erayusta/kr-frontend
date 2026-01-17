@@ -8,6 +8,9 @@ import { useEffect, useState } from "react";
 import NoSSR from "@/components/NoSSR";
 import SettingsInjector from "@/components/SettingsInjector";
 import { MenuProvider } from "@/context/menuContext";
+import dynamic from "next/dynamic";
+
+const FavoritesSync = dynamic(() => import("@/components/FavoritesSync"), { ssr: false });
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -47,6 +50,7 @@ export default function App({ Component, pageProps }: AppProps) {
 				</Head>
 				{loading && <Loading></Loading>}
 				<div className={inter.className}>
+					<FavoritesSync />
 					<Component {...pageProps} />
 				</div>
 			</MenuProvider>

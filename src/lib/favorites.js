@@ -106,3 +106,12 @@ export function clearFavorites(type) {
 
 	writeState({ ...DEFAULT_STATE });
 }
+
+// Overwrite entire favorites state (used after server sync)
+export function setFavoritesState(nextState) {
+  const state = {
+    ...DEFAULT_STATE,
+    ...(nextState || {}),
+  };
+  writeState(state);
+}
