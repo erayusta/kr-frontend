@@ -4,12 +4,15 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/router";
 import { useToast } from '@/components/ui/use-toast';
+import { clearFavorites } from '@/lib/favorites';
 
 export default function NavbarAvatar({ size, profile }) {
   const router = useRouter();
 const {toast} = useToast()
   const onLogout = async () => {
     try {
+      // Favorileri temizle (misafir modunda devre dışı kalacak)
+      clearFavorites();
       localStorage.removeItem('token');
       location.reload();
     } catch (error) {
