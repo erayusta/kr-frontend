@@ -218,10 +218,10 @@ export default function CampaignHeader({ campaign }) {
 												: "bg-transparent text-white hover:bg-white/10"
 										}`}
 									>
-											<Heart
-												className="h-4 w-4"
-												fill={isFavorite ? "currentColor" : "none"}
-											/>
+										<Heart
+											className="h-4 w-4"
+											fill={isFavorite ? "currentColor" : "none"}
+										/>
 										{isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
 									</button>
 									<button
