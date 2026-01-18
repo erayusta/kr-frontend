@@ -156,23 +156,22 @@ export default function BlogHeader({ post }: BlogHeaderProps) {
 							</div>
 
 							<div className="relative z-10 flex flex-wrap items-center gap-3">
-								{canToggle && (
-									<Button
-										aria-pressed={isFavorite}
-										onClick={toggle}
-										variant="secondary"
-										className="rounded-full hover:bg-orange-500 hover:text-white"
-										title={isFavorite ? "Kaydedildi" : "Kaydet"}
-									>
-										<HeartIcon
-											className="mr-2 h-5 w-5"
-											fill={isFavorite ? "currentColor" : "none"}
-										/>
-										<span className="md:block hidden">
-											{isFavorite ? "Kaydedildi" : "Kaydet"}
-										</span>
-									</Button>
-								)}
+								<Button
+									disabled={!canToggle}
+									aria-pressed={isFavorite}
+									onClick={toggle}
+									variant="secondary"
+									className="rounded-full hover:bg-orange-500 hover:text-white"
+									title={isFavorite ? "Kaydedildi" : "Kaydet"}
+								>
+									<HeartIcon
+										className="mr-2 h-5 w-5"
+										fill={isFavorite ? "currentColor" : "none"}
+									/>
+									<span className="md:block hidden">
+										{isFavorite ? "Kaydedildi" : "Kaydet"}
+									</span>
+								</Button>
 
 								<Button
 									asChild

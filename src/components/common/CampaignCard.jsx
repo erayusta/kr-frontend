@@ -71,23 +71,21 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 		</div>
 	);
 
-	const FavoriteButton = () => {
-		if (!canToggle) return null;
-		return (
-			<Button
-				aria-pressed={isFavorite}
-				onClick={toggle}
-				className={`bottom-5 right-5 absolute rounded-full p-1 shadow-md ${
-					isFavorite ? "bg-orange-500" : "bg-black/30 hover:bg-orange-500"
-				}`}
-				size="icon"
-				variant="ghost"
-			>
-				<HeartIcon className="h-4 w-4 text-white" fill={isFavorite ? "currentColor" : "none"} />
-				<span className="sr-only">Add to Favorites</span>
-			</Button>
-		);
-	};
+	const FavoriteButton = () => (
+		<Button
+			disabled={!canToggle}
+			aria-pressed={isFavorite}
+			onClick={toggle}
+			className={`bottom-5 right-5 absolute rounded-full p-1 shadow-md ${
+				isFavorite ? "bg-orange-500" : "bg-black/30 hover:bg-orange-500"
+			}`}
+			size="icon"
+			variant="ghost"
+		>
+			<HeartIcon className="h-4 w-4 text-white" fill={isFavorite ? "currentColor" : "none"} />
+			<span className="sr-only">Add to Favorites</span>
+		</Button>
+	);
 
     const CardImage = () => (
         <div className="relative w-full h-48 rounded-t-lg overflow-hidden bg-white">

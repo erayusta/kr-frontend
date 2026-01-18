@@ -207,24 +207,23 @@ export default function CampaignHeader({ campaign }) {
 								</div>
 
 								<div className="flex items-center gap-3 flex-wrap">
-									{canToggle && (
-										<button
-											type="button"
-											aria-pressed={isFavorite}
-											onClick={toggle}
-											className={`inline-flex items-center gap-2 px-4 py-2 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 ${
-												isFavorite
-													? "bg-white/15 text-white"
-													: "bg-transparent text-white hover:bg-white/10"
-											}`}
-										>
+									<button
+										type="button"
+										disabled={!canToggle}
+										aria-pressed={isFavorite}
+										onClick={toggle}
+										className={`inline-flex items-center gap-2 px-4 py-2 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 ${
+											isFavorite
+												? "bg-white/15 text-white"
+												: "bg-transparent text-white hover:bg-white/10"
+										}`}
+									>
 											<Heart
 												className="h-4 w-4"
 												fill={isFavorite ? "currentColor" : "none"}
 											/>
-											{isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
-										</button>
-									)}
+										{isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+									</button>
 									<button
 										type="button"
 										className="inline-flex items-center gap-2 px-4 py-2 border border-white/20 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-all duration-200"
