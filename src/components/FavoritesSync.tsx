@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import useAuth from "@/hooks/useAuth";
-import { getFavoritesState, setFavoritesState } from "@/lib/favorites";
+import { getFavoritesState, setFavoritesState, clearFavorites } from "@/lib/favorites";
 import { fetchFavorites, syncFavorites } from "@/lib/favoritesApi";
 
 export default function FavoritesSync() {
@@ -11,6 +11,8 @@ export default function FavoritesSync() {
   useEffect(() => {
     if (loading) return;
     if (!isLoggedIn) {
+      // Guest: temizle ve bir sonraki girişte yeniden senkronize etmek için resetle
+      clearFavorites();
       doneRef.current = false;
       return;
     }
@@ -35,4 +37,3 @@ export default function FavoritesSync() {
 
   return null;
 }
-

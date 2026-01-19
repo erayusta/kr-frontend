@@ -96,6 +96,15 @@ export function getFavoritesState() {
 	return readState();
 }
 
+export function setFavoritesState(nextState) {
+    const base = { ...DEFAULT_STATE };
+    const merged = {
+        ...base,
+        ...(nextState && typeof nextState === "object" ? nextState : {}),
+    };
+    writeState(merged);
+}
+
 export function clearFavorites(type) {
 	const state = readState();
 
@@ -105,13 +114,4 @@ export function clearFavorites(type) {
 	}
 
 	writeState({ ...DEFAULT_STATE });
-}
-
-// Overwrite entire favorites state (used after server sync)
-export function setFavoritesState(nextState) {
-  const state = {
-    ...DEFAULT_STATE,
-    ...(nextState || {}),
-  };
-  writeState(state);
 }
