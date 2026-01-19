@@ -20,12 +20,28 @@ export default function FavoritesSync() {
 
     (async () => {
       try {
+        // Snapshot current local at start
+        const startLocal = getFavoritesState();
+
         // 1) Push local pending favorites to server
-        const local = getFavoritesState();
-        await syncFavorites(local);
-        // 2) Pull merged state and set locally
-        const merged = await fetchFavorites();
-        setFavoritesState(merged);
+        await syncFavorites(startLocal);
+
+        // 2) Pull server-merged state
+        const serverMerged = await fetchFavorites();
+
+        // 3) Union with any local changes that happened during sync window
+        const currentLocal = getFavoritesState();
+        const toArr = (v: any) => (Array.isArray(v) ? v.map(String) : []);
+        const union = (a: any[], b: any[]) => Array.from(new Set([...(a || []).map(String), ...(b || []).map(String)]));
+
+        const finalState = {
+          campaign: union(toArr(serverMerged.campaign), toArr(currentLocal.campaign)),
+          post: union(toArr(serverMerged.post), toArr(currentLocal.post)),
+          brand: union(toArr(serverMerged.brand), toArr(currentLocal.brand)),
+          category: union(toArr(serverMerged.category), toArr(currentLocal.category)),
+        };
+
+        setFavoritesState(finalState);
       } catch (e) {
         // Ignore sync errors to avoid blocking UI
         console.warn("[FavoritesSync] sync failed", e);
