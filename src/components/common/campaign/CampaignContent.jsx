@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Ad, { getAdByPosition } from "../ads/Ad";
 import CampaignCarType from "./CampaignCarType";
@@ -6,11 +6,21 @@ import CampaignCouponType from "./CampaignCouponType";
 import CampaignProductType from "./CampaignProductType";
 import CampaignRealEstateType from "./CampaignRealEstateType";
 import CampaignLeadForm from "./CampaignLeadForm";
+import Image from "next/image";
+import { IMAGE_BASE_URL } from "@/constants/site";
+import { CalendarDaysIcon, Info } from "lucide-react";
 
 export default function CampaignContent({ campaign, ads }) {
-	const contentRef = useRef(null);
-	const isActual = campaign?.itemType === "actual";
-	const htmlContent = isActual ? campaign?.actual_content : campaign?.content;
+    const contentRef = useRef(null);
+    const [showLead, setShowLead] = useState(true);
+    const isActual = campaign?.itemType === "actual";
+    const htmlContent = isActual ? campaign?.actual_content : campaign?.content;
+
+	const getImageUrl = (image) => {
+		if (!image) return "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800";
+		if (image.startsWith("http")) return image;
+		return `${IMAGE_BASE_URL}/${image}`;
+	};
 
 	// Fix images in HTML content
 
@@ -73,69 +83,104 @@ export default function CampaignContent({ campaign, ads }) {
 		return null;
 	};
 
-	const specialContent = renderSpecialContent();
+    const specialContent = renderSpecialContent();
 
-	return (
-		<section className="bg-[#FFFAF4] py-8 mt-6">
-			<div className="xl:mx-auto xl:px-36">
-				<div className="container px-4">
-					{/* Özel İçerik (Ürün, Araba, Gayrimenkul) */}
-					{specialContent && <div className="mb-8">{specialContent}</div>}
+    return (
+        <section className="bg-[#FFFAF4] py-8 mt-6">
+            <div className="xl:mx-auto xl:px-36">
+                <div className="container px-4">
+                    {/* Özel İçerik (Ürün, Araba, Gayrimenkul) */}
+                    {specialContent && <div className="mb-8">{specialContent}</div>}
 
-					<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-						{/* Sol Taraf - İçerik */}
-						<div
-							className={`${campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product" ? "lg:col-span-12" : "lg:col-span-8"}`}
-						>
-							{htmlContent &&
-								campaign?.itemType !== "product" &&
-								campaign?.item_type !== "product" &&
-								campaign?.itemType !== "car" &&
-								campaign?.item_type !== "car" && (
-									<Card className="overflow-hidden border-2 border-gray-200">
-										{/* Tab Content */}
-										<CardContent className="p-6 lg:p-8 bg-[#fffaf4]">
-											<div
-												ref={contentRef}
-												className="prose prose-gray max-w-none campaign-content"
-												dangerouslySetInnerHTML={{ __html: htmlContent }}
-											/>
-										</CardContent>
-									</Card>
-								)}
-						</div>
+                    
 
-						{/* Sağ Taraf - Form - Car ve Product için gösterilmez, kendi formları var */}
-						{!(
-							campaign?.itemType === "car" ||
-							campaign?.item_type === "car" ||
-							campaign?.itemType === "product" ||
-							campaign?.item_type === "product"
-						) && (
-							<div className="lg:col-span-4">
-								<div className="sticky top-4 space-y-6">
-									{/* Kampanya İletişim Formu */}
-									<CampaignLeadForm variant="product" campaignId={campaign?.id} />
+                    {/* Bölüm başlığı: Kampanya Detayları + sağda tarih */}
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2 text-gray-800">
+                            <Info className="h-4 w-4" />
+                            <span className="font-medium">Kampanya Detayları</span>
+                        </div>
+                        {(campaign?.start_date || campaign?.startDate || campaign?.end_date || campaign?.endDate) && (
+                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                                <CalendarDaysIcon className="h-4 w-4" />
+                                <span>
+                                    {new Date(campaign?.start_date || campaign?.startDate).toLocaleDateString("tr-TR")} / {new Date(campaign?.end_date || campaign?.endDate).toLocaleDateString("tr-TR")}
+                                </span>
+                            </div>
+                        )}
+                    </div>
 
-									{/* Reklam */}
-									{getAdByPosition(ads, "sidebar", "campaign") && (
-										<Ad
-											variant="sidebar"
-											ad={getAdByPosition(ads, "sidebar", "campaign")}
-										/>
-									)}
-								</div>
-							</div>
-						)}
-					</div>
-				</div>
-			</div>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Sol: İçerik */}
+                        <div className={(campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product") ? "lg:col-span-12" : "lg:col-span-8"}>
+                            {htmlContent &&
+                                campaign?.itemType !== "product" &&
+                                campaign?.item_type !== "product" &&
+                                campaign?.itemType !== "car" &&
+                                campaign?.item_type !== "car" && (
+                                    <Card className="overflow-hidden border rounded-xl shadow-sm bg-card">
+                                        <CardContent className="p-6 lg:p-8">
+                                            <div
+                                                ref={contentRef}
+                                                className="prose prose-gray max-w-none campaign-content"
+                                                dangerouslySetInnerHTML={{ __html: htmlContent }}
+                                            />
+                                        </CardContent>
+                                    </Card>
+                                )}
+                        </div>
 
-			{/* Custom Styles for Campaign Content */}
-			<style jsx global>{`
-				.campaign-content h1,
-				.campaign-content h2,
-				.campaign-content h3,
+                        {/* Sağ: Görsel kartı + sidebar reklam */}
+                        {!(campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product") && (
+                            <div className="lg:col-span-4">
+                                <div className="sticky top-4 space-y-6">
+                                    {campaign?.image && (
+                                        <Card className="overflow-hidden border rounded-xl shadow-sm">
+                                            <div className="relative w-full aspect-[4/3] bg-gray-50">
+                                                <Image
+                                                    src={getImageUrl(campaign.image)}
+                                                    alt={campaign.title || "Kampanya"}
+                                                    fill
+                                                    className="object-contain p-4"
+                                                    sizes="(max-width: 1024px) 40vw, 30vw"
+                                                />
+                                            </div>
+                                        </Card>
+                                    )}
+
+                                    {getAdByPosition(ads, "sidebar", "campaign") && (
+                                        <Ad
+                                            variant="sidebar"
+                                            ad={getAdByPosition(ads, "sidebar", "campaign")}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Sağ alt sabit iletişim formu */}
+            {showLead && (
+                <div className="fixed bottom-4 right-4 z-50 w-[320px] sm:w-[380px]">
+                    <Card className="shadow-xl">
+                        <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
+                            <span className="text-sm font-medium">Formu Doldurun Size Ulaşalım</span>
+                            <button onClick={() => setShowLead(false)} className="text-gray-500 hover:text-gray-700 text-sm">×</button>
+                        </div>
+                        <CardContent className="pt-4">
+                            <CampaignLeadForm variant="product" campaignId={campaign?.id} />
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* Custom Styles for Campaign Content */}
+            <style jsx global>{`
+                .campaign-content h1,
+                .campaign-content h2,
+                .campaign-content h3,
 				.campaign-content h4,
 				.campaign-content h5,
 				.campaign-content h6 {

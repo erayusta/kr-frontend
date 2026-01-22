@@ -1,7 +1,8 @@
-import { Bell, ChevronRight, Clock, Heart, Tag } from "lucide-react";
 import Image from "next/image";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Clock12Icon, HeartIcon, Share2Icon } from "lucide-react";
+import { getIcon } from "@/lib/utils";
 import { useFavorite } from "@/hooks/useFavorite";
 
 type CampaignBrand = { logo?: string; name?: string };
@@ -138,238 +139,61 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 		}).format(price);
 	};
 
-	// Button styles as objects for inline styling (fallback for Tailwind issues)
-	const primaryButtonStyle = {
-		backgroundColor: "#f97316",
-		color: "white",
-		padding: "12px 24px",
-		borderRadius: "12px",
-		fontWeight: 600,
-		display: "inline-flex",
-		alignItems: "center",
-		gap: "8px",
-		textDecoration: "none",
-		transition: "background-color 0.2s",
-	};
+    // tweet link
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(campaign.title || "")}&url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL}/kampanya/${campaign.slug}`)}`;
 
-	return (
-		<section className="border-b border-gray-200">
-			{/* Breadcrumb */}
-			<div className="container mx-auto py-2">
-				<nav className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
-					<span className="hover:text-orange-500 transition-colors cursor-pointer">
-						Ana Sayfa
-					</span>
-					{categories.map((category) => (
-						<span key={category.id} className="flex items-center gap-2">
-							<ChevronRight className="h-3 w-3" />
-							<span className="hover:text-orange-500 transition-colors cursor-pointer">
-								{category.name}
-							</span>
-						</span>
-					))}
-					{brandName && (
-						<>
-							<ChevronRight className="h-3 w-3" />
-							<span className="text-gray-700 font-medium">{brandName}</span>
-						</>
-					)}
-				</nav>
-			</div>
+    return (
+        <section className="w-full py-3 shadow bg-white dark:bg-gray-800">
+            <div className="xl:mx-auto xl:px-36">
+                <div className="container px-4">
+                    <div className="flex gap-x-3 items-center justify-between">
+                        <div className="flex flex-col justify-center space-y-4">
+                            <div className="space-y-2">
+                                {campaign.brands?.[0] && (
+                                    <Link href={`/marka/${(campaign.brands[0].name || "").toLowerCase()}`}>
+                                        <span className="inline-block rounded-md bg-gray-100 hover:shadow-md px-3 py-1 text-sm font-medium dark:bg-gray-700 dark:text-gray-200">
+                                            <Image src={campaign.brands[0].logo || ""} alt={campaign.brands[0].name || "Marka"} width={96} height={32} className="h-8 w-auto object-contain" />
+                                        </span>
+                                    </Link>
+                                )}
+                                <h1 className="md:text-3xl text-xl w-[85%] font-bold tracking-tighter text-gray-900 dark:text-white">{campaign.title}</h1>
+                            </div>
 
-			{/* Main Header Content */}
-			<div className="container mx-auto px-4 py-2">
-				<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
-					{/* Product Image */}
-					<div className="lg:col-span-4 flex items-center justify-center">
-						<Card className="w-full max-w-[240px]">
-							<div className="relative w-full aspect-square p-3">
-								<Image
-									src={getImageUrl(campaign.image)}
-									alt={campaign.title || "Kampanya gÃ¶rseli"}
-									fill
-									className="object-contain"
-									sizes="240px"
-									priority
-								/>
-							</div>
-						</Card>
-					</div>
+                            <div className="flex items-center gap-4">
+                                <Button size="sm" variant="outline">
+                                    <Clock12Icon className="mr-2 h-4 w-4" />
+                                    {remainingDays !== null && remainingDays < 0 ? "Süresi Doldu" : `${remainingDays ?? ""} Gün Kaldı`}
+                                </Button>
 
-					{/* Product Info */}
-					<div className="lg:col-span-8 flex flex-col">
-						<div className="flex-[4] space-y-4">
-							{/* Title & Badge */}
-							<div className="space-y-2">
-								<h1 className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight">
-									{campaign.title}
-								</h1>
+                                {categories?.[0]?.name && (
+                                    <div className="text-sm items-center flex text-gray-500 dark:text-gray-400">
+                                        <Button asChild size="sm" variant="outline" className="items-center flex gap-4">
+                                            <Link href="#">
+                                                <span className="text-md" dangerouslySetInnerHTML={{ __html: getIcon(String(categories[0].name)) }} />
+                                                <span>{String(categories[0].name).length > 20 ? `${String(categories[0].name).slice(0, 10)}...` : String(categories[0].name)}</span>
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
-								{/* Category Badge */}
-								{categories.length > 0 && (
-									<div className="flex flex-wrap gap-2">
-										<span
-											className="inline-flex items-center gap-1 px-3 py-1 text-white text-xs font-semibold rounded-full"
-											style={{ backgroundColor: "#14b8a6" }}
-										>
-											<Tag className="h-3 w-3" />
-											{categories[0]?.name?.toUpperCase()}: KAMPANYA
-										</span>
-									</div>
-								)}
-							</div>
-
-							{/* Price Section */}
-							<div className="flex flex-col lg:flex-row lg:items-center gap-4 p-4 rounded-xl">
-								<div className="flex items-center justify-between gap-4 w-full">
-									<div className="flex gap-4">
-										{brandLogo && (
-											<div className="relative w-16 h-16 rounded-lg border border-gray-200 p-2 bg-white">
-												<Image
-													src={brandLogo}
-													alt={brandName || "Marka"}
-													fill
-													className="object-contain"
-													sizes="64px"
-												/>
-											</div>
-										)}
-										<div>
-											<p
-												className="text-xs font-semibold uppercase tracking-wide"
-												style={{ color: "#ea580c" }}
-											>
-												{priceSourceCount > 0
-													? `${priceSourceCount} Fiyat Arasında En Ucuz`
-													: "Kampanya Fiyatı"}
-											</p>
-											<p className="text-xs text-gray-500">{brandName}</p>
-											{lowestPrice ? (
-												<p className="text-3xl font-bold text-gray-900 mt-1">
-													{formatPrice(lowestPrice.price)}{" "}
-													<span className="text-lg font-semibold">TL</span>
-												</p>
-											) : (
-												<p
-													className="text-lg font-semibold mt-1"
-													style={{ color: "#ea580c" }}
-												>
-													Fiyat için siteyi ziyaret edin
-												</p>
-											)}
-										</div>
-									</div>
-
-									<div className="flex flex-col gap-2">
-										{lowestPrice?.link && (
-											<a
-												href={lowestPrice.link}
-												target="_blank"
-												rel="noopener noreferrer"
-												style={primaryButtonStyle}
-												onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ea580c"; }}
-												onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f97316"; }}
-											>
-												Mağazaya Git
-												<ChevronRight className="h-4 w-4" />
-											</a>
-										)}
-
-										{campaign.link && (
-											<a
-												href={campaign.link}
-												target="_blank"
-												rel="noopener noreferrer"
-												style={primaryButtonStyle}
-												onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ea580c"; }}
-												onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f97316"; }}
-											>
-												Kampanyaya Git
-												<ChevronRight className="h-4 w-4" />
-											</a>
-										)}
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<Separator className="my-4" />
-
-						<div className="mt-4">
-							{/* Campaign Period & Actions */}
-							<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-								{/* Remaining Days Badge */}
-								{remainingDays !== null && (
-									<div
-										className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
-										style={{
-											backgroundColor:
-												remainingDays < 0
-													? "#fee2e2"
-													: remainingDays <= 7
-														? "#ffedd5"
-														: "#dcfce7",
-											color:
-												remainingDays < 0
-													? "#b91c1c"
-													: remainingDays <= 7
-														? "#c2410c"
-														: "#15803d",
-										}}
-									>
-										<Clock className="h-4 w-4" />
-										{remainingDays < 0 ? (
-											<span>Kampanya Sona Erdi</span>
-										) : (
-											<span>
-												Son{" "}
-												<strong className="font-bold">{remainingDays}</strong>{" "}
-												gün
-											</span>
-										)}
-									</div>
-								)}
-
-								{/* Action Buttons */}
-								<div className="flex items-center gap-3">
-									<button
-										type="button"
-										disabled={!canToggle}
-										aria-pressed={isFavorite}
-										onClick={toggle}
-										className={`inline-flex items-center gap-2 px-4 py-2 border-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-											isFavorite
-												? "border-orange-400 text-orange-700 bg-orange-50"
-												: "border-gray-200 hover:border-orange-300 text-gray-700"
-										}`}
-										style={{ backgroundColor: "transparent" }}
-									>
-										<Heart
-											className="h-4 w-4"
-											fill={isFavorite ? "currentColor" : "none"}
-										/>
-										{isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
-									</button>
-								</div>
-							</div>
-
-							{/* Campaign Date Range */}
-							{(campaign.start_date || campaign.end_date) && (
-								<p className="text-sm text-gray-500">
-									Kampanya Tarihi:{" "}
-									<span className="font-medium text-gray-700">
-										{formatDate(campaign.start_date)} -{" "}
-										{formatDate(campaign.end_date)}
-									</span>
-								</p>
-							)}
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-	);
+                        <div className="flex md:flex-row flex-col items-center gap-3">
+                            <Button disabled={!canToggle} onClick={toggle} variant="secondary" className={`rounded-full hover:bg-orange-500 hover:text-white py-3 ${isFavorite ? "bg-orange-500 text-white" : ""}`}>
+                                <HeartIcon className="mr-2 h-5 w-5" /> <span className="md:block hidden">Kaydet</span>
+                            </Button>
+                            <Button asChild variant="secondary" className="rounded-full hover:bg-orange-500 hover:text-white py-3">
+                                <a target="_blank" rel="noopener noreferrer" href={tweetUrl}>
+                                    <Share2Icon className="mr-2 h-5 w-5" />
+                                    <span className="md:block hidden">Paylaş</span>
+                                </a>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
 }
-
 
 
