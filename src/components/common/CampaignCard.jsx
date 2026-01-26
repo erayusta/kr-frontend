@@ -88,14 +88,14 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 	);
 
     const CardImage = () => (
-        <div className="relative w-full h-48 rounded-t-lg overflow-hidden bg-white">
+        <div className="relative w-full aspect-[4/3] rounded-t-lg overflow-hidden bg-gray-50">
             {imgSrc && !imgError ? (
                 <Image
                     alt={title || "Kampanya"}
                     title={title || "Kampanya"}
                     src={imgSrc}
                     fill
-                    className="object-cover object-top"
+                    className="object-cover"
                     sizes="(max-width: 768px) 100vw, 33vw"
                     onError={handleImageError}
                     priority={false}
@@ -125,7 +125,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 		return (
             <Card
                 key={id}
-                className="md:max-w-md max-w-sm shadow-md hover:shadow-xl transition-transform duration-300 ease-in-out hover:-translate-y-1"
+                className="w-full h-full flex flex-col bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
             >
                 <div className="relative group">
                     <CardImage />
@@ -142,7 +142,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
     return (
         <Card
             key={id}
-            className="md:max-w-md max-w-sm shadow-md hover:shadow-xl transition-transform duration-300 ease-in-out hover:-translate-y-1"
+            className="w-full h-full flex flex-col bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
         >
             <div className="relative group">
                 <CardImage />
