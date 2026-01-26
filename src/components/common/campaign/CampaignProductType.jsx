@@ -47,9 +47,12 @@ function PriceHistoryTooltip({ active, payload, label, formatPrice }) {
 export default function CampaignContent({ campaign }) {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [activeTab, setActiveTab] = useState(TABS.PRICES);
+	const [selectedColorIndex, setSelectedColorIndex] = useState(0);
 
 	// Computed values
 	const productData = campaign?.product || campaign?.item || {};
+	const displayMode = productData?.display_mode || "price_comparison";
+	const productColors = productData?.colors || [];
 	const stores = productData?.stores || [];
 	const latestPrices = Array.isArray(productData?.latest_prices)
 		? productData.latest_prices
@@ -60,10 +63,18 @@ export default function CampaignContent({ campaign }) {
 	const brandLogo = campaign?.brands?.[0]?.logo;
 	const brandName = campaign?.brands?.[0]?.name;
 
-	const productImages =
+	// Get images - if color is selected and has image, use that
+	const baseProductImages =
 		productData?.images?.length > 0
 			? productData.images
 			: [productData?.image || campaign?.image].filter(Boolean);
+
+	const productImages =
+		productColors.length > 0 &&
+		selectedColorIndex !== null &&
+		productColors[selectedColorIndex]?.image
+			? [productColors[selectedColorIndex].image, ...baseProductImages]
+			: baseProductImages;
 
 	// Sort stores by price (backend stores)
 	const sortedStores = [...stores]
@@ -324,7 +335,7 @@ export default function CampaignContent({ campaign }) {
 						</div>
 
 						{/* Tab Content */}
-						{activeTab === TABS.PRICES && (
+						{activeTab === TABS.PRICES && displayMode === "price_comparison" && (
 							<div className="space-y-3">
 								{/* NEW: Loading / Error states */}
 								{apiLoading && shouldUseApi && (
@@ -504,6 +515,83 @@ export default function CampaignContent({ campaign }) {
 							</div>
 						)}
 
+						{/* Announcement Mode - Simple CTA */}
+						{activeTab === TABS.PRICES && displayMode === "announcement" && (
+							<Card className="rounded-xl border border-gray-100 p-8 text-center">
+								<h3 className="text-lg font-semibold text-gray-900 mb-4">
+									{productData?.title || campaign?.title}
+								</h3>
+								{productData?.description && (
+									<p className="text-gray-600 mb-6">{productData.description}</p>
+								)}
+								{campaign?.link && (
+									<a
+										href={campaign.link}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors"
+									>
+										Detayları Gör
+										<ExternalLink className="h-4 w-4" />
+									</a>
+								)}
+							</Card>
+						)}
+
+						{/* Promotion Mode - Store links without prices */}
+						{activeTab === TABS.PRICES && displayMode === "promotion" && (
+							<div className="space-y-3">
+								{displayStores.length > 0 ? (
+									displayStores.map((store) => (
+										<a
+											key={`promo-${store.storeId || store.storeBrand}`}
+											href={store.link || campaign?.link || "#"}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:shadow-sm hover:border-orange-200 transition-all"
+										>
+											<div className="flex items-center gap-3">
+												{store.image_link ? (
+													// biome-ignore lint/performance/noImgElement: Store logos are remote
+													<img
+														src={store.image_link}
+														alt={store.storeBrand}
+														className="w-10 h-10 object-contain"
+													/>
+												) : (
+													<div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+														<Store className="h-5 w-5 text-gray-400" />
+													</div>
+												)}
+												<span className="font-medium text-gray-900">
+													{capitalizeFirst(store.storeBrand)}
+												</span>
+											</div>
+											<ChevronRight className="h-5 w-5 text-orange-500" />
+										</a>
+									))
+								) : campaign?.link ? (
+									<a
+										href={campaign.link}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:shadow-sm hover:border-orange-200 transition-all"
+									>
+										<span className="font-medium text-gray-900">
+											Kampanyaya Git
+										</span>
+										<ChevronRight className="h-5 w-5 text-orange-500" />
+									</a>
+								) : (
+									<Card className="rounded-xl border border-gray-100 p-6 text-center">
+										<p className="text-gray-500">
+											Bu kampanya için mağaza bağlantısı bulunmamaktadır.
+										</p>
+									</Card>
+								)}
+							</div>
+						)}
+
 						{activeTab === TABS.DESCRIPTION && (
 							<div className=" rounded-xl border border-gray-100 p-6">
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -564,6 +652,42 @@ export default function CampaignContent({ campaign }) {
 
 									{/* Product Attributes */}
 									<div>
+										{/* Color Selector */}
+										{productColors.length > 0 && (
+											<div className="mb-6">
+												<h3 className="text-base font-semibold text-gray-900 mb-3">
+													Renk Seçenekleri
+												</h3>
+												<div className="flex gap-2 flex-wrap">
+													{productColors.map((color, index) => (
+														<button
+															type="button"
+															key={`color-${color.name}-${index}`}
+															onClick={() => {
+																setSelectedColorIndex(index);
+																setCurrentImageIndex(0);
+															}}
+															className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
+																selectedColorIndex === index
+																	? "border-orange-500 bg-orange-50"
+																	: "border-gray-200 bg-white hover:border-gray-300"
+															}`}
+														>
+															<div
+																className="w-5 h-5 rounded-full border border-gray-300"
+																style={{
+																	backgroundColor: color.code
+																		? `#${color.code}`
+																		: "#999",
+																}}
+															/>
+															<span className="text-sm">{color.name}</span>
+														</button>
+													))}
+												</div>
+											</div>
+										)}
+
 										<h3 className="text-base font-semibold text-gray-900 mb-3">
 											Ürün Özellikleri
 										</h3>
