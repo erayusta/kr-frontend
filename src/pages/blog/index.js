@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { Paperclip } from "lucide-react";
 import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
@@ -5,6 +6,12 @@ import InfiniteScroll from "@/components/common/InfiniteScroll";
 import { Layout } from "@/components/layouts/layout";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import serverApiRequest from "@/lib/serverApiRequest";
+
+const Ads = dynamic(
+	() =>
+		import("@/components/common/ads/Ad").then((mod) => ({ default: mod.Ads })),
+	{ ssr: false },
+);
 export async function getServerSideProps(context) {
 	try {
 		let query = new URLSearchParams(context.query).toString();
@@ -48,6 +55,10 @@ export default function Blog({ category, items, ads, url }) {
 					cardType: "summary_large_image",
 				}}
 			/>
+
+			{/* Sidebar sol/sağ reklamlar */}
+			<Ads ads={ads} positions={["blog_left", "blog_right"]} />
+
 			<section className="w-full py-3  mb-5 shadow  bg-white dark:bg-gray-800">
 				<div className="md:container px-4">
 					<div className="grid items-center gap-10 grid-cols-1 md:grid-cols-1">
@@ -65,6 +76,9 @@ export default function Blog({ category, items, ads, url }) {
 					</div>
 				</div>
 			</section>
+
+			{/* Header banner - Başlığın altında */}
+			<Ads ads={ads} positions={["blog_header"]} />
 			<section className="container">
 				<InfiniteScroll type={"posts"} initialItems={items || []} url={url} />
 			</section>

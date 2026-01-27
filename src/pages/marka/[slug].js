@@ -67,8 +67,8 @@ export default function Brand({ brand, ads, url, items }) {
 				}}
 			/>
 
-			{/* Sidebar */}
-			<Ads ads={ads} positions={["sidebar"]} itemType="brand" />
+			{/* Sidebar sol/sağ reklamlar */}
+			<Ads ads={ads} positions={["brand_left", "brand_right"]} itemType="brand" />
 
 			<BrandHeader brand={brand} />
 

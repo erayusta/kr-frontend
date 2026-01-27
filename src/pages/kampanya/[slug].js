@@ -94,8 +94,8 @@ export default function Campaign({ campaign, categories, isGone, ads }) {
 				}}
 			/>
 
-			{/* Sidebar */}
-			<Ads ads={ads} positions={["sidebar"]} itemType="campaign" />
+			{/* Sidebar sol/sağ reklamlar */}
+			<Ads ads={ads} positions={["campaign_left", "campaign_right"]} itemType="campaign" />
 
 			{/* Header banner - Header'ın üstünde gösterilir */}
 			<Ads ads={ads} positions={["campaign_header"]} itemType="campaign" />

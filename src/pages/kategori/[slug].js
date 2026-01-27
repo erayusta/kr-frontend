@@ -67,8 +67,8 @@ export default function Category({ category, items, ads, url }) {
 				}}
 			/>
 
-			{/* Sidebar (home hariç sayfalar için) */}
-			<Ads ads={ads} positions={["sidebar"]} itemType="category" />
+			{/* Sidebar sol/sağ reklamlar */}
+			<Ads ads={ads} positions={["category_left", "category_right"]} itemType="category" />
 
 			<CategoryHeader category={category} />
 

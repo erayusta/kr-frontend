@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
 import BlogContent from "@/components/common/blog/BlogContent";
@@ -5,6 +6,12 @@ import BlogHeader from "@/components/common/blog/BlogHeader";
 import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
 import { stripHtmlTags } from "@/lib/utils";
+
+const Ads = dynamic(
+	() =>
+		import("@/components/common/ads/Ad").then((mod) => ({ default: mod.Ads })),
+	{ ssr: false },
+);
 export async function getServerSideProps(context) {
 	try {
 		const data = await serverApiRequest(`/posts/${context.params.slug}`, "get");
@@ -67,6 +74,9 @@ export default function Post({ post, ads }) {
 					cardType: "summary_large_image",
 				}}
 			/>
+
+			{/* Sidebar sol/sağ reklamlar */}
+			<Ads ads={ads} positions={["blog_left", "blog_right"]} />
 
 			<BlogHeader post={post}></BlogHeader>
 			<BlogContent ads={ads} post={post}></BlogContent>
