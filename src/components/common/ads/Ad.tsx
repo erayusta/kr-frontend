@@ -172,8 +172,9 @@ export default function Ad({
   // ——— Minimal position-aware wrapper (no sizing changes beyond dimension presets) ———
   const pos = ad.position as AdPosition | undefined;
 
-  // Header top-center alignment
-  if (pos === "home_header") {
+  // Header top-center alignment (tüm *_header pozisyonları)
+  const isHeader = pos?.endsWith("_header");
+  if (isHeader) {
     const dims = parseDimensions((ad as any).dimensions ?? null);
     return (
       <div className={`${className || ""} mt-2 mb-8`.trim()} style={{ display: "flex", justifyContent: "center" }}>
@@ -196,8 +197,8 @@ export default function Ad({
   const calcGutterOffset = (w: number) =>
     `max(${MIN_EDGE_GAP}px, calc((100vw - ${CONTAINER_WIDTH}px) / 2 - ${w}px - ${GUTTER_GAP}px))`;
 
-  const isLeft = pos === "home_left";
-  const isRight = pos === "home_right";
+  const isLeft = pos?.endsWith("_left");
+  const isRight = pos?.endsWith("_right");
 
   if ((isLeft || isRight) && hasWidth) {
     const w = dims!.width!;
@@ -225,8 +226,17 @@ const positionToVariant: Record<AdPosition, AdVariant> = {
   home_left: "sidebar-left",
   home_right: "sidebar-right",
   category_header: "banner",
+  category_left: "sidebar-left",
+  category_right: "sidebar-right",
   brand_header: "banner",
+  brand_left: "sidebar-left",
+  brand_right: "sidebar-right",
+  blog_header: "banner",
+  blog_left: "sidebar-left",
+  blog_right: "sidebar-right",
   campaign_header: "banner",
+  campaign_left: "sidebar-left",
+  campaign_right: "sidebar-right",
   content_middle: "content-middle",
   footer: "footer",
   sidebar: "sidebar",
