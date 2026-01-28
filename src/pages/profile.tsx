@@ -251,7 +251,7 @@ export default function ProfilePage() {
 					{/* Favorites Section */}
 					<Tabs defaultValue="favorites" className="space-y-4 sm:space-y-6">
 						<div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
-							<TabsList className="w-full sm:w-fit grid grid-cols-2 sm:flex gap-3 rounded-xl border-0 bg-orange-500 p-2 shadow-md">
+							<TabsList className="w-full sm:w-auto flex justify-between rounded-xl border-0 bg-orange-500 p-2 shadow-md min-w-[320px] sm:min-w-[400px]">
 								<TabsTrigger
 									value="favorites"
 									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=inactive]:text-white/80 data-[state=inactive]:hover:bg-orange-400 data-[state=inactive]:hover:text-white"
