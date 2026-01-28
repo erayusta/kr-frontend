@@ -190,7 +190,7 @@ export default function ProfilePage() {
 				<div className="space-y-6">
 					{/* Profile Header */}
 					<Card className="relative overflow-hidden border-0 shadow-lg rounded-xl sm:rounded-2xl">
-						<div className="absolute inset-0 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600" />
+						<div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400" />
 
 						<CardContent className="relative p-4 sm:p-5 md:p-6">
 							<div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
@@ -204,15 +204,15 @@ export default function ProfilePage() {
 									<div className="min-w-0 flex-1">
 										{loading ? (
 											<div className="space-y-1.5">
-												<Skeleton className="h-5 sm:h-6 w-36 sm:w-44 bg-white/30" />
-												<Skeleton className="h-3.5 sm:h-4 w-44 sm:w-56 bg-white/30" />
+												<Skeleton className="h-5 sm:h-6 w-36 sm:w-44 bg-black/10" />
+												<Skeleton className="h-3.5 sm:h-4 w-44 sm:w-56 bg-black/10" />
 											</div>
 										) : (
 											<>
-												<h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white truncate">
+												<h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 truncate">
 													{profile?.name || "Kullanıcı"}
 												</h1>
-												<p className="text-orange-100 mt-0.5 text-xs sm:text-sm truncate">
+												<p className="text-gray-700 mt-0.5 text-xs sm:text-sm truncate">
 													{profile?.email}
 												</p>
 											</>
@@ -221,10 +221,9 @@ export default function ProfilePage() {
 								</div>
 
 								<Button
-									variant="secondary"
 									onClick={handleLogout}
 									size="sm"
-									className="gap-1.5 bg-white/25 hover:bg-white/35 text-white border-0 backdrop-blur-sm w-full sm:w-auto text-xs sm:text-sm"
+									className="gap-1.5 bg-orange-600 hover:bg-orange-700 text-white border-0 w-full sm:w-auto text-xs sm:text-sm"
 								>
 									<LogOut className="h-3.5 w-3.5" />
 									Çıkış Yap
@@ -233,17 +232,17 @@ export default function ProfilePage() {
 
 							{/* Quick Stats */}
 							<div className="mt-3 sm:mt-4 grid grid-cols-3 gap-2">
-								<div className="rounded-lg bg-white/25 backdrop-blur-sm p-2.5 sm:p-3 text-white text-center">
-									<p className="text-[10px] sm:text-xs text-orange-100">Kampanya</p>
-									<p className="text-lg sm:text-xl font-bold">{counts.campaign}</p>
+								<div className="rounded-lg bg-white/40 backdrop-blur-sm p-2.5 sm:p-3 text-center">
+									<p className="text-[10px] sm:text-xs text-gray-700">Kampanya</p>
+									<p className="text-lg sm:text-xl font-bold text-gray-900">{counts.campaign}</p>
 								</div>
-								<div className="rounded-lg bg-white/25 backdrop-blur-sm p-2.5 sm:p-3 text-white text-center">
-									<p className="text-[10px] sm:text-xs text-orange-100">Blog</p>
-									<p className="text-lg sm:text-xl font-bold">{counts.post}</p>
+								<div className="rounded-lg bg-white/40 backdrop-blur-sm p-2.5 sm:p-3 text-center">
+									<p className="text-[10px] sm:text-xs text-gray-700">Blog</p>
+									<p className="text-lg sm:text-xl font-bold text-gray-900">{counts.post}</p>
 								</div>
-								<div className="rounded-lg bg-white/25 backdrop-blur-sm p-2.5 sm:p-3 text-white text-center">
-									<p className="text-[10px] sm:text-xs text-orange-100">Üyelik</p>
-									<p className="text-xs sm:text-sm font-semibold">{formatDate(profile?.created_at)}</p>
+								<div className="rounded-lg bg-white/40 backdrop-blur-sm p-2.5 sm:p-3 text-center">
+									<p className="text-[10px] sm:text-xs text-gray-700">Üyelik</p>
+									<p className="text-xs sm:text-sm font-semibold text-gray-900">{formatDate(profile?.created_at)}</p>
 								</div>
 							</div>
 						</CardContent>
@@ -252,17 +251,17 @@ export default function ProfilePage() {
 					{/* Favorites Section */}
 					<Tabs defaultValue="favorites" className="space-y-4 sm:space-y-6">
 						<div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
-							<TabsList className="w-full sm:w-fit grid grid-cols-2 sm:flex gap-1 rounded-xl border bg-gray-100 p-1.5 shadow-sm">
+							<TabsList className="w-full sm:w-fit grid grid-cols-2 sm:flex gap-1.5 rounded-xl border bg-gray-100 p-1.5 shadow-sm">
 								<TabsTrigger
 									value="favorites"
-									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900"
+									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-200"
 								>
 									<Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 									Favorilerim
 								</TabsTrigger>
 								<TabsTrigger
 									value="settings"
-									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900"
+									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-200"
 								>
 									<Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 									Hesap Bilgileri
