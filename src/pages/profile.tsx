@@ -1,10 +1,8 @@
 import {
 	BookOpen,
-	Building2,
 	Calendar,
 	Hash,
 	Heart,
-	Layers,
 	LogOut,
 	Mail,
 	Phone,
@@ -51,19 +49,6 @@ type FavoriteCampaign = {
 	end_date: string;
 	brands: Array<{ id: number; name: string; slug: string; logo: string }>;
 	categories: Array<{ id: number; name: string; slug: string }>;
-};
-
-type FavoriteBrand = {
-	id: number;
-	name: string;
-	slug: string;
-	logo: string;
-};
-
-type FavoriteCategory = {
-	id: number;
-	name: string;
-	slug: string;
 };
 
 type FavoritePost = {
@@ -129,12 +114,10 @@ export default function ProfilePage() {
 	const [favoritesData, setFavoritesData] = useState<{
 		campaigns: FavoriteCampaign[];
 		posts: FavoritePost[];
-		brands: FavoriteBrand[];
-		categories: FavoriteCategory[];
-	}>({ campaigns: [], posts: [], brands: [], categories: [] });
-	const [counts, setCounts] = useState({ campaign: 0, post: 0, brand: 0, category: 0 });
+	}>({ campaigns: [], posts: [] });
+	const [counts, setCounts] = useState({ campaign: 0, post: 0 });
 	const [favoritesLoading, setFavoritesLoading] = useState(true);
-	const [activeTab, setActiveTab] = useState<"campaigns" | "brands" | "categories" | "posts">("campaigns");
+	const [activeTab, setActiveTab] = useState<"campaigns" | "posts">("campaigns");
 
 	useEffect(() => {
 		if (isLoggedIn) {
@@ -146,8 +129,14 @@ export default function ProfilePage() {
 		try {
 			setFavoritesLoading(true);
 			const result = await fetchFavoritesDetails();
-			setFavoritesData(result.data);
-			setCounts(result.counts);
+			setFavoritesData({
+				campaigns: result.data.campaigns || [],
+				posts: result.data.posts || [],
+			});
+			setCounts({
+				campaign: result.counts.campaign || 0,
+				post: result.counts.post || 0,
+			});
 		} catch (error) {
 			console.error("Failed to load favorites:", error);
 		} finally {
@@ -163,8 +152,8 @@ export default function ProfilePage() {
 
 	const handleClearAll = async () => {
 		clearFavorites();
-		setFavoritesData({ campaigns: [], posts: [], brands: [], categories: [] });
-		setCounts({ campaign: 0, post: 0, brand: 0, category: 0 });
+		setFavoritesData({ campaigns: [], posts: [] });
+		setCounts({ campaign: 0, post: 0 });
 	};
 
 	const handleLogout = () => {
@@ -172,7 +161,7 @@ export default function ProfilePage() {
 		router.push("/");
 	};
 
-	const totalFavorites = counts.campaign + counts.post + counts.brand + counts.category;
+	const totalFavorites = counts.campaign + counts.post;
 
 	if (!isLoggedIn && !loading) {
 		return (
@@ -240,18 +229,14 @@ export default function ProfilePage() {
 							</div>
 
 							{/* Quick Stats */}
-							<div className="mt-4 sm:mt-6 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+							<div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-3">
 								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
 									<p className="text-xs sm:text-sm text-white/70">Favori Kampanya</p>
 									<p className="text-xl sm:text-2xl font-bold">{counts.campaign}</p>
 								</div>
 								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
-									<p className="text-xs sm:text-sm text-white/70">Favori Marka</p>
-									<p className="text-xl sm:text-2xl font-bold">{counts.brand}</p>
-								</div>
-								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
-									<p className="text-xs sm:text-sm text-white/70">Favori Kategori</p>
-									<p className="text-xl sm:text-2xl font-bold">{counts.category}</p>
+									<p className="text-xs sm:text-sm text-white/70">Favori Blog</p>
+									<p className="text-xl sm:text-2xl font-bold">{counts.post}</p>
 								</div>
 								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
 									<p className="text-xs sm:text-sm text-white/70">Üyelik Tarihi</p>
@@ -264,17 +249,17 @@ export default function ProfilePage() {
 					{/* Favorites Section */}
 					<Tabs defaultValue="favorites" className="space-y-4 sm:space-y-6">
 						<div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
-							<TabsList className="w-full sm:w-fit rounded-full border bg-white p-1 shadow-sm">
+							<TabsList className="w-full sm:w-fit grid grid-cols-2 sm:flex gap-1 rounded-xl border bg-gray-100 p-1.5 shadow-sm">
 								<TabsTrigger
 									value="favorites"
-									className="flex-1 sm:flex-none gap-1.5 sm:gap-2 rounded-full text-xs sm:text-sm data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700 data-[state=active]:shadow-sm"
+									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900"
 								>
 									<Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 									Favorilerim
 								</TabsTrigger>
 								<TabsTrigger
 									value="settings"
-									className="flex-1 sm:flex-none gap-1.5 sm:gap-2 rounded-full text-xs sm:text-sm data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700 data-[state=active]:shadow-sm"
+									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900"
 								>
 									<Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 									Hesap Bilgileri
@@ -294,27 +279,13 @@ export default function ProfilePage() {
 
 						<TabsContent value="favorites" className="mt-0">
 							{/* Category Tabs */}
-							<div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
+							<div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
 								<StatCard
 									label="Kampanyalar"
 									value={counts.campaign}
 									icon={<Tag className="h-4 w-4" />}
 									active={activeTab === "campaigns"}
 									onClick={() => setActiveTab("campaigns")}
-								/>
-								<StatCard
-									label="Markalar"
-									value={counts.brand}
-									icon={<Building2 className="h-4 w-4" />}
-									active={activeTab === "brands"}
-									onClick={() => setActiveTab("brands")}
-								/>
-								<StatCard
-									label="Kategoriler"
-									value={counts.category}
-									icon={<Layers className="h-4 w-4" />}
-									active={activeTab === "categories"}
-									onClick={() => setActiveTab("categories")}
 								/>
 								<StatCard
 									label="Blog Yazıları"
@@ -354,96 +325,6 @@ export default function ProfilePage() {
 														end_date={campaign.end_date}
 													/>
 												</div>
-											))}
-										</div>
-									)}
-								</div>
-							)}
-
-							{/* Brands */}
-							{activeTab === "brands" && (
-								<div>
-									{favoritesLoading ? (
-										<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-											{[1, 2, 3, 4].map((i) => (
-												<Skeleton key={i} className="h-28 sm:h-32 w-full rounded-xl" />
-											))}
-										</div>
-									) : favoritesData.brands.length === 0 ? (
-										<EmptyState
-											icon={<Building2 className="h-10 w-10 sm:h-12 sm:w-12" />}
-											title="Favori marka yok"
-											description="Henüz bir markayı favorilerine eklemedin."
-											action={{ href: "/markalar", label: "Markaları Keşfet" }}
-										/>
-									) : (
-										<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-											{favoritesData.brands.map((brand) => (
-												<Link
-													key={brand.id}
-													href={`/marka/${brand.slug}`}
-													className="group"
-												>
-													<Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1 h-full">
-														<CardContent className="p-4 sm:p-6 flex flex-col items-center text-center">
-															{brand.logo ? (
-																<img
-																	src={brand.logo}
-																	alt={brand.name}
-																	className="h-12 sm:h-16 w-auto object-contain mb-2 sm:mb-3"
-																/>
-															) : (
-																<div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-orange-100 flex items-center justify-center mb-2 sm:mb-3">
-																	<Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
-																</div>
-															)}
-															<p className="font-medium text-gray-900 group-hover:text-orange-600 transition-colors text-sm sm:text-base truncate w-full">
-																{brand.name}
-															</p>
-														</CardContent>
-													</Card>
-												</Link>
-											))}
-										</div>
-									)}
-								</div>
-							)}
-
-							{/* Categories */}
-							{activeTab === "categories" && (
-								<div>
-									{favoritesLoading ? (
-										<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-											{[1, 2, 3, 4].map((i) => (
-												<Skeleton key={i} className="h-20 sm:h-24 w-full rounded-xl" />
-											))}
-										</div>
-									) : favoritesData.categories.length === 0 ? (
-										<EmptyState
-											icon={<Layers className="h-10 w-10 sm:h-12 sm:w-12" />}
-											title="Favori kategori yok"
-											description="Henüz bir kategoriyi favorilerine eklemedin."
-											action={{ href: "/kategoriler", label: "Kategorileri Keşfet" }}
-										/>
-									) : (
-										<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-											{favoritesData.categories.map((category) => (
-												<Link
-													key={category.id}
-													href={`/kategori/${category.slug}`}
-													className="group"
-												>
-													<Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1 h-full">
-														<CardContent className="p-3 sm:p-6 flex items-center gap-2 sm:gap-3">
-															<div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-orange-100 flex items-center justify-center shrink-0">
-																<Layers className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
-															</div>
-															<p className="font-medium text-gray-900 group-hover:text-orange-600 transition-colors text-sm sm:text-base line-clamp-2">
-																{category.name}
-															</p>
-														</CardContent>
-													</Card>
-												</Link>
 											))}
 										</div>
 									)}
