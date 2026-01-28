@@ -48,7 +48,7 @@ export const Header = () => {
 				</Link>
 
 				<nav className="header-nav hidden w-full ml-auto justify-between items-center md:flex">
-					<div className="flex items-center gap-x-1 ml-6 md:ml-8 lg:ml-10">
+					<div className="flex items-center gap-x-1 ml-10 md:ml-14 lg:ml-16">
 						<CategoryDialog menuItems={menuItems?.filter((item) => item?.children?.length !== 0)} />
 						<LoanDialog />
 					</div>
