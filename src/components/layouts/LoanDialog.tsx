@@ -91,7 +91,7 @@ export const LoanDialog = () => {
 									<Link
 										key={loan.href}
 										href={loan.href}
-										className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-150"
+										className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-sm text-gray-700 hover:bg-orange-500 hover:text-white transition-all duration-150 whitespace-nowrap"
 									>
 										<div className="flex items-center gap-3">
 											<div
