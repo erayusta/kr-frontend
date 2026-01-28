@@ -1,32 +1,31 @@
 import {
 	BookOpen,
-	Building2,
 	Calendar,
 	Hash,
 	Heart,
-	Layers,
+	LogOut,
 	Mail,
 	Phone,
 	Settings,
-	ShieldAlert,
 	Tag,
 	Trash2,
 	User,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
+import CampaignCard from "@/components/common/CampaignCard";
 import { Layout } from "@/components/layouts/layout";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useAuth from "@/hooks/useAuth";
-import { useFavoritesState } from "@/hooks/useFavoritesState";
 import { clearFavorites, setFavorited } from "@/lib/favorites";
+import { fetchFavoritesDetails } from "@/lib/favoritesApi";
 
 type Profile = {
 	id: number;
@@ -41,12 +40,24 @@ type Profile = {
 	updated_at?: string;
 };
 
-type FavoriteCampaignUi = {
-	id: string;
+type FavoriteCampaign = {
+	id: number;
 	title: string;
-	merchant: string;
-	badge?: string;
-	summary: string;
+	slug: string;
+	image: string;
+	start_date: string;
+	end_date: string;
+	brands: Array<{ id: number; name: string; slug: string; logo: string }>;
+	categories: Array<{ id: number; name: string; slug: string }>;
+};
+
+type FavoritePost = {
+	id: number;
+	title: string;
+	slug: string;
+	image: string;
+	excerpt: string;
+	created_at: string;
 };
 
 function initialsFromName(name?: string) {
@@ -64,390 +75,362 @@ function formatDate(iso?: string | null) {
 	return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(dt);
 }
 
-function dummyCampaignFromId(id: string): FavoriteCampaignUi {
-	const suffix = id.slice(-6);
-	return {
-		id,
-		title: `Kampanya #${suffix}`,
-		merchant: "Örnek Marka",
-		badge: "Dummy",
-		summary:
-			"Şimdilik sadece favori ID’si tutuluyor. Sonra API ile kampanya detaylarını (başlık, marka, görsel, tarih) dolduracağız.",
-	};
-}
-
 function StatCard({
 	label,
 	value,
 	icon,
+	active,
+	onClick,
 }: {
 	label: string;
 	value: number;
 	icon: React.ReactNode;
+	active?: boolean;
+	onClick?: () => void;
 }) {
 	return (
-		<div className="flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm">
-			<div className="rounded-lg bg-muted p-2 text-muted-foreground">
+		<button
+			onClick={onClick}
+			className={`flex items-center gap-2 rounded-lg border p-2 sm:p-2.5 transition-all w-full text-left ${
+				active
+					? "bg-orange-50 border-orange-300 shadow-sm"
+					: "bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+			}`}
+		>
+			<div className={`rounded-md p-1.5 shrink-0 ${active ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"}`}>
 				{icon}
 			</div>
-			<div className="min-w-0">
-				<p className="text-xs text-muted-foreground">{label}</p>
-				<p className="text-lg font-semibold leading-6">{value}</p>
+			<div className="min-w-0 flex-1">
+				<p className="text-[10px] sm:text-xs text-gray-500 truncate">{label}</p>
+				<p className="text-sm sm:text-base font-semibold leading-5">{value}</p>
 			</div>
-		</div>
+		</button>
 	);
 }
 
 export default function ProfilePage() {
-	const { profile: rawProfile, isLoggedIn, loading } = useAuth();
+	const router = useRouter();
+	const { profile: rawProfile, isLoggedIn, loading, logout } = useAuth();
 	const profile = rawProfile as Profile | null;
 
-	const { favorites, isReady } = useFavoritesState();
+	const [favoritesData, setFavoritesData] = useState<{
+		campaigns: FavoriteCampaign[];
+		posts: FavoritePost[];
+	}>({ campaigns: [], posts: [] });
+	const [counts, setCounts] = useState({ campaign: 0, post: 0 });
+	const [favoritesLoading, setFavoritesLoading] = useState(true);
+	const [activeTab, setActiveTab] = useState<"campaigns" | "posts">("campaigns");
 
-	const favoriteCampaigns = useMemo(() => {
-		return (favorites?.campaign || []).map((id) =>
-			dummyCampaignFromId(String(id)),
-		);
-	}, [favorites?.campaign]);
+	useEffect(() => {
+		if (isLoggedIn) {
+			loadFavorites();
+		}
+	}, [isLoggedIn]);
 
-	const counts = {
-		campaign: favorites?.campaign?.length || 0,
-		post: favorites?.post?.length || 0,
-		brand: favorites?.brand?.length || 0,
-		category: favorites?.category?.length || 0,
+	const loadFavorites = async () => {
+		try {
+			setFavoritesLoading(true);
+			const result = await fetchFavoritesDetails();
+			setFavoritesData({
+				campaigns: result.data.campaigns || [],
+				posts: result.data.posts || [],
+			});
+			setCounts({
+				campaign: result.counts.campaign || 0,
+				post: result.counts.post || 0,
+			});
+		} catch (error) {
+			console.error("Failed to load favorites:", error);
+		} finally {
+			setFavoritesLoading(false);
+		}
 	};
 
-	const totalFavorites =
-		counts.campaign + counts.post + counts.brand + counts.category;
+	const handleRemoveFavorite = async (type: string, id: string | number) => {
+		setFavorited(type, String(id), false);
+		// Reload favorites
+		await loadFavorites();
+	};
 
-	const statusBadge =
-		typeof profile?.is_active === "boolean" ? (
-			<Badge
-				variant={profile.is_active ? "success" : "destructive"}
-				className="gap-1"
-			>
-				{profile.is_active ? "Aktif" : "Pasif"}
-			</Badge>
-		) : null;
+	const handleClearAll = async () => {
+		clearFavorites();
+		setFavoritesData({ campaigns: [], posts: [] });
+		setCounts({ campaign: 0, post: 0 });
+	};
+
+	const handleLogout = () => {
+		logout();
+		router.push("/");
+	};
+
+	const totalFavorites = counts.campaign + counts.post;
+
+	if (!isLoggedIn && !loading) {
+		return (
+			<Layout>
+				<div className="container py-10 sm:py-20 text-center">
+					<div className="mx-auto max-w-md rounded-xl sm:rounded-2xl border bg-white p-6 sm:p-10 shadow-sm">
+						<User className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mb-3 sm:mb-4" />
+						<h1 className="text-xl sm:text-2xl font-semibold mb-1.5 sm:mb-2">Giriş Yapmanız Gerekiyor</h1>
+						<p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
+							Profil sayfasını görüntülemek için lütfen giriş yapın.
+						</p>
+						<Button asChild size="lg" className="w-full sm:w-auto">
+							<Link href="/giris">Giriş Yap</Link>
+						</Button>
+					</div>
+				</div>
+			</Layout>
+		);
+	}
 
 	return (
 		<Layout>
-			<div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-10">
-				<div className="space-y-5">
-					<Card className="relative overflow-hidden">
-						<div className="absolute inset-0 bg-gradient-to-br from-white to-[#fff6ea]" />
-						<div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#ffdfb8] blur-3xl" />
-						<div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[#ffd2a3] blur-3xl" />
+			<div className="container py-6 md:py-10">
+				<div className="space-y-6">
+					{/* Profile Header */}
+					<Card className="relative overflow-hidden border-0 shadow-lg rounded-xl sm:rounded-2xl">
+						<div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400" />
 
-						<CardContent className="relative p-6">
-							<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-								<div className="flex items-center gap-4">
-									<Avatar className="h-14 w-14 border bg-white shadow-sm">
-										<AvatarFallback className="text-base font-semibold">
+						<CardContent className="relative p-4 sm:p-5 md:p-6">
+							<div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
+								<div className="flex items-center gap-3 sm:gap-4">
+									<Avatar className="h-12 w-12 sm:h-16 sm:w-16 border-2 border-white/40 bg-white shadow-lg shrink-0">
+										<AvatarFallback className="text-lg sm:text-xl font-bold text-orange-600 bg-white">
 											{initialsFromName(profile?.name)}
 										</AvatarFallback>
 									</Avatar>
 
-									<div className="min-w-0">
+									<div className="min-w-0 flex-1">
 										{loading ? (
-											<div className="space-y-2">
-												<Skeleton className="h-7 w-52" />
-												<Skeleton className="h-4 w-72" />
+											<div className="space-y-1.5">
+												<Skeleton className="h-5 sm:h-6 w-36 sm:w-44 bg-black/10" />
+												<Skeleton className="h-3.5 sm:h-4 w-44 sm:w-56 bg-black/10" />
 											</div>
 										) : (
-											<h1 className="text-2xl font-semibold tracking-tight">
-												{isLoggedIn
-													? `Hoş geldin, ${profile?.name || "Kullanıcı"}`
-													: "Profil"}
-											</h1>
+											<>
+												<h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 truncate">
+													{profile?.name || "Kullanıcı"}
+												</h1>
+												<p className="text-gray-700 mt-0.5 text-xs sm:text-sm truncate">
+													{profile?.email}
+												</p>
+											</>
 										)}
 									</div>
 								</div>
+
+								<Button
+									onClick={handleLogout}
+									size="sm"
+									className="gap-1.5 bg-orange-600 hover:bg-orange-700 text-white border-0 w-full sm:w-auto text-xs sm:text-sm"
+								>
+									<LogOut className="h-3.5 w-3.5" />
+									Çıkış Yap
+								</Button>
 							</div>
 
-							{profile?.email || profile?.phone ? (
-								<div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-									{profile?.email ? (
-										<div className="flex items-center gap-2 rounded-xl border bg-white/70 px-3 py-2 text-sm">
-											<Mail className="h-4 w-4 text-muted-foreground" />
-											<span className="max-w-[320px] truncate">
-												{profile.email}
-											</span>
-										</div>
-									) : null}
-									{profile?.phone ? (
-										<div className="flex items-center gap-2 rounded-xl border bg-white/70 px-3 py-2 text-sm">
-											<Phone className="h-4 w-4 text-muted-foreground" />
-											<span className="max-w-[220px] truncate">
-												{profile.phone}
-											</span>
-										</div>
-									) : null}
+							{/* Quick Stats */}
+							<div className="mt-3 sm:mt-4 grid grid-cols-3 gap-2">
+								<div className="rounded-lg bg-white/40 backdrop-blur-sm p-2.5 sm:p-3 text-center">
+									<p className="text-[10px] sm:text-xs text-gray-700">Kampanya</p>
+									<p className="text-lg sm:text-xl font-bold text-gray-900">{counts.campaign}</p>
 								</div>
-							) : null}
+								<div className="rounded-lg bg-white/40 backdrop-blur-sm p-2.5 sm:p-3 text-center">
+									<p className="text-[10px] sm:text-xs text-gray-700">Blog</p>
+									<p className="text-lg sm:text-xl font-bold text-gray-900">{counts.post}</p>
+								</div>
+								<div className="rounded-lg bg-white/40 backdrop-blur-sm p-2.5 sm:p-3 text-center">
+									<p className="text-[10px] sm:text-xs text-gray-700">Üyelik</p>
+									<p className="text-xs sm:text-sm font-semibold text-gray-900">{formatDate(profile?.created_at)}</p>
+								</div>
+							</div>
 						</CardContent>
 					</Card>
 
-					<Tabs defaultValue="favorites">
-						<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-							<TabsList className="w-fit rounded-full border bg-white p-1 shadow-sm">
+					{/* Favorites Section */}
+					<Tabs defaultValue="favorites" className="space-y-4 sm:space-y-6">
+						<div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<TabsList className="w-full sm:w-auto flex justify-between rounded-xl border-0 bg-orange-500 p-2 shadow-md min-w-[320px] sm:min-w-[400px]">
 								<TabsTrigger
 									value="favorites"
-									className="gap-2 rounded-full data-[state=active]:bg-[#fff6ea] data-[state=active]:shadow-sm"
+									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=inactive]:text-white/80 data-[state=inactive]:hover:bg-orange-400 data-[state=inactive]:hover:text-white"
 								>
-									<Heart className="h-4 w-4" />
-									Favoriler
+									<Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+									Favorilerim
 								</TabsTrigger>
 								<TabsTrigger
 									value="settings"
-									className="gap-2 rounded-full data-[state=active]:bg-[#fff6ea] data-[state=active]:shadow-sm"
+									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=inactive]:text-white/80 data-[state=inactive]:hover:bg-orange-400 data-[state=inactive]:hover:text-white"
 								>
-									<Settings className="h-4 w-4" />
-									Ayarlar
+									<Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+									Hesap Bilgileri
 								</TabsTrigger>
 							</TabsList>
 
 							<Button
 								variant="outline"
-								onClick={() => clearFavorites()}
-								className="gap-2"
-								disabled={!isReady || totalFavorites === 0}
+								onClick={handleClearAll}
+								className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm w-full sm:w-auto"
+								disabled={totalFavorites === 0}
 							>
-								<Trash2 className="h-4 w-4" />
+								<Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 								Tüm favorileri temizle
 							</Button>
 						</div>
 
-						<TabsContent value="favorites" className="mt-4">
-							<div className="grid gap-6">
-								<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-									<StatCard
-										label="Kampanya"
-										value={counts.campaign}
-										icon={<Tag className="h-4 w-4" />}
-									/>
-									<StatCard
-										label="Blog"
-										value={counts.post}
-										icon={<BookOpen className="h-4 w-4" />}
-									/>
-									<StatCard
-										label="Marka"
-										value={counts.brand}
-										icon={<Building2 className="h-4 w-4" />}
-									/>
-									<StatCard
-										label="Kategori"
-										value={counts.category}
-										icon={<Layers className="h-4 w-4" />}
-									/>
-								</div>
+						<TabsContent value="favorites" className="mt-0">
+							{/* Category Tabs */}
+							<div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+								<StatCard
+									label="Kampanyalar"
+									value={counts.campaign}
+									icon={<Tag className="h-4 w-4" />}
+									active={activeTab === "campaigns"}
+									onClick={() => setActiveTab("campaigns")}
+								/>
+								<StatCard
+									label="Blog Yazıları"
+									value={counts.post}
+									icon={<BookOpen className="h-4 w-4" />}
+									active={activeTab === "posts"}
+									onClick={() => setActiveTab("posts")}
+								/>
+							</div>
 
-								<Card>
-									<CardHeader className="pb-3">
-										<CardTitle className="flex items-center justify-between gap-3">
-											<span>Favori Kampanyalar</span>
-											{counts.campaign > 0 ? (
-												<Badge variant="secondary">
-													{counts.campaign} adet
-												</Badge>
-											) : null}
-										</CardTitle>
-									</CardHeader>
-
-									<CardContent className="pt-0">
-										{loading ? (
-											<div className="grid gap-3 md:grid-cols-2">
-												<Skeleton className="h-28 w-full" />
-												<Skeleton className="h-28 w-full" />
-											</div>
-										) : counts.campaign === 0 ? (
-											<div className="rounded-xl border bg-muted/20 p-6">
-												<div className="flex items-start gap-3">
-													<div className="rounded-lg bg-muted p-2">
-														<ShieldAlert className="h-5 w-5" />
-													</div>
-													<div className="space-y-1">
-														<p className="font-medium">Favori listesi boş</p>
-														<p className="text-sm text-muted-foreground">
-															Henüz bir kampanyayı favorilerine eklemedin.
-														</p>
-														<div className="pt-2">
-															<Button asChild variant="secondary">
-																<Link href="/">Kampanyaları keşfet</Link>
-															</Button>
-														</div>
-													</div>
+							{/* Campaigns */}
+							{activeTab === "campaigns" && (
+								<div>
+									{favoritesLoading ? (
+										<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+											{[1, 2, 3, 4].map((i) => (
+												<Skeleton key={i} className="h-48 sm:h-56 w-full rounded-lg" />
+											))}
+										</div>
+									) : favoritesData.campaigns.length === 0 ? (
+										<EmptyState
+											icon={<Tag className="h-8 w-8 sm:h-10 sm:w-10" />}
+											title="Favori kampanya yok"
+											description="Henüz bir kampanyayı favorilerine eklemedin."
+											action={{ href: "/", label: "Kampanyaları Keşfet" }}
+										/>
+									) : (
+										<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+											{favoritesData.campaigns.map((campaign) => (
+												<div key={campaign.id}>
+													<CampaignCard
+														id={campaign.id}
+														title={campaign.title}
+														slug={campaign.slug}
+														image={campaign.image}
+														brands={campaign.brands}
+														end_date={campaign.end_date}
+													/>
 												</div>
-											</div>
-										) : (
-											<div className="grid gap-3 md:grid-cols-2">
-												{favoriteCampaigns.map((item) => (
-													<Card key={item.id} className="overflow-hidden">
-														<CardContent className="p-5">
-															<div className="flex items-start justify-between gap-4">
-																<div className="min-w-0">
-																	<div className="flex items-center gap-2">
-																		<p className="truncate font-semibold">
-																			{item.title}
-																		</p>
-																		{item.badge ? (
-																			<Badge variant="outline">
-																				{item.badge}
-																			</Badge>
-																		) : null}
-																	</div>
-																	<p className="mt-1 text-sm text-muted-foreground">
-																		{item.merchant}
-																	</p>
-																</div>
+											))}
+										</div>
+									)}
+								</div>
+							)}
 
-																<Button
-																	variant="ghost"
-																	size="icon"
-																	aria-label="Favoriden kaldır"
-																	onClick={() =>
-																		setFavorited("campaign", item.id, false)
-																	}
-																>
-																	<Heart className="h-5 w-5 fill-current" />
-																</Button>
+							{/* Posts */}
+							{activeTab === "posts" && (
+								<div>
+									{favoritesLoading ? (
+										<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+											{[1, 2, 3, 4].map((i) => (
+												<Skeleton key={i} className="h-36 sm:h-44 w-full rounded-lg" />
+											))}
+										</div>
+									) : favoritesData.posts.length === 0 ? (
+										<EmptyState
+											icon={<BookOpen className="h-8 w-8 sm:h-10 sm:w-10" />}
+											title="Favori blog yazısı yok"
+											description="Henüz bir blog yazısını favorilerine eklemedin."
+											action={{ href: "/blog", label: "Blog Yazılarını Keşfet" }}
+										/>
+									) : (
+										<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+											{favoritesData.posts.map((post) => (
+												<Link key={post.id} href={`/blog/${post.slug}`} className="group">
+													<Card className="overflow-hidden hover:shadow-md transition-all h-full border-gray-200">
+														{post.image && (
+															<div className="aspect-[16/10] overflow-hidden">
+																<img
+																	src={post.image}
+																	alt={post.title}
+																	className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+																/>
 															</div>
-
-															<p className="mt-3 max-h-10 overflow-hidden text-sm leading-5 text-muted-foreground">
-																{item.summary}
+														)}
+														<CardContent className="p-2 sm:p-3">
+															<p className="font-medium text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors text-xs sm:text-sm leading-tight">
+																{post.title}
 															</p>
-
-															<Separator className="my-4" />
-
-															<div className="flex flex-wrap items-center justify-between gap-2">
-																<p className="text-xs text-muted-foreground">
-																	ID:{" "}
-																	<span className="font-mono">{item.id}</span>
-																</p>
-																<div className="flex gap-2">
-																	<Button variant="outline" size="sm" disabled>
-																		Detay
-																	</Button>
-																	<Button
-																		variant="secondary"
-																		size="sm"
-																		onClick={() => {
-																			navigator.clipboard
-																				?.writeText(item.id)
-																				.catch(() => {});
-																		}}
-																	>
-																		ID kopyala
-																	</Button>
-																</div>
-															</div>
+															<p className="text-[10px] sm:text-xs text-gray-500 mt-1">
+																{post.created_at}
+															</p>
 														</CardContent>
 													</Card>
-												))}
-											</div>
-										)}
-
-										{counts.campaign > 0 ? (
-											<p className="mt-4 text-xs text-muted-foreground">
-												Not: Şu an favorilerde sadece ID var. Bir sonraki adımda
-												backend’den “ID → kampanya detayları” endpoint’iyle bu
-												kartları gerçek verilerle dolduracağız.
-											</p>
-										) : null}
-									</CardContent>
-								</Card>
-							</div>
+												</Link>
+											))}
+										</div>
+									)}
+								</div>
+							)}
 						</TabsContent>
 
-						<TabsContent value="settings" className="mt-4">
-							<div className="grid gap-6 md:grid-cols-2">
+						<TabsContent value="settings" className="mt-0">
+							<div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
 								<Card>
-									<CardHeader className="pb-3">
-										<CardTitle className="flex items-center gap-2">
-											<User className="h-5 w-5" />
+									<CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
+										<CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+											<User className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
 											Hesap Bilgileri
 										</CardTitle>
 									</CardHeader>
 
-									<CardContent className="space-y-4">
-										<div className="grid gap-3">
-											<div className="flex items-center justify-between rounded-xl border bg-muted/20 p-3">
-												<div className="flex items-center gap-2 text-sm">
-													<Hash className="h-4 w-4 text-muted-foreground" />
-													<span className="text-muted-foreground">
-														Kullanıcı ID
-													</span>
-												</div>
-												<span className="text-sm font-medium">
-													{profile?.id ?? "-"}
-												</span>
-											</div>
-											<div className="flex items-center justify-between rounded-xl border bg-muted/20 p-3">
-												<div className="flex items-center gap-2 text-sm">
-													<Mail className="h-4 w-4 text-muted-foreground" />
-													<span className="text-muted-foreground">E-posta</span>
-												</div>
-												<span className="max-w-[260px] truncate text-sm font-medium">
-													{profile?.email || "-"}
-												</span>
-											</div>
-											<div className="flex items-center justify-between rounded-xl border bg-muted/20 p-3">
-												<div className="flex items-center gap-2 text-sm">
-													<Phone className="h-4 w-4 text-muted-foreground" />
-													<span className="text-muted-foreground">Telefon</span>
-												</div>
-												<span className="text-sm font-medium">
-													{profile?.phone || "-"}
-												</span>
-											</div>
-											<div className="flex items-center justify-between rounded-xl border bg-muted/20 p-3">
-												<div className="flex items-center gap-2 text-sm">
-													<Calendar className="h-4 w-4 text-muted-foreground" />
-													<span className="text-muted-foreground">
-														Üyelik tarihi
-													</span>
-												</div>
-												<span className="text-sm font-medium">
-													{formatDate(profile?.created_at)}
-												</span>
-											</div>
+									<CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
+										<div className="grid gap-2 sm:gap-3">
+											<InfoRow icon={<Hash className="h-3.5 w-3.5 sm:h-4 sm:w-4" />} label="Kullanıcı ID" value={profile?.id ?? "-"} />
+											<InfoRow icon={<Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4" />} label="E-posta" value={profile?.email || "-"} />
+											<InfoRow icon={<Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4" />} label="Telefon" value={profile?.phone || "-"} />
+											<InfoRow icon={<Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />} label="Üyelik Tarihi" value={formatDate(profile?.created_at)} />
 										</div>
 
-										<div className="grid grid-cols-2 gap-3">
-											<div className="rounded-xl border bg-muted/20 p-3">
-												<p className="text-xs text-muted-foreground">
-													Cinsiyet
-												</p>
-												<p className="text-sm font-medium">
-													{profile?.gender || "-"}
-												</p>
+										<div className="grid grid-cols-2 gap-2 sm:gap-3">
+											<div className="rounded-lg bg-gradient-to-r from-gray-50 to-gray-100/50 border border-gray-200/60 px-3 sm:px-4 py-2.5 sm:py-3">
+												<p className="text-[10px] sm:text-xs text-gray-500 mb-0.5">Cinsiyet</p>
+												<p className="text-xs sm:text-sm font-semibold text-gray-800">{profile?.gender || "-"}</p>
 											</div>
-											<div className="rounded-xl border bg-muted/20 p-3">
-												<p className="text-xs text-muted-foreground">
-													Doğum tarihi
-												</p>
-												<p className="text-sm font-medium">
-													{formatDate(profile?.birth_date)}
-												</p>
+											<div className="rounded-lg bg-gradient-to-r from-gray-50 to-gray-100/50 border border-gray-200/60 px-3 sm:px-4 py-2.5 sm:py-3">
+												<p className="text-[10px] sm:text-xs text-gray-500 mb-0.5">Doğum Tarihi</p>
+												<p className="text-xs sm:text-sm font-semibold text-gray-800">{formatDate(profile?.birth_date)}</p>
 											</div>
 										</div>
 									</CardContent>
 								</Card>
 
 								<Card>
-									<CardHeader className="pb-3">
-										<CardTitle className="flex items-center gap-2">
-											<Settings className="h-5 w-5" />
-											Ayarlar
+									<CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
+										<CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+											<Settings className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
+											Hesap İşlemleri
 										</CardTitle>
 									</CardHeader>
-									<CardContent className="space-y-4">
-										<div className="rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground">
-											lorem ipsum
+									<CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
+										<div className="rounded-lg sm:rounded-xl border bg-orange-50 p-3 sm:p-4">
+											<p className="text-xs sm:text-sm text-orange-800">
+												Profil düzenleme ve şifre değiştirme özellikleri yakında eklenecektir.
+											</p>
 										</div>
-										<Button variant="outline" disabled>
-											lorem
+										<Button
+											variant="outline"
+											onClick={handleLogout}
+											className="w-full gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm"
+										>
+											<LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+											Hesaptan Çıkış Yap
 										</Button>
 									</CardContent>
 								</Card>
@@ -457,5 +440,44 @@ export default function ProfilePage() {
 				</div>
 			</div>
 		</Layout>
+	);
+}
+
+function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+	return (
+		<div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-gray-50 to-gray-100/50 border border-gray-200/60 px-3 sm:px-4 py-2.5 sm:py-3 gap-3">
+			<div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+				<div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-white shadow-sm border border-gray-100">
+					<span className="text-gray-500">{icon}</span>
+				</div>
+				<span className="text-xs sm:text-sm text-gray-600 font-medium">{label}</span>
+			</div>
+			<span className="text-xs sm:text-sm font-semibold text-gray-800 max-w-[100px] sm:max-w-[180px] truncate text-right">{value}</span>
+		</div>
+	);
+}
+
+function EmptyState({
+	icon,
+	title,
+	description,
+	action,
+}: {
+	icon: React.ReactNode;
+	title: string;
+	description: string;
+	action: { href: string; label: string };
+}) {
+	return (
+		<div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50/50 p-5 sm:p-8 text-center">
+			<div className="mx-auto w-fit rounded-full bg-orange-100 p-2.5 sm:p-3 text-orange-600 mb-2 sm:mb-3">
+				{icon}
+			</div>
+			<h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">{title}</h3>
+			<p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">{description}</p>
+			<Button asChild size="sm" className="bg-orange-500 hover:bg-orange-600 text-xs sm:text-sm">
+				<Link href={action.href}>{action.label}</Link>
+			</Button>
+		</div>
 	);
 }
