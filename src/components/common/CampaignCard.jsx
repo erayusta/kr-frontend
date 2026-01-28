@@ -95,7 +95,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
                     title={title || "Kampanya"}
                     src={imgSrc}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                     sizes="(max-width: 768px) 100vw, 33vw"
                     onError={handleImageError}
                     priority={false}
