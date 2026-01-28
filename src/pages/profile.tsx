@@ -251,17 +251,17 @@ export default function ProfilePage() {
 					{/* Favorites Section */}
 					<Tabs defaultValue="favorites" className="space-y-4 sm:space-y-6">
 						<div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
-							<TabsList className="w-full sm:w-fit grid grid-cols-2 sm:flex gap-1.5 rounded-xl border bg-gray-100 p-1.5 shadow-sm">
+							<TabsList className="w-full sm:w-fit grid grid-cols-2 sm:flex gap-1.5 rounded-xl border-0 bg-orange-500 p-1.5 shadow-md">
 								<TabsTrigger
 									value="favorites"
-									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-200"
+									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=inactive]:text-white/80 data-[state=inactive]:hover:bg-orange-400 data-[state=inactive]:hover:text-white"
 								>
 									<Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 									Favorilerim
 								</TabsTrigger>
 								<TabsTrigger
 									value="settings"
-									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-200"
+									className="gap-1.5 sm:gap-2 rounded-lg px-4 py-2.5 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=inactive]:text-white/80 data-[state=inactive]:hover:bg-orange-400 data-[state=inactive]:hover:text-white"
 								>
 									<Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 									Hesap Bilgileri
