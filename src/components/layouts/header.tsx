@@ -48,15 +48,15 @@ export const Header = () => {
 				</Link>
 
 				<nav className="header-nav hidden w-full ml-auto justify-between items-center md:flex">
-					<div className="flex items-center gap-x-2 ml-6 md:ml-8 lg:ml-10">
+					<div className="flex items-center gap-x-1 ml-14 md:ml-20 lg:ml-24">
 						<CategoryDialog menuItems={menuItems?.filter((item) => item?.children?.length !== 0)} />
 						<LoanDialog />
 					</div>
 
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-3">
 						<Button
 							onClick={handleCreateCampaign}
-							className="h-9 gap-2 px-3 text-sm font-medium transition-all duration-200 hover:bg-orange-500 hover:text-white hover:border-orange-500"
+							className="h-10 gap-2 px-4 text-sm font-medium transition-all duration-200 hover:bg-orange-500 hover:text-white hover:border-orange-500"
 							variant="outline"
 						>
 							<Newspaper size={18} />
