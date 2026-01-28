@@ -5,6 +5,11 @@ export async function fetchFavorites() {
   return res?.data || { campaign: [], post: [], brand: [], category: [] };
 }
 
+export async function fetchFavoritesDetails() {
+  const res = await apiRequest("/favorites/details", "get", {}, true);
+  return res || { data: { campaigns: [], posts: [], brands: [], categories: [] }, counts: {} };
+}
+
 export async function addFavorite(target_type, target_id) {
   await apiRequest("/favorites", "post", { target_type, target_id }, true);
 }
