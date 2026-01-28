@@ -91,16 +91,18 @@ function StatCard({
 	return (
 		<button
 			onClick={onClick}
-			className={`flex items-center gap-2 sm:gap-3 rounded-xl border p-2.5 sm:p-3 shadow-sm transition-all hover:shadow-md w-full text-left ${
-				active ? "bg-orange-50 border-orange-200" : "bg-white hover:bg-gray-50"
+			className={`flex items-center gap-2 rounded-lg border p-2 sm:p-2.5 transition-all w-full text-left ${
+				active
+					? "bg-orange-50 border-orange-300 shadow-sm"
+					: "bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300"
 			}`}
 		>
-			<div className={`rounded-lg p-1.5 sm:p-2 shrink-0 ${active ? "bg-orange-100 text-orange-600" : "bg-muted text-muted-foreground"}`}>
+			<div className={`rounded-md p-1.5 shrink-0 ${active ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"}`}>
 				{icon}
 			</div>
 			<div className="min-w-0 flex-1">
-				<p className="text-[10px] sm:text-xs text-muted-foreground truncate">{label}</p>
-				<p className="text-base sm:text-lg font-semibold leading-5 sm:leading-6">{value}</p>
+				<p className="text-[10px] sm:text-xs text-gray-500 truncate">{label}</p>
+				<p className="text-sm sm:text-base font-semibold leading-5">{value}</p>
 			</div>
 		</button>
 	);
@@ -187,30 +189,30 @@ export default function ProfilePage() {
 			<div className="container py-6 md:py-10">
 				<div className="space-y-6">
 					{/* Profile Header */}
-					<Card className="relative overflow-hidden border-0 shadow-lg rounded-2xl">
-						<div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400" />
+					<Card className="relative overflow-hidden border-0 shadow-lg rounded-xl sm:rounded-2xl">
+						<div className="absolute inset-0 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600" />
 
-						<CardContent className="relative p-4 sm:p-6 md:p-8">
-							<div className="flex flex-col gap-4 sm:gap-6 md:flex-row md:items-center md:justify-between">
-								<div className="flex items-center gap-3 sm:gap-5">
-									<Avatar className="h-14 w-14 sm:h-20 sm:w-20 border-4 border-white/30 bg-white shadow-xl shrink-0">
-										<AvatarFallback className="text-xl sm:text-2xl font-bold text-orange-600 bg-white">
+						<CardContent className="relative p-4 sm:p-5 md:p-6">
+							<div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
+								<div className="flex items-center gap-3 sm:gap-4">
+									<Avatar className="h-12 w-12 sm:h-16 sm:w-16 border-2 border-white/40 bg-white shadow-lg shrink-0">
+										<AvatarFallback className="text-lg sm:text-xl font-bold text-orange-600 bg-white">
 											{initialsFromName(profile?.name)}
 										</AvatarFallback>
 									</Avatar>
 
 									<div className="min-w-0 flex-1">
 										{loading ? (
-											<div className="space-y-2">
-												<Skeleton className="h-6 sm:h-8 w-40 sm:w-52 bg-white/30" />
-												<Skeleton className="h-4 sm:h-5 w-48 sm:w-72 bg-white/30" />
+											<div className="space-y-1.5">
+												<Skeleton className="h-5 sm:h-6 w-36 sm:w-44 bg-white/30" />
+												<Skeleton className="h-3.5 sm:h-4 w-44 sm:w-56 bg-white/30" />
 											</div>
 										) : (
 											<>
-												<h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white truncate">
+												<h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white truncate">
 													{profile?.name || "Kullanıcı"}
 												</h1>
-												<p className="text-white/80 mt-1 text-sm sm:text-base truncate">
+												<p className="text-orange-100 mt-0.5 text-xs sm:text-sm truncate">
 													{profile?.email}
 												</p>
 											</>
@@ -221,26 +223,27 @@ export default function ProfilePage() {
 								<Button
 									variant="secondary"
 									onClick={handleLogout}
-									className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm w-full sm:w-auto"
+									size="sm"
+									className="gap-1.5 bg-white/25 hover:bg-white/35 text-white border-0 backdrop-blur-sm w-full sm:w-auto text-xs sm:text-sm"
 								>
-									<LogOut className="h-4 w-4" />
+									<LogOut className="h-3.5 w-3.5" />
 									Çıkış Yap
 								</Button>
 							</div>
 
 							{/* Quick Stats */}
-							<div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-3">
-								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
-									<p className="text-xs sm:text-sm text-white/70">Favori Kampanya</p>
-									<p className="text-xl sm:text-2xl font-bold">{counts.campaign}</p>
+							<div className="mt-3 sm:mt-4 grid grid-cols-3 gap-2">
+								<div className="rounded-lg bg-white/25 backdrop-blur-sm p-2.5 sm:p-3 text-white text-center">
+									<p className="text-[10px] sm:text-xs text-orange-100">Kampanya</p>
+									<p className="text-lg sm:text-xl font-bold">{counts.campaign}</p>
 								</div>
-								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
-									<p className="text-xs sm:text-sm text-white/70">Favori Blog</p>
-									<p className="text-xl sm:text-2xl font-bold">{counts.post}</p>
+								<div className="rounded-lg bg-white/25 backdrop-blur-sm p-2.5 sm:p-3 text-white text-center">
+									<p className="text-[10px] sm:text-xs text-orange-100">Blog</p>
+									<p className="text-lg sm:text-xl font-bold">{counts.post}</p>
 								</div>
-								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
-									<p className="text-xs sm:text-sm text-white/70">Üyelik Tarihi</p>
-									<p className="text-sm sm:text-lg font-semibold">{formatDate(profile?.created_at)}</p>
+								<div className="rounded-lg bg-white/25 backdrop-blur-sm p-2.5 sm:p-3 text-white text-center">
+									<p className="text-[10px] sm:text-xs text-orange-100">Üyelik</p>
+									<p className="text-xs sm:text-sm font-semibold">{formatDate(profile?.created_at)}</p>
 								</div>
 							</div>
 						</CardContent>
@@ -300,22 +303,22 @@ export default function ProfilePage() {
 							{activeTab === "campaigns" && (
 								<div>
 									{favoritesLoading ? (
-										<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-											{[1, 2, 3].map((i) => (
-												<Skeleton key={i} className="h-56 sm:h-64 w-full rounded-xl" />
+										<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+											{[1, 2, 3, 4].map((i) => (
+												<Skeleton key={i} className="h-48 sm:h-56 w-full rounded-lg" />
 											))}
 										</div>
 									) : favoritesData.campaigns.length === 0 ? (
 										<EmptyState
-											icon={<Tag className="h-10 w-10 sm:h-12 sm:w-12" />}
+											icon={<Tag className="h-8 w-8 sm:h-10 sm:w-10" />}
 											title="Favori kampanya yok"
 											description="Henüz bir kampanyayı favorilerine eklemedin."
 											action={{ href: "/", label: "Kampanyaları Keşfet" }}
 										/>
 									) : (
-										<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+										<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
 											{favoritesData.campaigns.map((campaign) => (
-												<div key={campaign.id} className="relative group">
+												<div key={campaign.id}>
 													<CampaignCard
 														id={campaign.id}
 														title={campaign.title}
@@ -335,25 +338,25 @@ export default function ProfilePage() {
 							{activeTab === "posts" && (
 								<div>
 									{favoritesLoading ? (
-										<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-											{[1, 2, 3].map((i) => (
-												<Skeleton key={i} className="h-40 sm:h-48 w-full rounded-xl" />
+										<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+											{[1, 2, 3, 4].map((i) => (
+												<Skeleton key={i} className="h-36 sm:h-44 w-full rounded-lg" />
 											))}
 										</div>
 									) : favoritesData.posts.length === 0 ? (
 										<EmptyState
-											icon={<BookOpen className="h-10 w-10 sm:h-12 sm:w-12" />}
+											icon={<BookOpen className="h-8 w-8 sm:h-10 sm:w-10" />}
 											title="Favori blog yazısı yok"
 											description="Henüz bir blog yazısını favorilerine eklemedin."
 											action={{ href: "/blog", label: "Blog Yazılarını Keşfet" }}
 										/>
 									) : (
-										<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+										<div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
 											{favoritesData.posts.map((post) => (
 												<Link key={post.id} href={`/blog/${post.slug}`} className="group">
-													<Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1 h-full">
+													<Card className="overflow-hidden hover:shadow-md transition-all h-full border-gray-200">
 														{post.image && (
-															<div className="aspect-video overflow-hidden">
+															<div className="aspect-[16/10] overflow-hidden">
 																<img
 																	src={post.image}
 																	alt={post.title}
@@ -361,11 +364,11 @@ export default function ProfilePage() {
 																/>
 															</div>
 														)}
-														<CardContent className="p-3 sm:p-4">
-															<p className="font-medium text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors text-sm sm:text-base">
+														<CardContent className="p-2 sm:p-3">
+															<p className="font-medium text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors text-xs sm:text-sm leading-tight">
 																{post.title}
 															</p>
-															<p className="text-xs sm:text-sm text-muted-foreground mt-1.5 sm:mt-2">
+															<p className="text-[10px] sm:text-xs text-gray-500 mt-1">
 																{post.created_at}
 															</p>
 														</CardContent>
@@ -397,13 +400,13 @@ export default function ProfilePage() {
 										</div>
 
 										<div className="grid grid-cols-2 gap-2 sm:gap-3">
-											<div className="rounded-lg sm:rounded-xl border bg-gray-50 p-2.5 sm:p-3">
-												<p className="text-[10px] sm:text-xs text-muted-foreground">Cinsiyet</p>
-												<p className="text-xs sm:text-sm font-medium">{profile?.gender || "-"}</p>
+											<div className="rounded-lg bg-gradient-to-r from-gray-50 to-gray-100/50 border border-gray-200/60 px-3 sm:px-4 py-2.5 sm:py-3">
+												<p className="text-[10px] sm:text-xs text-gray-500 mb-0.5">Cinsiyet</p>
+												<p className="text-xs sm:text-sm font-semibold text-gray-800">{profile?.gender || "-"}</p>
 											</div>
-											<div className="rounded-lg sm:rounded-xl border bg-gray-50 p-2.5 sm:p-3">
-												<p className="text-[10px] sm:text-xs text-muted-foreground">Doğum Tarihi</p>
-												<p className="text-xs sm:text-sm font-medium">{formatDate(profile?.birth_date)}</p>
+											<div className="rounded-lg bg-gradient-to-r from-gray-50 to-gray-100/50 border border-gray-200/60 px-3 sm:px-4 py-2.5 sm:py-3">
+												<p className="text-[10px] sm:text-xs text-gray-500 mb-0.5">Doğum Tarihi</p>
+												<p className="text-xs sm:text-sm font-semibold text-gray-800">{formatDate(profile?.birth_date)}</p>
 											</div>
 										</div>
 									</CardContent>
@@ -443,12 +446,14 @@ export default function ProfilePage() {
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
 	return (
-		<div className="flex items-center justify-between rounded-lg sm:rounded-xl border bg-gray-50 p-2.5 sm:p-3 gap-2">
-			<div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm shrink-0">
-				<span className="text-muted-foreground">{icon}</span>
-				<span className="text-muted-foreground">{label}</span>
+		<div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-gray-50 to-gray-100/50 border border-gray-200/60 px-3 sm:px-4 py-2.5 sm:py-3 gap-3">
+			<div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+				<div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-white shadow-sm border border-gray-100">
+					<span className="text-gray-500">{icon}</span>
+				</div>
+				<span className="text-xs sm:text-sm text-gray-600 font-medium">{label}</span>
 			</div>
-			<span className="text-xs sm:text-sm font-medium max-w-[120px] sm:max-w-[200px] truncate text-right">{value}</span>
+			<span className="text-xs sm:text-sm font-semibold text-gray-800 max-w-[100px] sm:max-w-[180px] truncate text-right">{value}</span>
 		</div>
 	);
 }
@@ -465,13 +470,13 @@ function EmptyState({
 	action: { href: string; label: string };
 }) {
 	return (
-		<div className="rounded-xl sm:rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6 sm:p-12 text-center">
-			<div className="mx-auto w-fit rounded-full bg-orange-100 p-3 sm:p-4 text-orange-600 mb-3 sm:mb-4">
+		<div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50/50 p-5 sm:p-8 text-center">
+			<div className="mx-auto w-fit rounded-full bg-orange-100 p-2.5 sm:p-3 text-orange-600 mb-2 sm:mb-3">
 				{icon}
 			</div>
-			<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1.5 sm:mb-2">{title}</h3>
-			<p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">{description}</p>
-			<Button asChild variant="default" className="bg-orange-500 hover:bg-orange-600 text-sm sm:text-base">
+			<h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">{title}</h3>
+			<p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">{description}</p>
+			<Button asChild size="sm" className="bg-orange-500 hover:bg-orange-600 text-xs sm:text-sm">
 				<Link href={action.href}>{action.label}</Link>
 			</Button>
 		</div>
