@@ -106,16 +106,16 @@ function StatCard({
 	return (
 		<button
 			onClick={onClick}
-			className={`flex items-center gap-3 rounded-xl border p-3 shadow-sm transition-all hover:shadow-md w-full text-left ${
+			className={`flex items-center gap-2 sm:gap-3 rounded-xl border p-2.5 sm:p-3 shadow-sm transition-all hover:shadow-md w-full text-left ${
 				active ? "bg-orange-50 border-orange-200" : "bg-white hover:bg-gray-50"
 			}`}
 		>
-			<div className={`rounded-lg p-2 ${active ? "bg-orange-100 text-orange-600" : "bg-muted text-muted-foreground"}`}>
+			<div className={`rounded-lg p-1.5 sm:p-2 shrink-0 ${active ? "bg-orange-100 text-orange-600" : "bg-muted text-muted-foreground"}`}>
 				{icon}
 			</div>
-			<div className="min-w-0">
-				<p className="text-xs text-muted-foreground">{label}</p>
-				<p className="text-lg font-semibold leading-6">{value}</p>
+			<div className="min-w-0 flex-1">
+				<p className="text-[10px] sm:text-xs text-muted-foreground truncate">{label}</p>
+				<p className="text-base sm:text-lg font-semibold leading-5 sm:leading-6">{value}</p>
 			</div>
 		</button>
 	);
@@ -177,14 +177,14 @@ export default function ProfilePage() {
 	if (!isLoggedIn && !loading) {
 		return (
 			<Layout>
-				<div className="mx-auto w-full max-w-2xl px-4 py-20 text-center">
-					<div className="rounded-2xl border bg-white p-10 shadow-sm">
-						<User className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-						<h1 className="text-2xl font-semibold mb-2">Giriş Yapmanız Gerekiyor</h1>
-						<p className="text-muted-foreground mb-6">
+				<div className="container py-10 sm:py-20 text-center">
+					<div className="mx-auto max-w-md rounded-xl sm:rounded-2xl border bg-white p-6 sm:p-10 shadow-sm">
+						<User className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mb-3 sm:mb-4" />
+						<h1 className="text-xl sm:text-2xl font-semibold mb-1.5 sm:mb-2">Giriş Yapmanız Gerekiyor</h1>
+						<p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
 							Profil sayfasını görüntülemek için lütfen giriş yapın.
 						</p>
-						<Button asChild size="lg">
+						<Button asChild size="lg" className="w-full sm:w-auto">
 							<Link href="/giris">Giriş Yap</Link>
 						</Button>
 					</div>
@@ -195,34 +195,33 @@ export default function ProfilePage() {
 
 	return (
 		<Layout>
-			<div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-10">
+			<div className="container py-6 md:py-10">
 				<div className="space-y-6">
 					{/* Profile Header */}
-					<Card className="relative overflow-hidden border-0 shadow-lg">
+					<Card className="relative overflow-hidden border-0 shadow-lg rounded-2xl">
 						<div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400" />
-						<div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10" />
 
-						<CardContent className="relative p-6 md:p-8">
-							<div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-								<div className="flex items-center gap-5">
-									<Avatar className="h-20 w-20 border-4 border-white/30 bg-white shadow-xl">
-										<AvatarFallback className="text-2xl font-bold text-orange-600 bg-white">
+						<CardContent className="relative p-4 sm:p-6 md:p-8">
+							<div className="flex flex-col gap-4 sm:gap-6 md:flex-row md:items-center md:justify-between">
+								<div className="flex items-center gap-3 sm:gap-5">
+									<Avatar className="h-14 w-14 sm:h-20 sm:w-20 border-4 border-white/30 bg-white shadow-xl shrink-0">
+										<AvatarFallback className="text-xl sm:text-2xl font-bold text-orange-600 bg-white">
 											{initialsFromName(profile?.name)}
 										</AvatarFallback>
 									</Avatar>
 
-									<div className="min-w-0">
+									<div className="min-w-0 flex-1">
 										{loading ? (
 											<div className="space-y-2">
-												<Skeleton className="h-8 w-52 bg-white/30" />
-												<Skeleton className="h-5 w-72 bg-white/30" />
+												<Skeleton className="h-6 sm:h-8 w-40 sm:w-52 bg-white/30" />
+												<Skeleton className="h-4 sm:h-5 w-48 sm:w-72 bg-white/30" />
 											</div>
 										) : (
 											<>
-												<h1 className="text-2xl md:text-3xl font-bold text-white">
+												<h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white truncate">
 													{profile?.name || "Kullanıcı"}
 												</h1>
-												<p className="text-white/80 mt-1">
+												<p className="text-white/80 mt-1 text-sm sm:text-base truncate">
 													{profile?.email}
 												</p>
 											</>
@@ -233,7 +232,7 @@ export default function ProfilePage() {
 								<Button
 									variant="secondary"
 									onClick={handleLogout}
-									className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
+									className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm w-full sm:w-auto"
 								>
 									<LogOut className="h-4 w-4" />
 									Çıkış Yap
@@ -241,43 +240,43 @@ export default function ProfilePage() {
 							</div>
 
 							{/* Quick Stats */}
-							<div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-4 text-white">
-									<p className="text-sm text-white/70">Favori Kampanya</p>
-									<p className="text-2xl font-bold">{counts.campaign}</p>
+							<div className="mt-4 sm:mt-6 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
+									<p className="text-xs sm:text-sm text-white/70">Favori Kampanya</p>
+									<p className="text-xl sm:text-2xl font-bold">{counts.campaign}</p>
 								</div>
-								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-4 text-white">
-									<p className="text-sm text-white/70">Favori Marka</p>
-									<p className="text-2xl font-bold">{counts.brand}</p>
+								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
+									<p className="text-xs sm:text-sm text-white/70">Favori Marka</p>
+									<p className="text-xl sm:text-2xl font-bold">{counts.brand}</p>
 								</div>
-								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-4 text-white">
-									<p className="text-sm text-white/70">Favori Kategori</p>
-									<p className="text-2xl font-bold">{counts.category}</p>
+								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
+									<p className="text-xs sm:text-sm text-white/70">Favori Kategori</p>
+									<p className="text-xl sm:text-2xl font-bold">{counts.category}</p>
 								</div>
-								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-4 text-white">
-									<p className="text-sm text-white/70">Üyelik Tarihi</p>
-									<p className="text-lg font-semibold">{formatDate(profile?.created_at)}</p>
+								<div className="rounded-xl bg-white/20 backdrop-blur-sm p-3 sm:p-4 text-white">
+									<p className="text-xs sm:text-sm text-white/70">Üyelik Tarihi</p>
+									<p className="text-sm sm:text-lg font-semibold">{formatDate(profile?.created_at)}</p>
 								</div>
 							</div>
 						</CardContent>
 					</Card>
 
 					{/* Favorites Section */}
-					<Tabs defaultValue="favorites" className="space-y-6">
-						<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-							<TabsList className="w-fit rounded-full border bg-white p-1 shadow-sm">
+					<Tabs defaultValue="favorites" className="space-y-4 sm:space-y-6">
+						<div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<TabsList className="w-full sm:w-fit rounded-full border bg-white p-1 shadow-sm">
 								<TabsTrigger
 									value="favorites"
-									className="gap-2 rounded-full data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700 data-[state=active]:shadow-sm"
+									className="flex-1 sm:flex-none gap-1.5 sm:gap-2 rounded-full text-xs sm:text-sm data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700 data-[state=active]:shadow-sm"
 								>
-									<Heart className="h-4 w-4" />
+									<Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 									Favorilerim
 								</TabsTrigger>
 								<TabsTrigger
 									value="settings"
-									className="gap-2 rounded-full data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700 data-[state=active]:shadow-sm"
+									className="flex-1 sm:flex-none gap-1.5 sm:gap-2 rounded-full text-xs sm:text-sm data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700 data-[state=active]:shadow-sm"
 								>
-									<Settings className="h-4 w-4" />
+									<Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 									Hesap Bilgileri
 								</TabsTrigger>
 							</TabsList>
@@ -285,17 +284,17 @@ export default function ProfilePage() {
 							<Button
 								variant="outline"
 								onClick={handleClearAll}
-								className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+								className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm w-full sm:w-auto"
 								disabled={totalFavorites === 0}
 							>
-								<Trash2 className="h-4 w-4" />
+								<Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 								Tüm favorileri temizle
 							</Button>
 						</div>
 
 						<TabsContent value="favorites" className="mt-0">
 							{/* Category Tabs */}
-							<div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+							<div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
 								<StatCard
 									label="Kampanyalar"
 									value={counts.campaign}
@@ -330,20 +329,20 @@ export default function ProfilePage() {
 							{activeTab === "campaigns" && (
 								<div>
 									{favoritesLoading ? (
-										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+										<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
 											{[1, 2, 3].map((i) => (
-												<Skeleton key={i} className="h-64 w-full rounded-xl" />
+												<Skeleton key={i} className="h-56 sm:h-64 w-full rounded-xl" />
 											))}
 										</div>
 									) : favoritesData.campaigns.length === 0 ? (
 										<EmptyState
-											icon={<Tag className="h-12 w-12" />}
+											icon={<Tag className="h-10 w-10 sm:h-12 sm:w-12" />}
 											title="Favori kampanya yok"
 											description="Henüz bir kampanyayı favorilerine eklemedin."
 											action={{ href: "/", label: "Kampanyaları Keşfet" }}
 										/>
 									) : (
-										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+										<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
 											{favoritesData.campaigns.map((campaign) => (
 												<div key={campaign.id} className="relative group">
 													<CampaignCard
@@ -365,40 +364,40 @@ export default function ProfilePage() {
 							{activeTab === "brands" && (
 								<div>
 									{favoritesLoading ? (
-										<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+										<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
 											{[1, 2, 3, 4].map((i) => (
-												<Skeleton key={i} className="h-32 w-full rounded-xl" />
+												<Skeleton key={i} className="h-28 sm:h-32 w-full rounded-xl" />
 											))}
 										</div>
 									) : favoritesData.brands.length === 0 ? (
 										<EmptyState
-											icon={<Building2 className="h-12 w-12" />}
+											icon={<Building2 className="h-10 w-10 sm:h-12 sm:w-12" />}
 											title="Favori marka yok"
 											description="Henüz bir markayı favorilerine eklemedin."
 											action={{ href: "/markalar", label: "Markaları Keşfet" }}
 										/>
 									) : (
-										<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+										<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
 											{favoritesData.brands.map((brand) => (
 												<Link
 													key={brand.id}
 													href={`/marka/${brand.slug}`}
 													className="group"
 												>
-													<Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1">
-														<CardContent className="p-6 flex flex-col items-center text-center">
+													<Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1 h-full">
+														<CardContent className="p-4 sm:p-6 flex flex-col items-center text-center">
 															{brand.logo ? (
 																<img
 																	src={brand.logo}
 																	alt={brand.name}
-																	className="h-16 w-auto object-contain mb-3"
+																	className="h-12 sm:h-16 w-auto object-contain mb-2 sm:mb-3"
 																/>
 															) : (
-																<div className="h-16 w-16 rounded-full bg-orange-100 flex items-center justify-center mb-3">
-																	<Building2 className="h-8 w-8 text-orange-600" />
+																<div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-orange-100 flex items-center justify-center mb-2 sm:mb-3">
+																	<Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
 																</div>
 															)}
-															<p className="font-medium text-gray-900 group-hover:text-orange-600 transition-colors">
+															<p className="font-medium text-gray-900 group-hover:text-orange-600 transition-colors text-sm sm:text-base truncate w-full">
 																{brand.name}
 															</p>
 														</CardContent>
@@ -414,32 +413,32 @@ export default function ProfilePage() {
 							{activeTab === "categories" && (
 								<div>
 									{favoritesLoading ? (
-										<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+										<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
 											{[1, 2, 3, 4].map((i) => (
-												<Skeleton key={i} className="h-24 w-full rounded-xl" />
+												<Skeleton key={i} className="h-20 sm:h-24 w-full rounded-xl" />
 											))}
 										</div>
 									) : favoritesData.categories.length === 0 ? (
 										<EmptyState
-											icon={<Layers className="h-12 w-12" />}
+											icon={<Layers className="h-10 w-10 sm:h-12 sm:w-12" />}
 											title="Favori kategori yok"
 											description="Henüz bir kategoriyi favorilerine eklemedin."
 											action={{ href: "/kategoriler", label: "Kategorileri Keşfet" }}
 										/>
 									) : (
-										<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+										<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
 											{favoritesData.categories.map((category) => (
 												<Link
 													key={category.id}
 													href={`/kategori/${category.slug}`}
 													className="group"
 												>
-													<Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1">
-														<CardContent className="p-6 flex items-center gap-3">
-															<div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center shrink-0">
-																<Layers className="h-6 w-6 text-orange-600" />
+													<Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1 h-full">
+														<CardContent className="p-3 sm:p-6 flex items-center gap-2 sm:gap-3">
+															<div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-orange-100 flex items-center justify-center shrink-0">
+																<Layers className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
 															</div>
-															<p className="font-medium text-gray-900 group-hover:text-orange-600 transition-colors">
+															<p className="font-medium text-gray-900 group-hover:text-orange-600 transition-colors text-sm sm:text-base line-clamp-2">
 																{category.name}
 															</p>
 														</CardContent>
@@ -455,23 +454,23 @@ export default function ProfilePage() {
 							{activeTab === "posts" && (
 								<div>
 									{favoritesLoading ? (
-										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+										<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
 											{[1, 2, 3].map((i) => (
-												<Skeleton key={i} className="h-48 w-full rounded-xl" />
+												<Skeleton key={i} className="h-40 sm:h-48 w-full rounded-xl" />
 											))}
 										</div>
 									) : favoritesData.posts.length === 0 ? (
 										<EmptyState
-											icon={<BookOpen className="h-12 w-12" />}
+											icon={<BookOpen className="h-10 w-10 sm:h-12 sm:w-12" />}
 											title="Favori blog yazısı yok"
 											description="Henüz bir blog yazısını favorilerine eklemedin."
 											action={{ href: "/blog", label: "Blog Yazılarını Keşfet" }}
 										/>
 									) : (
-										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+										<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
 											{favoritesData.posts.map((post) => (
 												<Link key={post.id} href={`/blog/${post.slug}`} className="group">
-													<Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1">
+													<Card className="overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1 h-full">
 														{post.image && (
 															<div className="aspect-video overflow-hidden">
 																<img
@@ -481,11 +480,11 @@ export default function ProfilePage() {
 																/>
 															</div>
 														)}
-														<CardContent className="p-4">
-															<p className="font-medium text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
+														<CardContent className="p-3 sm:p-4">
+															<p className="font-medium text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors text-sm sm:text-base">
 																{post.title}
 															</p>
-															<p className="text-sm text-muted-foreground mt-2">
+															<p className="text-xs sm:text-sm text-muted-foreground mt-1.5 sm:mt-2">
 																{post.created_at}
 															</p>
 														</CardContent>
@@ -499,55 +498,55 @@ export default function ProfilePage() {
 						</TabsContent>
 
 						<TabsContent value="settings" className="mt-0">
-							<div className="grid gap-6 md:grid-cols-2">
+							<div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
 								<Card>
-									<CardHeader className="pb-3">
-										<CardTitle className="flex items-center gap-2">
-											<User className="h-5 w-5 text-orange-600" />
+									<CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
+										<CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+											<User className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
 											Hesap Bilgileri
 										</CardTitle>
 									</CardHeader>
 
-									<CardContent className="space-y-4">
-										<div className="grid gap-3">
-											<InfoRow icon={<Hash className="h-4 w-4" />} label="Kullanıcı ID" value={profile?.id ?? "-"} />
-											<InfoRow icon={<Mail className="h-4 w-4" />} label="E-posta" value={profile?.email || "-"} />
-											<InfoRow icon={<Phone className="h-4 w-4" />} label="Telefon" value={profile?.phone || "-"} />
-											<InfoRow icon={<Calendar className="h-4 w-4" />} label="Üyelik Tarihi" value={formatDate(profile?.created_at)} />
+									<CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
+										<div className="grid gap-2 sm:gap-3">
+											<InfoRow icon={<Hash className="h-3.5 w-3.5 sm:h-4 sm:w-4" />} label="Kullanıcı ID" value={profile?.id ?? "-"} />
+											<InfoRow icon={<Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4" />} label="E-posta" value={profile?.email || "-"} />
+											<InfoRow icon={<Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4" />} label="Telefon" value={profile?.phone || "-"} />
+											<InfoRow icon={<Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />} label="Üyelik Tarihi" value={formatDate(profile?.created_at)} />
 										</div>
 
-										<div className="grid grid-cols-2 gap-3">
-											<div className="rounded-xl border bg-gray-50 p-3">
-												<p className="text-xs text-muted-foreground">Cinsiyet</p>
-												<p className="text-sm font-medium">{profile?.gender || "-"}</p>
+										<div className="grid grid-cols-2 gap-2 sm:gap-3">
+											<div className="rounded-lg sm:rounded-xl border bg-gray-50 p-2.5 sm:p-3">
+												<p className="text-[10px] sm:text-xs text-muted-foreground">Cinsiyet</p>
+												<p className="text-xs sm:text-sm font-medium">{profile?.gender || "-"}</p>
 											</div>
-											<div className="rounded-xl border bg-gray-50 p-3">
-												<p className="text-xs text-muted-foreground">Doğum Tarihi</p>
-												<p className="text-sm font-medium">{formatDate(profile?.birth_date)}</p>
+											<div className="rounded-lg sm:rounded-xl border bg-gray-50 p-2.5 sm:p-3">
+												<p className="text-[10px] sm:text-xs text-muted-foreground">Doğum Tarihi</p>
+												<p className="text-xs sm:text-sm font-medium">{formatDate(profile?.birth_date)}</p>
 											</div>
 										</div>
 									</CardContent>
 								</Card>
 
 								<Card>
-									<CardHeader className="pb-3">
-										<CardTitle className="flex items-center gap-2">
-											<Settings className="h-5 w-5 text-orange-600" />
+									<CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
+										<CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+											<Settings className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
 											Hesap İşlemleri
 										</CardTitle>
 									</CardHeader>
-									<CardContent className="space-y-4">
-										<div className="rounded-xl border bg-orange-50 p-4">
-											<p className="text-sm text-orange-800">
+									<CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
+										<div className="rounded-lg sm:rounded-xl border bg-orange-50 p-3 sm:p-4">
+											<p className="text-xs sm:text-sm text-orange-800">
 												Profil düzenleme ve şifre değiştirme özellikleri yakında eklenecektir.
 											</p>
 										</div>
 										<Button
 											variant="outline"
 											onClick={handleLogout}
-											className="w-full gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+											className="w-full gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm"
 										>
-											<LogOut className="h-4 w-4" />
+											<LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 											Hesaptan Çıkış Yap
 										</Button>
 									</CardContent>
@@ -563,12 +562,12 @@ export default function ProfilePage() {
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
 	return (
-		<div className="flex items-center justify-between rounded-xl border bg-gray-50 p-3">
-			<div className="flex items-center gap-2 text-sm">
+		<div className="flex items-center justify-between rounded-lg sm:rounded-xl border bg-gray-50 p-2.5 sm:p-3 gap-2">
+			<div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm shrink-0">
 				<span className="text-muted-foreground">{icon}</span>
 				<span className="text-muted-foreground">{label}</span>
 			</div>
-			<span className="text-sm font-medium max-w-[200px] truncate">{value}</span>
+			<span className="text-xs sm:text-sm font-medium max-w-[120px] sm:max-w-[200px] truncate text-right">{value}</span>
 		</div>
 	);
 }
@@ -585,13 +584,13 @@ function EmptyState({
 	action: { href: string; label: string };
 }) {
 	return (
-		<div className="rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-12 text-center">
-			<div className="mx-auto w-fit rounded-full bg-orange-100 p-4 text-orange-600 mb-4">
+		<div className="rounded-xl sm:rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6 sm:p-12 text-center">
+			<div className="mx-auto w-fit rounded-full bg-orange-100 p-3 sm:p-4 text-orange-600 mb-3 sm:mb-4">
 				{icon}
 			</div>
-			<h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-			<p className="text-muted-foreground mb-6">{description}</p>
-			<Button asChild variant="default" className="bg-orange-500 hover:bg-orange-600">
+			<h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1.5 sm:mb-2">{title}</h3>
+			<p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">{description}</p>
+			<Button asChild variant="default" className="bg-orange-500 hover:bg-orange-600 text-sm sm:text-base">
 				<Link href={action.href}>{action.label}</Link>
 			</Button>
 		</div>
