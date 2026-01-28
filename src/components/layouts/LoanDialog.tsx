@@ -40,11 +40,11 @@ export const LoanDialog = () => {
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button
-					className="flex items-center gap-2 px-3 py-2 rounded-md text-sm leading-tight text-foreground hover:bg-accent hover:text-accent-foreground"
+					className="flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-medium text-foreground transition-all duration-200 hover:bg-orange-500 hover:text-white"
 					variant="ghost"
 				>
-					<ChevronDownIcon className="h-5 w-5" />
 					Krediler
+					<ChevronDownIcon className="h-4 w-4" />
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[400px]">
