@@ -71,7 +71,7 @@ export const LoanDialog = () => {
 				onMouseLeave={handleMouseLeave}
 			>
 				<Button
-					className={`flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
+					className={`flex items-center gap-3 h-10 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
 						isOpen
 							? "bg-orange-500 text-white"
 							: "text-foreground hover:bg-orange-500 hover:text-white"
