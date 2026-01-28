@@ -56,11 +56,11 @@ export const Header = () => {
 					<div className="flex items-center gap-2">
 						<Button
 							onClick={handleCreateCampaign}
-							className="h-9 gap-2 px-3 text-sm font-medium transition-colors"
+							className="h-9 gap-2 px-3 text-sm font-medium transition-all duration-200 hover:bg-orange-500 hover:text-white hover:border-orange-500"
 							variant="outline"
 						>
 							<Newspaper size={18} />
-							<span className="hidden lg:inline">Kampanya Oluştur</span>
+							<span>Kampanya Oluştur</span>
 						</Button>
 						{!isLoggedIn ? (
 							<AuthDialog />
