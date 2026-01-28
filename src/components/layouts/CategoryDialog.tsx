@@ -91,7 +91,7 @@ export const CategoryDialog = ({ menuItems }: CategoryDialogProps) => {
 				{isOpen && (
 					<div className="absolute top-full left-0 mt-2 z-50 flex">
 						{/* Main Categories */}
-						<div className="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden min-w-[280px]">
+						<div className="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
 							<div className="p-2">
 								{menuItems.map((category: any) => {
 									const hasChildren = category.children && category.children.length > 0;
@@ -116,7 +116,7 @@ export const CategoryDialog = ({ menuItems }: CategoryDialogProps) => {
 														className={`product-des w-5 h-5 flex items-center justify-center ${isActive ? "text-white" : "text-gray-600"}`}
 														dangerouslySetInnerHTML={{ __html: getIcon(category.name) }}
 													/>
-													<span className="font-medium text-sm">{category.name}</span>
+													<span className="font-medium text-sm whitespace-nowrap">{category.name}</span>
 												</div>
 												{hasChildren && (
 													<ChevronRight className={`h-4 w-4 ${isActive ? "text-white" : "text-gray-400"}`} />
@@ -131,7 +131,7 @@ export const CategoryDialog = ({ menuItems }: CategoryDialogProps) => {
 						{/* Subcategories Panel - Opens to the Right */}
 						{activeCategory && menuItems.find((c: any) => c.slug === activeCategory)?.children?.length > 0 && (
 							<div
-								className="ml-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden min-w-[240px]"
+								className="ml-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden"
 								onMouseEnter={() => setActiveCategory(activeCategory)}
 							>
 								<div className="p-2">
@@ -144,7 +144,7 @@ export const CategoryDialog = ({ menuItems }: CategoryDialogProps) => {
 										<Link
 											key={child.slug}
 											href={`/kategori/${child.slug}`}
-											className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-orange-500 hover:text-white transition-all duration-150"
+											className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-orange-500 hover:text-white transition-all duration-150 whitespace-nowrap"
 										>
 											{child.name}
 										</Link>
