@@ -44,45 +44,20 @@ export default function CampaignHeader({ campaign }) {
 			{/* Breadcrumb */}
 			<div className="xl:mx-auto xl:px-36">
 				<div className="container px-4 py-4">
-					<div className="space-y-1.5">
-						{/* İlk satır: Anasayfa > İlk Kategori > Alt Kategori */}
-						<div className="flex items-center flex-wrap gap-1.5 text-sm">
-							<Link
-								href="/"
-								className="text-gray-600 hover:text-gray-900 transition-colors"
-							>
-								Anasayfa
-							</Link>
-							{campaign.categories?.[0] && (
-								<>
-									<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-									<Link
-										href={`/kategori/${campaign.categories[0].slug}`}
-										className="text-gray-600 hover:text-gray-900 transition-colors"
-									>
-										{campaign.categories[0].name}
-									</Link>
-									{campaign.categories[0].children?.[0] && (
-										<>
-											<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-											<Link
-												href={`/kategori/${campaign.categories[0].children[0].slug}`}
-												className="text-gray-600 hover:text-gray-900 transition-colors"
-											>
-												{campaign.categories[0].children[0].name}
-											</Link>
-										</>
-									)}
-								</>
-							)}
-						</div>
-
-						{/* Diğer kategoriler - Her biri ayrı satırda */}
-						{campaign.categories && campaign.categories.length > 1 && (
-							campaign.categories.slice(1).map((category, index) => {
+					<div className="space-y-1">
+						{/* Her kategori için tam bir breadcrumb satırı */}
+						{campaign.categories && campaign.categories.length > 0 ? (
+							campaign.categories.map((category, index) => {
 								const subcategory = category.children?.[0];
 								return (
-									<div key={category.id || index} className="flex items-center gap-1.5 text-sm">
+									<div key={category.id || index} className="flex items-center flex-wrap gap-1.5 text-sm">
+										<Link
+											href="/"
+											className="text-gray-600 hover:text-gray-900 transition-colors"
+										>
+											Anasayfa
+										</Link>
+										<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
 										<Link
 											href={`/kategori/${category.slug}`}
 											className="text-gray-600 hover:text-gray-900 transition-colors"
@@ -100,17 +75,31 @@ export default function CampaignHeader({ campaign }) {
 												</Link>
 											</>
 										)}
+										<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+										<span className="text-gray-900 font-medium">
+											{campaign.title.length > 40
+												? `${campaign.title.substring(0, 40)}...`
+												: campaign.title}
+										</span>
 									</div>
 								);
 							})
+						) : (
+							<div className="flex items-center flex-wrap gap-1.5 text-sm">
+								<Link
+									href="/"
+									className="text-gray-600 hover:text-gray-900 transition-colors"
+								>
+									Anasayfa
+								</Link>
+								<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+								<span className="text-gray-900 font-medium">
+									{campaign.title.length > 50
+										? `${campaign.title.substring(0, 50)}...`
+										: campaign.title}
+								</span>
+							</div>
 						)}
-
-						{/* Kampanya Adı */}
-						<div className="text-gray-900 font-medium text-sm pt-0.5">
-							{campaign.title.length > 70
-								? `${campaign.title.substring(0, 70)}...`
-								: campaign.title}
-						</div>
 					</div>
 				</div>
 			</div>
