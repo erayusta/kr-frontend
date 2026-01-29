@@ -8,14 +8,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { IMAGE_BASE_URL } from "@/constants/site";
@@ -52,58 +44,57 @@ export default function CampaignHeader({ campaign }) {
 			{/* Breadcrumb */}
 			<div className="xl:mx-auto xl:px-36">
 				<div className="container px-4 py-4">
-					<Breadcrumb>
-						<BreadcrumbList>
-							<BreadcrumbItem>
-								<BreadcrumbLink
-									href="/"
-									className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
-								>
-									Anasayfa
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-							<BreadcrumbSeparator>
-								<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-							</BreadcrumbSeparator>
-							{campaign.categories?.[0] && (
-								<>
-									<BreadcrumbItem>
-										<BreadcrumbLink
-											href={`/kategori/${campaign.categories[0].slug}`}
-											className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
-										>
-											{campaign.categories[0].name}
-										</BreadcrumbLink>
-									</BreadcrumbItem>
-									<BreadcrumbSeparator>
-										<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-									</BreadcrumbSeparator>
-								</>
-							)}
-							{campaign.categories?.[1] && (
-								<>
-									<BreadcrumbItem>
-										<BreadcrumbLink
-											href={`/kategori/${campaign.categories[1].slug}`}
-											className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
-										>
-											{campaign.categories[1].name}
-										</BreadcrumbLink>
-									</BreadcrumbItem>
-									<BreadcrumbSeparator>
-										<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-									</BreadcrumbSeparator>
-								</>
-							)}
-							<BreadcrumbItem>
-								<BreadcrumbPage className="text-gray-900 font-medium text-sm">
-									{campaign.title.length > 50
-										? `${campaign.title.substring(0, 50)}...`
-										: campaign.title}
-								</BreadcrumbPage>
-							</BreadcrumbItem>
-						</BreadcrumbList>
-					</Breadcrumb>
+					<div className="space-y-2">
+						{/* Anasayfa */}
+						<div>
+							<Link
+								href="/"
+								className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+							>
+								Anasayfa
+							</Link>
+						</div>
+
+						{/* Kategoriler - Her biri ayrı satırda */}
+						{campaign.categories && campaign.categories.length > 0 && (
+							<div className="space-y-1">
+								{campaign.categories.map((category, index) => {
+									// Alt kategori kontrolü (parent_id varsa veya bir sonraki kategori bu kategorinin altındaysa)
+									const hasSubcategory = category.children && category.children.length > 0;
+									const subcategory = hasSubcategory ? category.children[0] : null;
+
+									return (
+										<div key={category.id || index} className="flex items-center gap-2 text-sm">
+											<Link
+												href={`/kategori/${category.slug}`}
+												className="text-gray-600 hover:text-gray-900 transition-colors"
+											>
+												{category.name}
+											</Link>
+											{subcategory && (
+												<>
+													<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+													<Link
+														href={`/kategori/${subcategory.slug}`}
+														className="text-gray-600 hover:text-gray-900 transition-colors"
+													>
+														{subcategory.name}
+													</Link>
+												</>
+											)}
+										</div>
+									);
+								})}
+							</div>
+						)}
+
+						{/* Kampanya Adı */}
+						<div className="text-gray-900 font-medium text-sm pt-1">
+							{campaign.title.length > 60
+								? `${campaign.title.substring(0, 60)}...`
+								: campaign.title}
+						</div>
+					</div>
 				</div>
 			</div>
 
