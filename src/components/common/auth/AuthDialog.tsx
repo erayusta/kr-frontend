@@ -1,4 +1,4 @@
-import { User2 } from "lucide-react";
+import { ArrowLeft, Mail, User2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -26,8 +26,14 @@ interface RegisterFormData {
 	accept: boolean;
 }
 
+interface ForgotPasswordFormData {
+	email: string;
+}
+
 const AuthDialog = () => {
-	const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+	const [activeTab, setActiveTab] = useState<"login" | "register" | "forgot-password">("login");
+	const [forgotPasswordSent, setForgotPasswordSent] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { toast } = useToast();
 
 	const loginForm = useForm<LoginFormData>();
@@ -37,6 +43,7 @@ const AuthDialog = () => {
 		},
 		shouldFocusError: false,
 	});
+	const forgotPasswordForm = useForm<ForgotPasswordFormData>();
 
 	const onLoginSubmit = async (data: LoginFormData) => {
 		try {
@@ -90,6 +97,32 @@ const AuthDialog = () => {
 				description: error?.response?.data?.error ?? "Kayıt oluşturulamadı",
 			});
 		}
+	};
+
+	const onForgotPasswordSubmit = async (data: ForgotPasswordFormData) => {
+		setIsSubmitting(true);
+		try {
+			await apiRequest("/auth/forgot-password", "post", data);
+			setForgotPasswordSent(true);
+			toast({
+				title: "E-posta Gönderildi",
+				description: "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.",
+			});
+		} catch (error: any) {
+			toast({
+				variant: "destructive",
+				title: "Hata!",
+				description: error?.response?.data?.error ?? "E-posta gönderilemedi",
+			});
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	const handleBackToLogin = () => {
+		setActiveTab("login");
+		setForgotPasswordSent(false);
+		forgotPasswordForm.reset();
 	};
 
 	return (
@@ -149,12 +182,13 @@ const AuthDialog = () => {
 										>
 											Şifre
 										</Label>
-										<Link
-											href="#"
-											className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+										<button
+											type="button"
+											onClick={() => setActiveTab("forgot-password")}
+											className="text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors"
 										>
 											Şifreni mi Unuttun?
-										</Link>
+										</button>
 									</div>
 									<Input
 										id="login-password"
@@ -171,7 +205,7 @@ const AuthDialog = () => {
 										</p>
 									)}
 								</div>
-								<Button type="submit" className="w-full">
+								<Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600">
 									Giriş Yap
 								</Button>
 							</form>
@@ -185,6 +219,92 @@ const AuthDialog = () => {
 									Kayıt Ol
 								</Button>
 							</p>
+						</div>
+					</div>
+				) : activeTab === "forgot-password" ? (
+					<div className="flex items-center justify-center px-4">
+						<div className="space-y-6 max-w-md w-full">
+							{!forgotPasswordSent ? (
+								<>
+									<div className="space-y-2 text-center">
+										<div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+											<Mail className="w-8 h-8 text-orange-500" />
+										</div>
+										<h1 className="text-2xl font-bold tracking-tight">Şifreni mi Unuttun?</h1>
+										<p className="text-gray-500 dark:text-gray-400 text-sm">
+											E-posta adresini gir, şifre sıfırlama bağlantısı gönderelim.
+										</p>
+									</div>
+									<form
+										className="space-y-4"
+										onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)}
+									>
+										<div>
+											<Label
+												htmlFor="forgot-email"
+												className="block text-sm font-medium"
+											>
+												E-Posta Adresi
+											</Label>
+											<Input
+												id="forgot-email"
+												type="email"
+												placeholder="isim@gmail.com"
+												className="mt-1 block w-full"
+												{...forgotPasswordForm.register("email", {
+													required: "E-posta adresi gerekli",
+													pattern: {
+														value:
+															/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+														message: "Geçerli bir e-posta adresi girin",
+													},
+												})}
+											/>
+											{forgotPasswordForm.formState.errors.email && (
+												<p className="text-red-500 text-sm mt-1">
+													{forgotPasswordForm.formState.errors.email.message}
+												</p>
+											)}
+										</div>
+										<Button
+											type="submit"
+											className="w-full bg-orange-500 hover:bg-orange-600"
+											disabled={isSubmitting}
+										>
+											{isSubmitting ? "Gönderiliyor..." : "Sıfırlama Bağlantısı Gönder"}
+										</Button>
+									</form>
+									<button
+										type="button"
+										onClick={handleBackToLogin}
+										className="flex items-center justify-center gap-2 w-full text-sm text-gray-600 hover:text-gray-900 transition-colors"
+									>
+										<ArrowLeft className="w-4 h-4" />
+										Giriş sayfasına dön
+									</button>
+								</>
+							) : (
+								<>
+									<div className="space-y-4 text-center">
+										<div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+											<Mail className="w-8 h-8 text-green-500" />
+										</div>
+										<h1 className="text-2xl font-bold tracking-tight">E-posta Gönderildi!</h1>
+										<p className="text-gray-500 dark:text-gray-400 text-sm">
+											Şifre sıfırlama bağlantısı <strong>{forgotPasswordForm.getValues("email")}</strong> adresine gönderildi.
+										</p>
+										<p className="text-gray-400 text-xs">
+											E-postayı göremiyorsanız spam klasörünüzü kontrol edin.
+										</p>
+									</div>
+									<Button
+										onClick={handleBackToLogin}
+										className="w-full bg-orange-500 hover:bg-orange-600"
+									>
+										Giriş Sayfasına Dön
+									</Button>
+								</>
+							)}
 						</div>
 					</div>
 				) : (
@@ -386,7 +506,7 @@ const AuthDialog = () => {
 										Kvkk Sözleşmesini Okudum ve Kabul Ediyorum.
 									</Label>
 								</div>
-								<Button type="submit" className="w-full">
+								<Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600">
 									Kayıt Ol
 								</Button>
 							</form>
