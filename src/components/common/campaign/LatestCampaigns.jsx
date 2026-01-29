@@ -1,13 +1,11 @@
 
 
 import CampaignCard from "../CampaignCard";
-import React, { useEffect } from 'react'
+import React from 'react'
 import { CarouselItem, CarouselContent, CarouselPrevious, CarouselNext, Carousel } from "@/components/ui/carousel"
-import { getIcon } from "@/lib/utils"
-import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Autoplay from "embla-carousel-autoplay"
-import { Card,CardContent,CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 
 const CategoryCampaginsCarousel = ({category, style}) => {
@@ -15,8 +13,7 @@ const CategoryCampaginsCarousel = ({category, style}) => {
 return(<Card key={category.id} className="bg-transparent max-w-full">
     <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
      <div className="flex flex-row items-center gap-x-3">
-<div dangerouslySetInnerHTML={{ __html:getIcon(category.name == 'Seyahat' ? 'Ev Yaşam & Ofis':category.name == 'Bankacılık' ? 'Otomotiv':category.name) }}></div>
-     <CardTitle className="text-lg sm:text-xl"> {category.name == 'Seyahat' ? 'Gayrimenkul Proje':category.name == 'Bankacılık' ? 'Otomotiv':category.name} Kampanyaları</CardTitle>
+<CardTitle className="text-lg sm:text-xl">Benzer Kategori Kampanyaları</CardTitle>
      </div>
 
      <Button variant="outline" className="w-full sm:w-auto">

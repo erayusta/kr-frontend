@@ -80,14 +80,14 @@ export default function CampaignHeader({ campaign }) {
 									</BreadcrumbSeparator>
 								</>
 							)}
-							{campaign.brands?.[0] && (
+							{campaign.categories?.[1] && (
 								<>
 									<BreadcrumbItem>
 										<BreadcrumbLink
-											href={`/marka/${campaign.brands[0].slug}`}
+											href={`/kategori/${campaign.categories[1].slug}`}
 											className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
 										>
-											{campaign.brands[0].name}
+											{campaign.categories[1].name}
 										</BreadcrumbLink>
 									</BreadcrumbItem>
 									<BreadcrumbSeparator>
