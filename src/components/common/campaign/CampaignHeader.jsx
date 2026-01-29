@@ -50,39 +50,33 @@ export default function CampaignHeader({ campaign }) {
 							Anasayfa
 						</Link>
 
-						{/* Kategorileri hiyerarşik sırala */}
+						{/* Kategorileri hiyerarşik sırala: Ana Kategori > Üst Kategori > Alt Kategori */}
 						{(() => {
 							const categories = campaign.categories || [];
 							if (categories.length === 0) return null;
 
-							// Hiyerarşik sıralama fonksiyonu
-							const buildHierarchy = (cats) => {
-								const result = [];
-								const catMap = new Map(cats.map(c => [c.id, c]));
+							// Kategorileri ID'lerine göre map'e al
+							const catIds = new Set(categories.map(c => c.id));
 
-								// Önce root kategorileri bul (parent_id olmayan)
-								const roots = cats.filter(c => !c.parent_id);
+							// parent_id değeri kategoriler listesinde OLMAYAN kategoriler = root
+							// (yani parent'ı bu kampanyanın kategorileri arasında değil)
+							const roots = categories.filter(c => !c.parent_id || !catIds.has(c.parent_id));
 
-								// Her root için alt kategorileri ekle
-								const addWithChildren = (cat, depth = 0) => {
-									result.push({ ...cat, depth });
-									const children = cats.filter(c => c.parent_id === cat.id);
-									children.forEach(child => addWithChildren(child, depth + 1));
-								};
-
-								if (roots.length > 0) {
-									roots.forEach(root => addWithChildren(root));
-								} else {
-									// Eğer hepsi alt kategoriyse, sırayla ekle
-									cats.forEach(cat => result.push({ ...cat, depth: 0 }));
-								}
-
-								return result;
+							// Hiyerarşik sıralama
+							const result = [];
+							const addWithChildren = (cat) => {
+								result.push(cat);
+								// Bu kategorinin çocuklarını bul
+								const children = categories.filter(c => c.parent_id === cat.id);
+								children.forEach(child => addWithChildren(child));
 							};
 
-							const sortedCategories = buildHierarchy(categories);
+							roots.forEach(root => addWithChildren(root));
 
-							return sortedCategories.map((category) => (
+							// Eğer hiç root bulunamadıysa, orijinal sırayı kullan
+							const finalCategories = result.length > 0 ? result : categories;
+
+							return finalCategories.map((category) => (
 								<span key={category.id} className="flex items-center gap-1.5">
 									<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
 									<Link
