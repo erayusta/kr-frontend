@@ -45,18 +45,44 @@ export default function CampaignHeader({ campaign }) {
 			<div className="xl:mx-auto xl:px-36">
 				<div className="container px-4 py-4">
 					<div className="flex items-center flex-wrap gap-1.5 text-sm">
+						{/* Anasayfa */}
 						<Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
 							Anasayfa
 						</Link>
-						{/* Kategorileri sırala: önce parent_id olmayanlar, sonra olanlar */}
+
+						{/* Kategorileri hiyerarşik sırala */}
 						{(() => {
 							const categories = campaign.categories || [];
-							const sorted = [...categories].sort((a, b) => {
-								if (!a.parent_id && b.parent_id) return -1;
-								if (a.parent_id && !b.parent_id) return 1;
-								return 0;
-							});
-							return sorted.map((category) => (
+							if (categories.length === 0) return null;
+
+							// Hiyerarşik sıralama fonksiyonu
+							const buildHierarchy = (cats) => {
+								const result = [];
+								const catMap = new Map(cats.map(c => [c.id, c]));
+
+								// Önce root kategorileri bul (parent_id olmayan)
+								const roots = cats.filter(c => !c.parent_id);
+
+								// Her root için alt kategorileri ekle
+								const addWithChildren = (cat, depth = 0) => {
+									result.push({ ...cat, depth });
+									const children = cats.filter(c => c.parent_id === cat.id);
+									children.forEach(child => addWithChildren(child, depth + 1));
+								};
+
+								if (roots.length > 0) {
+									roots.forEach(root => addWithChildren(root));
+								} else {
+									// Eğer hepsi alt kategoriyse, sırayla ekle
+									cats.forEach(cat => result.push({ ...cat, depth: 0 }));
+								}
+
+								return result;
+							};
+
+							const sortedCategories = buildHierarchy(categories);
+
+							return sortedCategories.map((category) => (
 								<span key={category.id} className="flex items-center gap-1.5">
 									<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
 									<Link
@@ -68,6 +94,8 @@ export default function CampaignHeader({ campaign }) {
 								</span>
 							));
 						})()}
+
+						{/* Kampanya Adı */}
 						<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
 						<span className="text-gray-900 font-medium">
 							{campaign.title.length > 40 ? `${campaign.title.substring(0, 40)}...` : campaign.title}
