@@ -44,54 +44,71 @@ export default function CampaignHeader({ campaign }) {
 			{/* Breadcrumb */}
 			<div className="xl:mx-auto xl:px-36">
 				<div className="container px-4 py-4">
-					<div className="space-y-2">
-						{/* Anasayfa */}
-						<div>
+					<div className="space-y-1.5">
+						{/* İlk satır: Anasayfa > İlk Kategori > Alt Kategori */}
+						<div className="flex items-center flex-wrap gap-1.5 text-sm">
 							<Link
 								href="/"
-								className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+								className="text-gray-600 hover:text-gray-900 transition-colors"
 							>
 								Anasayfa
 							</Link>
-						</div>
-
-						{/* Kategoriler - Her biri ayrı satırda */}
-						{campaign.categories && campaign.categories.length > 0 && (
-							<div className="space-y-1">
-								{campaign.categories.map((category, index) => {
-									// Alt kategori kontrolü (parent_id varsa veya bir sonraki kategori bu kategorinin altındaysa)
-									const hasSubcategory = category.children && category.children.length > 0;
-									const subcategory = hasSubcategory ? category.children[0] : null;
-
-									return (
-										<div key={category.id || index} className="flex items-center gap-2 text-sm">
+							{campaign.categories?.[0] && (
+								<>
+									<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+									<Link
+										href={`/kategori/${campaign.categories[0].slug}`}
+										className="text-gray-600 hover:text-gray-900 transition-colors"
+									>
+										{campaign.categories[0].name}
+									</Link>
+									{campaign.categories[0].children?.[0] && (
+										<>
+											<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
 											<Link
-												href={`/kategori/${category.slug}`}
+												href={`/kategori/${campaign.categories[0].children[0].slug}`}
 												className="text-gray-600 hover:text-gray-900 transition-colors"
 											>
-												{category.name}
+												{campaign.categories[0].children[0].name}
 											</Link>
-											{subcategory && (
-												<>
-													<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-													<Link
-														href={`/kategori/${subcategory.slug}`}
-														className="text-gray-600 hover:text-gray-900 transition-colors"
-													>
-														{subcategory.name}
-													</Link>
-												</>
-											)}
-										</div>
-									);
-								})}
-							</div>
+										</>
+									)}
+								</>
+							)}
+						</div>
+
+						{/* Diğer kategoriler - Her biri ayrı satırda */}
+						{campaign.categories && campaign.categories.length > 1 && (
+							campaign.categories.slice(1).map((category, index) => {
+								const subcategory = category.children?.[0];
+								return (
+									<div key={category.id || index} className="flex items-center gap-1.5 text-sm">
+										<Link
+											href={`/kategori/${category.slug}`}
+											className="text-gray-600 hover:text-gray-900 transition-colors"
+										>
+											{category.name}
+										</Link>
+										{subcategory && (
+											<>
+												<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+												<Link
+													href={`/kategori/${subcategory.slug}`}
+													className="text-gray-600 hover:text-gray-900 transition-colors"
+												>
+													{subcategory.name}
+												</Link>
+											</>
+										)}
+									</div>
+								);
+							})
 						)}
 
 						{/* Kampanya Adı */}
-						<div className="text-gray-900 font-medium text-sm pt-1">
-							{campaign.title.length > 60
-								? `${campaign.title.substring(0, 60)}...`
+						<div className="text-gray-900 font-medium text-sm pt-0.5">
+							{campaign.title.length > 70
+								? `${campaign.title.substring(0, 70)}...`
 								: campaign.title}
 						</div>
 					</div>
