@@ -44,75 +44,34 @@ export default function CampaignHeader({ campaign }) {
 			{/* Breadcrumb */}
 			<div className="xl:mx-auto xl:px-36">
 				<div className="container px-4 py-4">
-					<div className="space-y-1">
-						{/* Kategorileri filtrele: sadece üst kategorileri göster */}
+					<div className="flex items-center flex-wrap gap-1.5 text-sm">
+						<Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+							Anasayfa
+						</Link>
+						{/* Kategorileri sırala: önce parent_id olmayanlar, sonra olanlar */}
 						{(() => {
 							const categories = campaign.categories || [];
-							// Alt kategori ID'lerini topla (parent_id'si olan veya başka kategorinin child'ı olanlar)
-							const subCategoryIds = new Set();
-							categories.forEach(cat => {
-								if (cat.parent_id) subCategoryIds.add(cat.id);
-								if (cat.children) cat.children.forEach(child => subCategoryIds.add(child.id));
+							const sorted = [...categories].sort((a, b) => {
+								if (!a.parent_id && b.parent_id) return -1;
+								if (a.parent_id && !b.parent_id) return 1;
+								return 0;
 							});
-
-							// Sadece üst kategorileri filtrele (parent_id'si olmayan ve başka kategorinin child'ı olmayan)
-							const parentCategories = categories.filter(cat => !cat.parent_id && !subCategoryIds.has(cat.id));
-
-							// Eğer filtre sonrası boşsa, tüm kategorileri parent olarak kabul et (fallback)
-							const displayCategories = parentCategories.length > 0 ? parentCategories : categories;
-
-							if (displayCategories.length === 0) {
-								return (
-									<div className="flex items-center flex-wrap gap-1.5 text-sm">
-										<Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
-											Anasayfa
-										</Link>
-										<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-										<span className="text-gray-900 font-medium">
-											{campaign.title.length > 50 ? `${campaign.title.substring(0, 50)}...` : campaign.title}
-										</span>
-									</div>
-								);
-							}
-
-							return displayCategories.map((category, index) => {
-								// Alt kategoriyi bul: children'dan veya categories array'inden parent_id eşleşmesiyle
-								let subcategory = category.children?.[0];
-								if (!subcategory) {
-									subcategory = categories.find(cat => cat.parent_id === category.id);
-								}
-
-								return (
-									<div key={category.id || index} className="flex items-center flex-wrap gap-1.5 text-sm">
-										<Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
-											Anasayfa
-										</Link>
-										<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-										<Link
-											href={`/kategori/${category.slug}`}
-											className="text-gray-600 hover:text-gray-900 transition-colors"
-										>
-											{category.name}
-										</Link>
-										{subcategory && (
-											<>
-												<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-												<Link
-													href={`/kategori/${subcategory.slug}`}
-													className="text-gray-600 hover:text-gray-900 transition-colors"
-												>
-													{subcategory.name}
-												</Link>
-											</>
-										)}
-										<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
-										<span className="text-gray-900 font-medium">
-											{campaign.title.length > 40 ? `${campaign.title.substring(0, 40)}...` : campaign.title}
-										</span>
-									</div>
-								);
-							});
+							return sorted.map((category) => (
+								<span key={category.id} className="flex items-center gap-1.5">
+									<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+									<Link
+										href={`/kategori/${category.slug}`}
+										className="text-gray-600 hover:text-gray-900 transition-colors"
+									>
+										{category.name}
+									</Link>
+								</span>
+							));
 						})()}
+						<ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+						<span className="text-gray-900 font-medium">
+							{campaign.title.length > 40 ? `${campaign.title.substring(0, 40)}...` : campaign.title}
+						</span>
 					</div>
 				</div>
 			</div>
