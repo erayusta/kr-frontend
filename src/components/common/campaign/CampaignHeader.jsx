@@ -108,9 +108,9 @@ export default function CampaignHeader({ campaign }) {
 						</h1>
 
 						{/* Kısa Açıklama */}
-						{campaign.short_description && (
+						{campaign.description && (
 							<p className="text-gray-600 text-base leading-relaxed">
-								{campaign.short_description}
+								{campaign.description}
 							</p>
 						)}
 
