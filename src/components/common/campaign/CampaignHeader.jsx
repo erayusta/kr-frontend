@@ -4,6 +4,7 @@ import {
 	Clock,
 	ExternalLink,
 	Heart,
+	Newspaper,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,8 +27,13 @@ export default function CampaignHeader({ campaign }) {
 		return `${IMAGE_BASE_URL}/${logo}`;
 	};
 
-	const remainingDays = remainingDay(campaign.end_date || campaign.endDate);
-	const isExpired = remainingDays < 0;
+	// Check if campaign is actual type
+	const isActual = campaign?.itemType === "actual" || campaign?.item_type === "actual";
+
+	// Check if dates exist
+	const hasEndDate = campaign.end_date || campaign.endDate;
+	const remainingDays = hasEndDate ? remainingDay(campaign.end_date || campaign.endDate) : null;
+	const isExpired = remainingDays !== null && remainingDays < 0;
 
 	const favoriteId = campaign?.id ?? campaign?._id ?? campaign?.slug;
 	const { isFavorite, toggle, canToggle } = useFavorite("campaign", favoriteId);
@@ -116,15 +122,27 @@ export default function CampaignHeader({ campaign }) {
 
 						{/* Durum Badge'leri */}
 						<div className="flex items-center gap-3 flex-wrap">
-							{!isExpired ? (
-								<Badge className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 text-sm font-medium">
-									<Clock className="h-4 w-4 mr-1.5" />
-									{remainingDays === 0 ? "Son Gün!" : `Son ${remainingDays} Gün`}
+							{isActual ? (
+								<Badge className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 text-sm font-medium">
+									<Newspaper className="h-4 w-4 mr-1.5" />
+									Aktüel Katalog
 								</Badge>
+							) : hasEndDate ? (
+								!isExpired ? (
+									<Badge className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 text-sm font-medium">
+										<Clock className="h-4 w-4 mr-1.5" />
+										{remainingDays === 0 ? "Son Gün!" : `Son ${remainingDays} Gün`}
+									</Badge>
+								) : (
+									<Badge variant="destructive" className="px-3 py-1.5 text-sm font-medium">
+										<Clock className="h-4 w-4 mr-1.5" />
+										Kampanya Sona Erdi
+									</Badge>
+								)
 							) : (
-								<Badge variant="destructive" className="px-3 py-1.5 text-sm font-medium">
+								<Badge className="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 text-sm font-medium">
 									<Clock className="h-4 w-4 mr-1.5" />
-									Kampanya Sona Erdi
+									Devam Ediyor
 								</Badge>
 							)}
 
@@ -151,7 +169,7 @@ export default function CampaignHeader({ campaign }) {
 								<Button asChild className="bg-orange-500 hover:bg-orange-600 text-white">
 									<a href={campaign.link} target="_blank" rel="noopener noreferrer">
 										<ExternalLink className="h-4 w-4 mr-2" />
-										Kampanyaya Git
+										{isActual ? "Markete Git" : "Kampanyaya Git"}
 									</a>
 								</Button>
 							)}

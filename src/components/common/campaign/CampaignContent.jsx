@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Ad, { getAdByPosition } from "../ads/Ad";
+import CampaignActualType from "./CampaignActualType";
 import CampaignCarType from "./CampaignCarType";
 import CampaignCouponType from "./CampaignCouponType";
 import CampaignProductType from "./CampaignProductType";
 import CampaignRealEstateType from "./CampaignRealEstateType";
 import CampaignLeadForm from "./CampaignLeadForm";
 
-export default function CampaignContent({ campaign, ads }) {
+export default function CampaignContent({ campaign, sections, ads }) {
 	const contentRef = useRef(null);
 	const isActual = campaign?.itemType === "actual";
 	const htmlContent = isActual ? campaign?.actual_content : campaign?.content;
@@ -47,6 +48,9 @@ export default function CampaignContent({ campaign, ads }) {
 
 	// Kampanya tipine göre özel içerik göster
 	const renderSpecialContent = () => {
+		if (campaign?.itemType === "actual" || campaign?.item_type === "actual") {
+			return <CampaignActualType campaign={campaign} sections={sections} />;
+		}
 		if (campaign?.itemType === "coupon" || campaign?.item_type === "coupon") {
 			return <CampaignCouponType campaign={campaign} />;
 		}
@@ -85,13 +89,15 @@ export default function CampaignContent({ campaign, ads }) {
 					<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 						{/* Sol Taraf - İçerik */}
 						<div
-							className={`${campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product" ? "lg:col-span-12" : "lg:col-span-8"}`}
+							className={`${campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product" || campaign?.itemType === "actual" || campaign?.item_type === "actual" ? "lg:col-span-12" : "lg:col-span-8"}`}
 						>
 							{htmlContent &&
 								campaign?.itemType !== "product" &&
 								campaign?.item_type !== "product" &&
 								campaign?.itemType !== "car" &&
-								campaign?.item_type !== "car" && (
+								campaign?.item_type !== "car" &&
+								campaign?.itemType !== "actual" &&
+								campaign?.item_type !== "actual" && (
 									<Card className="overflow-hidden border-2 border-gray-200">
 										{/* Tab Content */}
 										<CardContent className="p-6 lg:p-8 bg-[#fffaf4]">
@@ -105,12 +111,14 @@ export default function CampaignContent({ campaign, ads }) {
 								)}
 						</div>
 
-						{/* Sağ Taraf - Form - Car ve Product için gösterilmez, kendi formları var */}
+						{/* Sağ Taraf - Form - Car, Product ve Actual için gösterilmez, kendi içerikleri var */}
 						{!(
 							campaign?.itemType === "car" ||
 							campaign?.item_type === "car" ||
 							campaign?.itemType === "product" ||
-							campaign?.item_type === "product"
+							campaign?.item_type === "product" ||
+							campaign?.itemType === "actual" ||
+							campaign?.item_type === "actual"
 						) && (
 							<div className="lg:col-span-4">
 								<div className="sticky top-4 space-y-6">

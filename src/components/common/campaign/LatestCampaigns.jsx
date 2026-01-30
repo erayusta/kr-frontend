@@ -10,13 +10,16 @@ import Autoplay from "embla-carousel-autoplay"
 import { Card,CardContent,CardHeader, CardTitle } from "@/components/ui/card";
 
 
-const CategoryCampaginsCarousel = ({category, style}) => {
+const CategoryCampaginsCarousel = ({category, style, title}) => {
+// Başlık belirleme: özel title > category.name > varsayılan
+const displayTitle = title || (category.name ? `${category.name === 'Seyahat' ? 'Gayrimenkul Proje' : category.name === 'Bankacılık' ? 'Otomotiv' : category.name} Kampanyaları` : 'Benzer Kategori Kampanyaları');
+const iconName = category.name === 'Seyahat' ? 'Ev Yaşam & Ofis' : category.name === 'Bankacılık' ? 'Otomotiv' : category.name;
 
 return(<Card key={category.id} className="bg-transparent max-w-full">
     <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
      <div className="flex flex-row items-center gap-x-3">
-<div dangerouslySetInnerHTML={{ __html:getIcon(category.name == 'Seyahat' ? 'Ev Yaşam & Ofis':category.name == 'Bankacılık' ? 'Otomotiv':category.name) }}></div>
-     <CardTitle className="text-lg sm:text-xl"> {category.name == 'Seyahat' ? 'Gayrimenkul Proje':category.name == 'Bankacılık' ? 'Otomotiv':category.name} Kampanyaları</CardTitle>
+{iconName && <div dangerouslySetInnerHTML={{ __html:getIcon(iconName) }}></div>}
+     <CardTitle className="text-lg sm:text-xl">{displayTitle}</CardTitle>
      </div>
 
      <Button variant="outline" className="w-full sm:w-auto">
