@@ -4,6 +4,7 @@ import Ad, { getAdByPosition } from "../ads/Ad";
 import CampaignActualType from "./CampaignActualType";
 import CampaignCarType from "./CampaignCarType";
 import CampaignCouponType from "./CampaignCouponType";
+import CampaignCreditType from "./CampaignCreditType";
 import CampaignProductType from "./CampaignProductType";
 import CampaignRealEstateType from "./CampaignRealEstateType";
 import CampaignLeadForm from "./CampaignLeadForm";
@@ -53,6 +54,12 @@ export default function CampaignContent({ campaign, sections, ads }) {
 		}
 		if (campaign?.itemType === "coupon" || campaign?.item_type === "coupon") {
 			return <CampaignCouponType campaign={campaign} />;
+		}
+		if (
+			(campaign?.itemType === "credit" || campaign?.item_type === "credit") &&
+			campaign.credit
+		) {
+			return <CampaignCreditType campaign={campaign} />;
 		}
 		if (
 			(campaign?.itemType === "car" || campaign?.item_type === "car") &&
