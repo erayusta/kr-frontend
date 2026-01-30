@@ -9,13 +9,19 @@ const nextConfig = {
 	},
 	images: {
 		unoptimized: true,
-		domains: ["kampanyaradar-static.b-cdn.net"],
+		domains: ["kampanyaradar-static.b-cdn.net", "localhost"],
 		remotePatterns: [
 			{
 				protocol: "https",
 				hostname: "kampanyaradar-static.b-cdn.net",
 				port: "",
-				pathname: "/kampanyaradar/**",
+				pathname: "/**",
+			},
+			{
+				protocol: "http",
+				hostname: "localhost",
+				port: "8080",
+				pathname: "/storage/**",
 			},
 		],
 	},
