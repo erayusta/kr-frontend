@@ -86,9 +86,10 @@ export default function CampaignActualType({ campaign, sections }) {
 		}).format(price);
 	};
 
-	const handleDownload = async (url, filename) => {
-		// For CDN files, open in new tab (CORS might block direct download)
-		window.open(url, "_blank");
+	// Backend proxy ile indirme URL'i oluştur
+	const getDownloadUrl = (url) => {
+		const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+		return `${apiBase}/download?url=${encodeURIComponent(url)}`;
 	};
 
 	const getFileName = (url) => {
@@ -128,15 +129,17 @@ export default function CampaignActualType({ campaign, sections }) {
 									key={`pdf-${index}`}
 									variant="outline"
 									className="h-auto py-4 px-4 flex items-center gap-3 justify-start bg-white hover:bg-red-50 border-red-200 hover:border-red-300 transition-colors"
-									onClick={() => handleDownload(url, getFileName(url))}
+									asChild
 								>
-									<FileText className="h-8 w-8 text-red-500 flex-shrink-0" />
-									<div className="text-left overflow-hidden">
-										<p className="font-medium text-gray-900 truncate">
-											{getFileName(url)}
-										</p>
-										<p className="text-xs text-gray-500">PDF Dosyası</p>
-									</div>
+									<a href={getDownloadUrl(url)}>
+										<FileText className="h-8 w-8 text-red-500 flex-shrink-0" />
+										<div className="text-left overflow-hidden">
+											<p className="font-medium text-gray-900 truncate">
+												{getFileName(url)}
+											</p>
+											<p className="text-xs text-gray-500">PDF Dosyası</p>
+										</div>
+									</a>
 								</Button>
 							))}
 
@@ -146,15 +149,17 @@ export default function CampaignActualType({ campaign, sections }) {
 									key={`img-${index}`}
 									variant="outline"
 									className="h-auto py-4 px-4 flex items-center gap-3 justify-start bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 transition-colors"
-									onClick={() => handleDownload(url, getFileName(url))}
+									asChild
 								>
-									<ImageIcon className="h-8 w-8 text-blue-500 flex-shrink-0" />
-									<div className="text-left overflow-hidden">
-										<p className="font-medium text-gray-900 truncate">
-											{getFileName(url)}
-										</p>
-										<p className="text-xs text-gray-500">Görsel Dosyası</p>
-									</div>
+									<a href={getDownloadUrl(url)}>
+										<ImageIcon className="h-8 w-8 text-blue-500 flex-shrink-0" />
+										<div className="text-left overflow-hidden">
+											<p className="font-medium text-gray-900 truncate">
+												{getFileName(url)}
+											</p>
+											<p className="text-xs text-gray-500">Görsel Dosyası</p>
+										</div>
+									</a>
 								</Button>
 							))}
 						</div>
