@@ -49,10 +49,9 @@ export default function CampaignHeader({ campaign }) {
 	const hasDownloadableFiles = isActual && downloadableFiles.length > 0;
 
 	// Dosya indirme fonksiyonu - backend proxy kullanarak
-	const handleDownload = (url) => {
+	const getDownloadUrl = (url) => {
 		const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
-		const downloadUrl = `${apiBase}/download?url=${encodeURIComponent(url)}`;
-		window.location.href = downloadUrl;
+		return `${apiBase}/download?url=${encodeURIComponent(url)}`;
 	};
 
 	// Check if dates exist
@@ -204,10 +203,12 @@ export default function CampaignHeader({ campaign }) {
 								<Button
 									variant="outline"
 									className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
-									onClick={() => handleDownload(downloadableFiles[0])}
+									asChild
 								>
-									<Download className="h-4 w-4 mr-2" />
-									Katalog İndir
+									<a href={getDownloadUrl(downloadableFiles[0])}>
+										<Download className="h-4 w-4 mr-2" />
+										Katalog İndir
+									</a>
 								</Button>
 							)}
 
@@ -233,11 +234,13 @@ export default function CampaignHeader({ campaign }) {
 											return (
 												<DropdownMenuItem
 													key={index}
-													onClick={() => handleDownload(url)}
+													asChild
 													className="cursor-pointer"
 												>
-													<FileText className={`h-4 w-4 mr-2 ${isPdf ? "text-red-500" : "text-blue-500"}`} />
-													<span className="truncate">{fileName}</span>
+													<a href={getDownloadUrl(url)}>
+														<FileText className={`h-4 w-4 mr-2 ${isPdf ? "text-red-500" : "text-blue-500"}`} />
+														<span className="truncate">{fileName}</span>
+													</a>
 												</DropdownMenuItem>
 											);
 										})}
