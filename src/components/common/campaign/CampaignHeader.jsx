@@ -48,6 +48,26 @@ export default function CampaignHeader({ campaign }) {
 	const downloadableFiles = actualFiles.map(normalizeFileUrl).filter(Boolean);
 	const hasDownloadableFiles = isActual && downloadableFiles.length > 0;
 
+	// Dosya indirme fonksiyonu
+	const handleDownload = async (url) => {
+		try {
+			const fileName = url.split("/").pop() || "katalog";
+			const response = await fetch(url);
+			const blob = await response.blob();
+			const blobUrl = window.URL.createObjectURL(blob);
+			const link = document.createElement("a");
+			link.href = blobUrl;
+			link.download = fileName;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(blobUrl);
+		} catch (error) {
+			// Fallback: yeni sekmede aç
+			window.open(url, "_blank");
+		}
+	};
+
 	// Check if dates exist
 	const hasEndDate = campaign.end_date || campaign.endDate;
 	const remainingDays = hasEndDate ? remainingDay(campaign.end_date || campaign.endDate) : null;
@@ -197,7 +217,7 @@ export default function CampaignHeader({ campaign }) {
 								<Button
 									variant="outline"
 									className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
-									onClick={() => window.open(downloadableFiles[0], "_blank")}
+									onClick={() => handleDownload(downloadableFiles[0])}
 								>
 									<Download className="h-4 w-4 mr-2" />
 									Katalog İndir
@@ -226,7 +246,7 @@ export default function CampaignHeader({ campaign }) {
 											return (
 												<DropdownMenuItem
 													key={index}
-													onClick={() => window.open(url, "_blank")}
+													onClick={() => handleDownload(url)}
 													className="cursor-pointer"
 												>
 													<FileText className={`h-4 w-4 mr-2 ${isPdf ? "text-red-500" : "text-blue-500"}`} />
