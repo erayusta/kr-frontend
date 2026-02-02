@@ -2,7 +2,9 @@ import {
 	Calendar,
 	ChevronRight,
 	Clock,
+	Download,
 	ExternalLink,
+	FileText,
 	Heart,
 	Newspaper,
 } from "lucide-react";
@@ -10,6 +12,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { IMAGE_BASE_URL } from "@/constants/site";
 import { useFavorite } from "@/hooks/useFavorite";
 import { remainingDay } from "@/utils/campaign";
@@ -29,6 +37,16 @@ export default function CampaignHeader({ campaign }) {
 
 	// Check if campaign is actual type
 	const isActual = campaign?.itemType === "actual" || campaign?.item_type === "actual";
+
+	// Get actual files for download (PDF/images)
+	const actualFiles = campaign?.actualsUrls || campaign?.actuals_urls || campaign?.actuals || [];
+	const normalizeFileUrl = (url) => {
+		if (!url) return null;
+		if (url.startsWith("http")) return url;
+		return `https://kampanyaradar-static.b-cdn.net/kampanyaradar/${url.replace(/^\//, '')}`;
+	};
+	const downloadableFiles = actualFiles.map(normalizeFileUrl).filter(Boolean);
+	const hasDownloadableFiles = isActual && downloadableFiles.length > 0;
 
 	// Check if dates exist
 	const hasEndDate = campaign.end_date || campaign.endDate;
@@ -164,7 +182,7 @@ export default function CampaignHeader({ campaign }) {
 						)}
 
 						{/* Aksiyon Butonları */}
-						<div className="flex items-center gap-3 pt-2">
+						<div className="flex items-center gap-3 pt-2 flex-wrap">
 							{campaign.link && !isExpired && (
 								<Button asChild className="bg-orange-500 hover:bg-orange-600 text-white">
 									<a href={campaign.link} target="_blank" rel="noopener noreferrer">
@@ -172,6 +190,52 @@ export default function CampaignHeader({ campaign }) {
 										{isActual ? "Markete Git" : "Kampanyaya Git"}
 									</a>
 								</Button>
+							)}
+
+							{/* Katalog İndir Butonu - Sadece aktüel tipi için */}
+							{hasDownloadableFiles && downloadableFiles.length === 1 && (
+								<Button
+									variant="outline"
+									className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+									onClick={() => window.open(downloadableFiles[0], "_blank")}
+								>
+									<Download className="h-4 w-4 mr-2" />
+									Katalog İndir
+								</Button>
+							)}
+
+							{/* Birden fazla dosya varsa dropdown menü */}
+							{hasDownloadableFiles && downloadableFiles.length > 1 && (
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="outline"
+											className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+										>
+											<Download className="h-4 w-4 mr-2" />
+											Katalog İndir
+											<span className="ml-1.5 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+												{downloadableFiles.length}
+											</span>
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="start" className="w-56">
+										{downloadableFiles.map((url, index) => {
+											const fileName = url.split("/").pop() || `Dosya ${index + 1}`;
+											const isPdf = url.toLowerCase().endsWith(".pdf");
+											return (
+												<DropdownMenuItem
+													key={index}
+													onClick={() => window.open(url, "_blank")}
+													className="cursor-pointer"
+												>
+													<FileText className={`h-4 w-4 mr-2 ${isPdf ? "text-red-500" : "text-blue-500"}`} />
+													<span className="truncate">{fileName}</span>
+												</DropdownMenuItem>
+											);
+										})}
+									</DropdownMenuContent>
+								</DropdownMenu>
 							)}
 
 							<Button
