@@ -48,24 +48,11 @@ export default function CampaignHeader({ campaign }) {
 	const downloadableFiles = actualFiles.map(normalizeFileUrl).filter(Boolean);
 	const hasDownloadableFiles = isActual && downloadableFiles.length > 0;
 
-	// Dosya indirme fonksiyonu
-	const handleDownload = async (url) => {
-		try {
-			const fileName = url.split("/").pop() || "katalog";
-			const response = await fetch(url);
-			const blob = await response.blob();
-			const blobUrl = window.URL.createObjectURL(blob);
-			const link = document.createElement("a");
-			link.href = blobUrl;
-			link.download = fileName;
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-			window.URL.revokeObjectURL(blobUrl);
-		} catch (error) {
-			// Fallback: yeni sekmede aç
-			window.open(url, "_blank");
-		}
+	// Dosya indirme fonksiyonu - backend proxy kullanarak
+	const handleDownload = (url) => {
+		const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+		const downloadUrl = `${apiBase}/download?url=${encodeURIComponent(url)}`;
+		window.location.href = downloadUrl;
 	};
 
 	// Check if dates exist
