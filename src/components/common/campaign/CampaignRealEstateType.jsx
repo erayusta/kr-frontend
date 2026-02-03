@@ -27,6 +27,21 @@ import {
 	Coffee,
 	DoorOpen,
 	Armchair,
+	Percent,
+	Clock,
+	Globe,
+	Dumbbell,
+	Waves,
+	Baby,
+	Film,
+	PartyPopper,
+	ShoppingCart,
+	Utensils,
+	Footprints,
+	CircleDot,
+	Star,
+	TrendingUp,
+	BadgeCheck,
 } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -89,6 +104,19 @@ export default function CampaignRealEstateType({ campaign }) {
 		return colors[type] || "bg-gray-500";
 	};
 
+	// Isitma sistemi cevirisi
+	const getHeatingLabel = (heating) => {
+		const heatingTypes = {
+			merkezi: "Merkezi Sistem",
+			kombi: "Kombi",
+			yerden: "Yerden Isitma",
+			klima: "Klima",
+			soba: "Soba",
+			yok: "Yok",
+		};
+		return heatingTypes[heating] || heating;
+	};
+
 	// Imar durumu cevirisi
 	const getZoningLabel = (zoning) => {
 		const zonings = {
@@ -135,6 +163,29 @@ export default function CampaignRealEstateType({ campaign }) {
 		return usages[usage] || usage;
 	};
 
+	// Feature icon ve label mapping
+	const featureConfig = {
+		guvenlik: { icon: Shield, label: "7/24 Guvenlik", color: "text-blue-600", bg: "bg-blue-50" },
+		acik_otopark: { icon: Car, label: "Acik Otopark", color: "text-green-600", bg: "bg-green-50" },
+		kapali_otopark: { icon: Car, label: "Kapali Otopark", color: "text-green-600", bg: "bg-green-50" },
+		yuzme_havuzu: { icon: Waves, label: "Yuzme Havuzu", color: "text-cyan-600", bg: "bg-cyan-50" },
+		fitness: { icon: Dumbbell, label: "Fitness Salonu", color: "text-orange-600", bg: "bg-orange-50" },
+		spa: { icon: Droplets, label: "SPA", color: "text-purple-600", bg: "bg-purple-50" },
+		sauna: { icon: Thermometer, label: "Sauna", color: "text-red-600", bg: "bg-red-50" },
+		hamam: { icon: Droplets, label: "Turk Hamami", color: "text-amber-600", bg: "bg-amber-50" },
+		cocuk_oyun_alani: { icon: Baby, label: "Cocuk Oyun Alani", color: "text-pink-600", bg: "bg-pink-50" },
+		kres: { icon: Baby, label: "Kres", color: "text-pink-600", bg: "bg-pink-50" },
+		toplanti_salonu: { icon: Users, label: "Toplanti Salonu", color: "text-indigo-600", bg: "bg-indigo-50" },
+		sinema: { icon: Film, label: "Sinema Salonu", color: "text-gray-600", bg: "bg-gray-50" },
+		parti_alani: { icon: PartyPopper, label: "Parti Alani", color: "text-fuchsia-600", bg: "bg-fuchsia-50" },
+		market: { icon: ShoppingCart, label: "Market", color: "text-emerald-600", bg: "bg-emerald-50" },
+		kafe: { icon: Utensils, label: "Kafe/Restaurant", color: "text-amber-600", bg: "bg-amber-50" },
+		yuruyus_alani: { icon: Footprints, label: "Yuruyus Alani", color: "text-lime-600", bg: "bg-lime-50" },
+		basketbol: { icon: CircleDot, label: "Basketbol Sahasi", color: "text-orange-600", bg: "bg-orange-50" },
+		tenis: { icon: CircleDot, label: "Tenis Kortu", color: "text-green-600", bg: "bg-green-50" },
+		voleybol: { icon: CircleDot, label: "Voleybol Sahasi", color: "text-yellow-600", bg: "bg-yellow-50" },
+	};
+
 	// Gorsel URL'ini duzenle
 	const getImageUrl = (image) => {
 		if (!image) return "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800";
@@ -163,6 +214,18 @@ export default function CampaignRealEstateType({ campaign }) {
 	const isLand = propertyType === "land";
 	const isShop = propertyType === "shop";
 	const isOffice = propertyType === "office";
+
+	// Fiyat araligi hesapla
+	const getPriceRange = () => {
+		if (!realEstateData.price_plans || realEstateData.price_plans.length === 0) return null;
+		const prices = realEstateData.price_plans.map(p => p.price).filter(Boolean);
+		if (prices.length === 0) return null;
+		const min = Math.min(...prices);
+		const max = Math.max(...prices);
+		return { min, max, same: min === max };
+	};
+
+	const priceRange = getPriceRange();
 
 	// Arsa ozellikleri renderla
 	const renderLandFeatures = () => (
@@ -578,55 +641,215 @@ export default function CampaignRealEstateType({ campaign }) {
 		</Card>
 	);
 
-	// Konut ozellikleri renderla (Daire, Villa, Rezidans)
+	// Konut ozellikleri renderla (Daire, Villa, Rezidans) - YENI TASARIM
 	const renderResidentialFeatures = () => (
-		<Card>
-			<CardContent className="p-6">
-				<h3 className="font-semibold text-lg mb-4">Proje Ozellikleri</h3>
-				<div className="grid grid-cols-2 gap-4">
-					<div className="flex items-center gap-3">
-						<div className="p-2 bg-blue-100 rounded-lg">
-							<Building className="h-5 w-5 text-blue-600" />
+		<Card className="overflow-hidden">
+			<CardContent className="p-0">
+				{/* Baslik */}
+				<div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+					<h3 className="font-semibold text-lg text-white flex items-center gap-2">
+						<Building className="h-5 w-5" />
+						Proje Ozellikleri
+					</h3>
+				</div>
+
+				<div className="p-6">
+					{/* Ana Ozellikler Grid */}
+					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+						{/* Toplam Unite */}
+						<div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
+							<div className="w-12 h-12 mx-auto mb-2 bg-blue-500 rounded-full flex items-center justify-center">
+								<Building className="h-6 w-6 text-white" />
+							</div>
+							<p className="text-2xl font-bold text-blue-700">{realEstateData.number_of_units || "-"}</p>
+							<p className="text-xs text-blue-600 font-medium">Toplam Unite</p>
 						</div>
-						<div>
-							<p className="text-sm text-gray-500">Toplam Unite</p>
-							<p className="font-semibold">{realEstateData.number_of_units || "Belirtilmemis"}</p>
+
+						{/* Kat Sayisi */}
+						<div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
+							<div className="w-12 h-12 mx-auto mb-2 bg-green-500 rounded-full flex items-center justify-center">
+								<Layers className="h-6 w-6 text-white" />
+							</div>
+							<p className="text-2xl font-bold text-green-700">{realEstateData.floor_count || "-"}</p>
+							<p className="text-xs text-green-600 font-medium">Kat Sayisi</p>
+						</div>
+
+						{/* Teslim Tarihi */}
+						<div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 text-center">
+							<div className="w-12 h-12 mx-auto mb-2 bg-orange-500 rounded-full flex items-center justify-center">
+								<Calendar className="h-6 w-6 text-white" />
+							</div>
+							<p className="text-lg font-bold text-orange-700">{formatDate(realEstateData.delivery_date)}</p>
+							<p className="text-xs text-orange-600 font-medium">Teslim Tarihi</p>
+						</div>
+
+						{/* Satis Yuzdesi */}
+						{realEstateData.sold_percentage !== null && realEstateData.sold_percentage !== undefined && (
+							<div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center">
+								<div className="w-12 h-12 mx-auto mb-2 bg-purple-500 rounded-full flex items-center justify-center">
+									<Percent className="h-6 w-6 text-white" />
+								</div>
+								<p className="text-2xl font-bold text-purple-700">%{realEstateData.sold_percentage}</p>
+								<p className="text-xs text-purple-600 font-medium">Satildi</p>
+							</div>
+						)}
+					</div>
+
+					{/* Detayli Ozellikler */}
+					<div className="grid grid-cols-2 gap-4 mb-6">
+						{/* Teslim Durumu */}
+						{realEstateData.unit_delivery && (
+							<div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+								<div className="p-2 bg-indigo-100 rounded-lg">
+									<Clock className="h-5 w-5 text-indigo-600" />
+								</div>
+								<div>
+									<p className="text-xs text-gray-500">Teslim Durumu</p>
+									<p className="font-semibold text-gray-800">{realEstateData.unit_delivery}</p>
+								</div>
+							</div>
+						)}
+
+						{/* Isitma */}
+						{realEstateData.heating && (
+							<div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+								<div className="p-2 bg-red-100 rounded-lg">
+									<Thermometer className="h-5 w-5 text-red-600" />
+								</div>
+								<div>
+									<p className="text-xs text-gray-500">Isitma Sistemi</p>
+									<p className="font-semibold text-gray-800">{getHeatingLabel(realEstateData.heating)}</p>
+								</div>
+							</div>
+						)}
+
+						{/* Ulke */}
+						{realEstateData.country && (
+							<div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+								<div className="p-2 bg-cyan-100 rounded-lg">
+									<Globe className="h-5 w-5 text-cyan-600" />
+								</div>
+								<div>
+									<p className="text-xs text-gray-500">Ulke</p>
+									<p className="font-semibold text-gray-800">{realEstateData.country}</p>
+								</div>
+							</div>
+						)}
+
+						{/* Konum */}
+						<div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+							<div className="p-2 bg-emerald-100 rounded-lg">
+								<MapPin className="h-5 w-5 text-emerald-600" />
+							</div>
+							<div>
+								<p className="text-xs text-gray-500">Konum</p>
+								<p className="font-semibold text-gray-800">
+									{realEstateData.district}, {realEstateData.city}
+								</p>
+							</div>
 						</div>
 					</div>
 
-					<div className="flex items-center gap-3">
-						<div className="p-2 bg-green-100 rounded-lg">
-							<Layers className="h-5 w-5 text-green-600" />
+					{/* Asansor ve Otopark */}
+					<div className="flex gap-4 mb-6">
+						<div className={cn(
+							"flex-1 flex items-center justify-center gap-3 p-4 rounded-xl border-2 transition-all",
+							realEstateData.elevator
+								? "bg-green-50 border-green-200"
+								: "bg-gray-50 border-gray-200"
+						)}>
+							<Building2 className={cn("h-6 w-6", realEstateData.elevator ? "text-green-600" : "text-gray-400")} />
+							<div>
+								<p className="font-semibold">{realEstateData.elevator ? "Asansor Mevcut" : "Asansor Yok"}</p>
+								{realEstateData.elevator && <p className="text-xs text-green-600">Tum bloklarda</p>}
+							</div>
+							{realEstateData.elevator && <CheckCircle className="h-5 w-5 text-green-500 ml-auto" />}
 						</div>
-						<div>
-							<p className="text-sm text-gray-500">Kat Sayisi</p>
-							<p className="font-semibold">{realEstateData.floor_count || "Belirtilmemis"}</p>
+
+						<div className={cn(
+							"flex-1 flex items-center justify-center gap-3 p-4 rounded-xl border-2 transition-all",
+							realEstateData.parking
+								? "bg-green-50 border-green-200"
+								: "bg-gray-50 border-gray-200"
+						)}>
+							<Car className={cn("h-6 w-6", realEstateData.parking ? "text-green-600" : "text-gray-400")} />
+							<div>
+								<p className="font-semibold">{realEstateData.parking ? "Otopark Mevcut" : "Otopark Yok"}</p>
+								{realEstateData.parking && <p className="text-xs text-green-600">Acik/Kapali</p>}
+							</div>
+							{realEstateData.parking && <CheckCircle className="h-5 w-5 text-green-500 ml-auto" />}
 						</div>
 					</div>
 
-					<div className="flex items-center gap-3">
-						<div className="p-2 bg-orange-100 rounded-lg">
-							<Thermometer className="h-5 w-5 text-orange-600" />
+					{/* Satis Durumu Progress */}
+					{realEstateData.sold_percentage !== null && realEstateData.sold_percentage !== undefined && (
+						<div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4">
+							<div className="flex items-center justify-between mb-2">
+								<span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+									<TrendingUp className="h-4 w-4 text-blue-600" />
+									Satis Durumu
+								</span>
+								<span className="text-lg font-bold text-blue-600">%{realEstateData.sold_percentage}</span>
+							</div>
+							<Progress value={realEstateData.sold_percentage} className="h-3" />
+							<p className="text-xs text-gray-500 mt-2">
+								Projenin %{realEstateData.sold_percentage}'i satilmistir.
+								{realEstateData.sold_percentage >= 80 && " Son uniteler kaldi!"}
+								{realEstateData.sold_percentage >= 50 && realEstateData.sold_percentage < 80 && " Hizla tukeniy!"}
+							</p>
 						</div>
-						<div>
-							<p className="text-sm text-gray-500">Isitma</p>
-							<p className="font-semibold">{realEstateData.heating || "Belirtilmemis"}</p>
-						</div>
-					</div>
-
-					<div className="flex items-center gap-3">
-						<div className="p-2 bg-purple-100 rounded-lg">
-							<Car className="h-5 w-5 text-purple-600" />
-						</div>
-						<div>
-							<p className="text-sm text-gray-500">Otopark</p>
-							<p className="font-semibold">{realEstateData.parking ? "Mevcut" : "Yok"}</p>
-						</div>
-					</div>
+					)}
 				</div>
 			</CardContent>
 		</Card>
 	);
+
+	// Sosyal Olanaklar/Ozellikler renderla
+	const renderFeaturesGrid = () => {
+		if (!realEstateData.features || realEstateData.features.length === 0) return null;
+
+		return (
+			<Card className="overflow-hidden">
+				<CardContent className="p-0">
+					<div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
+						<h3 className="font-semibold text-lg text-white flex items-center gap-2">
+							<Star className="h-5 w-5" />
+							Sosyal Olanaklar ve Ozellikler
+						</h3>
+					</div>
+					<div className="p-6">
+						<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+							{realEstateData.features.map((feature, index) => {
+								const config = featureConfig[feature] || {
+									icon: CheckCircle,
+									label: feature,
+									color: "text-gray-600",
+									bg: "bg-gray-50"
+								};
+								const IconComponent = config.icon;
+
+								return (
+									<div
+										key={index}
+										className={cn(
+											"flex items-center gap-3 p-3 rounded-xl border transition-all hover:shadow-md",
+											config.bg,
+											"border-transparent"
+										)}
+									>
+										<div className={cn("p-2 rounded-lg bg-white shadow-sm")}>
+											<IconComponent className={cn("h-5 w-5", config.color)} />
+										</div>
+										<span className="text-sm font-medium text-gray-700">{config.label}</span>
+									</div>
+								);
+							})}
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		);
+	};
 
 	// Fiyat bilgisi kartini renderla (Arsa, Dukkan, Ofis icin)
 	const renderPriceCard = () => {
@@ -661,28 +884,176 @@ export default function CampaignRealEstateType({ campaign }) {
 		);
 	};
 
+	// Fiyat Planlari Karti (Konut tipleri icin) - YENI TASARIM
+	const renderPricePlansCard = () => {
+		if (!realEstateData.price_plans || realEstateData.price_plans.length === 0) return null;
+
+		return (
+			<Card className="overflow-hidden">
+				<CardContent className="p-0">
+					{/* Baslik ve Fiyat Araligi */}
+					<div className="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4">
+						<h3 className="font-semibold text-lg text-white flex items-center gap-2">
+							<Home className="h-5 w-5" />
+							Daire Tipleri ve Fiyatlar
+						</h3>
+						{priceRange && (
+							<p className="text-orange-100 text-sm mt-1">
+								{priceRange.same
+									? `Baslangic: ${formatPrice(priceRange.min)}`
+									: `${formatPrice(priceRange.min)} - ${formatPrice(priceRange.max)}`
+								}
+							</p>
+						)}
+					</div>
+
+					<div className="p-4 space-y-3">
+						{realEstateData.price_plans.map((plan, index) => (
+							<button
+								key={index}
+								onClick={() => setSelectedPlanIndex(index)}
+								className={cn(
+									"w-full p-4 rounded-xl border-2 text-left transition-all",
+									selectedPlanIndex === index
+										? "border-orange-500 bg-orange-50 shadow-md"
+										: "border-gray-200 bg-white hover:border-orange-300 hover:shadow"
+								)}
+							>
+								<div className="flex items-center justify-between mb-3">
+									<div className="flex items-center gap-2">
+										<span className="text-lg font-bold text-gray-800">
+											{plan.type || `${plan.room_count || ""}+1`}
+										</span>
+										{selectedPlanIndex === index && (
+											<BadgeCheck className="h-5 w-5 text-orange-500" />
+										)}
+									</div>
+									{plan.area && (
+										<Badge variant="secondary" className="bg-gray-100">
+											{plan.area} m²
+										</Badge>
+									)}
+								</div>
+
+								{/* Fiyat */}
+								{plan.price && (
+									<div className="text-2xl font-bold text-orange-600 mb-2">
+										{formatPrice(plan.price)}
+									</div>
+								)}
+
+								{/* Odeme Detaylari */}
+								<div className="grid grid-cols-2 gap-2 text-sm">
+									{plan.down_payment && (
+										<div className="flex items-center gap-1 text-gray-600">
+											<CreditCard className="h-3 w-3" />
+											<span>Pesinat: {formatPrice(plan.down_payment)}</span>
+										</div>
+									)}
+									{plan.monthly_payment && (
+										<div className="flex items-center gap-1 text-gray-600">
+											<Calendar className="h-3 w-3" />
+											<span>Aylik: {formatPrice(plan.monthly_payment)}</span>
+										</div>
+									)}
+								</div>
+
+								{/* Oda Bilgileri */}
+								<div className="flex gap-4 mt-3 pt-3 border-t border-gray-100">
+									{plan.bedroom_count && (
+										<div className="flex items-center gap-1 text-gray-600">
+											<Bed className="h-4 w-4" />
+											<span className="text-sm">{plan.bedroom_count} Yatak</span>
+										</div>
+									)}
+									{plan.bathroom_count && (
+										<div className="flex items-center gap-1 text-gray-600">
+											<Bath className="h-4 w-4" />
+											<span className="text-sm">{plan.bathroom_count} Banyo</span>
+										</div>
+									)}
+									{plan.room_count && (
+										<div className="flex items-center gap-1 text-gray-600">
+											<DoorOpen className="h-4 w-4" />
+											<span className="text-sm">{plan.room_count}</span>
+										</div>
+									)}
+								</div>
+
+								{/* Aciklama */}
+								{plan.description && (
+									<p className="text-xs text-gray-500 mt-2 line-clamp-2">{plan.description}</p>
+								)}
+							</button>
+						))}
+					</div>
+				</CardContent>
+			</Card>
+		);
+	};
+
+	// Proje Gelistiricileri
+	const renderOwners = () => {
+		if (!realEstateData.owners || realEstateData.owners.length === 0) return null;
+
+		return (
+			<Card>
+				<CardContent className="p-6">
+					<h4 className="font-semibold mb-4 flex items-center gap-2">
+						<Users className="h-5 w-5 text-gray-600" />
+						Proje Gelistiricileri
+					</h4>
+					<div className="flex flex-wrap gap-2">
+						{realEstateData.owners.map((owner, index) => (
+							<Badge key={index} variant="secondary" className="px-4 py-2 text-sm">
+								{owner}
+							</Badge>
+						))}
+					</div>
+				</CardContent>
+			</Card>
+		);
+	};
+
 	return (
 		<div className="w-full space-y-6">
-			{/* Baslik ve Konum */}
-			<div className="bg-gradient-to-r from-blue-50 to-white p-6 rounded-lg">
+			{/* Baslik ve Konum - YENI TASARIM */}
+			<div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-2xl shadow-xl">
 				<div className="flex items-start justify-between">
-					<div>
-						<h1 className="text-3xl font-bold text-gray-900 mb-2">{realEstateData.name}</h1>
-						<div className="flex items-center gap-2 text-gray-600">
-							<MapPin className="h-4 w-4" />
-							<span>
-								{realEstateData.city && realEstateData.district
-									? `${realEstateData.district}, ${realEstateData.city}`
-									: realEstateData.city || "Konum bilgisi yok"}
-							</span>
-						</div>
-					</div>
-					<div className="text-right">
-						<Badge className={cn("mb-2 text-white", getPropertyTypeBadgeColor(propertyType))}>
+					<div className="space-y-3">
+						<Badge className={cn("text-white px-4 py-1", getPropertyTypeBadgeColor(propertyType))}>
 							{getPropertyTypeLabel(propertyType)}
 						</Badge>
+						<h1 className="text-3xl md:text-4xl font-bold text-white">{realEstateData.name}</h1>
+						<div className="flex items-center gap-4 text-slate-300">
+							<div className="flex items-center gap-2">
+								<MapPin className="h-4 w-4" />
+								<span>
+									{realEstateData.city && realEstateData.district
+										? `${realEstateData.district}, ${realEstateData.city}`
+										: realEstateData.city || "Konum bilgisi yok"}
+								</span>
+							</div>
+							{realEstateData.country && realEstateData.country !== "Turkiye" && (
+								<div className="flex items-center gap-2">
+									<Globe className="h-4 w-4" />
+									<span>{realEstateData.country}</span>
+								</div>
+							)}
+						</div>
+					</div>
+					<div className="text-right space-y-2">
 						{isResidential && realEstateData.delivery_date && (
-							<div className="text-sm text-gray-500">Teslim: {formatDate(realEstateData.delivery_date)}</div>
+							<div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+								<p className="text-xs text-slate-400">Teslim Tarihi</p>
+								<p className="text-white font-semibold">{formatDate(realEstateData.delivery_date)}</p>
+							</div>
+						)}
+						{priceRange && (
+							<div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg px-4 py-2">
+								<p className="text-xs text-orange-100">Baslangic Fiyat</p>
+								<p className="text-white font-bold text-lg">{formatPrice(priceRange.min)}</p>
+							</div>
 						)}
 					</div>
 				</div>
@@ -691,9 +1062,9 @@ export default function CampaignRealEstateType({ campaign }) {
 			{/* Ana Icerik Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				{/* Sol: Gorsel Galerisi (2 kolon) */}
-				<div className="lg:col-span-2 space-y-4">
+				<div className="lg:col-span-2 space-y-6">
 					{/* Ana Gorsel */}
-					<Card className="overflow-hidden">
+					<Card className="overflow-hidden shadow-lg">
 						<CardContent className="p-0">
 							<div className="relative">
 								<img
@@ -710,21 +1081,28 @@ export default function CampaignRealEstateType({ campaign }) {
 									<>
 										<button
 											onClick={prevImage}
-											className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all"
+											className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all"
 										>
-											<ChevronLeft className="h-5 w-5" />
+											<ChevronLeft className="h-6 w-6" />
 										</button>
 										<button
 											onClick={nextImage}
-											className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all"
+											className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all"
 										>
-											<ChevronRight className="h-5 w-5" />
+											<ChevronRight className="h-6 w-6" />
 										</button>
 									</>
 								)}
 
-								<div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+								<div className="absolute bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-medium">
 									{activeImageIndex + 1} / {images.length}
+								</div>
+
+								{/* Property Type Badge on Image */}
+								<div className="absolute top-4 left-4">
+									<Badge className={cn("text-white px-4 py-2 text-sm shadow-lg", getPropertyTypeBadgeColor(propertyType))}>
+										{getPropertyTypeLabel(propertyType)}
+									</Badge>
 								</div>
 							</div>
 						</CardContent>
@@ -732,17 +1110,22 @@ export default function CampaignRealEstateType({ campaign }) {
 
 					{/* Kucuk Gorsel Galerisi */}
 					{images.length > 1 && (
-						<div className="grid grid-cols-4 gap-2">
-							{images.slice(0, 8).map((image, index) => (
+						<div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+							{images.slice(0, 6).map((image, index) => (
 								<button
 									key={index}
 									onClick={() => setActiveImageIndex(index)}
 									className={cn(
-										"relative rounded-lg overflow-hidden border-2 transition-all",
-										activeImageIndex === index ? "border-blue-500" : "border-gray-200"
+										"relative rounded-lg overflow-hidden border-2 transition-all aspect-square",
+										activeImageIndex === index ? "border-orange-500 ring-2 ring-orange-200" : "border-gray-200 hover:border-orange-300"
 									)}
 								>
-									<img src={getImageUrl(image)} alt={`Thumbnail ${index + 1}`} className="w-full h-24 object-cover" />
+									<img src={getImageUrl(image)} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+									{index === 5 && images.length > 6 && (
+										<div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+											<span className="text-white font-bold">+{images.length - 6}</span>
+										</div>
+									)}
 								</button>
 							))}
 						</div>
@@ -754,15 +1137,24 @@ export default function CampaignRealEstateType({ campaign }) {
 					{isOffice && renderOfficeFeatures()}
 					{isResidential && renderResidentialFeatures()}
 
+					{/* Sosyal Olanaklar - Sadece konut tipleri icin */}
+					{isResidential && renderFeaturesGrid()}
+
 					{/* Proje Aciklamasi */}
 					{campaign.description && (
 						<Card>
 							<CardContent className="p-6">
-								<h3 className="font-semibold text-lg mb-4">Kampanya Detaylari</h3>
+								<h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+									<FileText className="h-5 w-5 text-gray-600" />
+									Kampanya Detaylari
+								</h3>
 								<p className="text-gray-700 leading-relaxed">{campaign.description}</p>
 							</CardContent>
 						</Card>
 					)}
+
+					{/* Proje Gelistiricileri */}
+					{renderOwners()}
 				</div>
 
 				{/* Sag: Fiyat ve Iletisim */}
@@ -771,109 +1163,7 @@ export default function CampaignRealEstateType({ campaign }) {
 					{(isLand || isShop || isOffice) && renderPriceCard()}
 
 					{/* Konut tipleri icin Fiyat Planlari */}
-					{isResidential && realEstateData.price_plans && realEstateData.price_plans.length > 0 && (
-						<Card>
-							<CardContent className="p-6">
-								<h3 className="font-semibold text-lg mb-4">Daire Tipleri</h3>
-								<div className="space-y-3">
-									{realEstateData.price_plans.map((plan, index) => (
-										<button
-											key={index}
-											onClick={() => setSelectedPlanIndex(index)}
-											className={cn(
-												"w-full p-4 rounded-lg border text-left transition-all",
-												selectedPlanIndex === index ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-300"
-											)}
-										>
-											<div className="flex items-center justify-between mb-2">
-												<span className="font-semibold">{plan.type || `${plan.room_count || ""} Oda`}</span>
-												{plan.area && <Badge variant="outline">{plan.area} m²</Badge>}
-											</div>
-											{plan.price && <div className="text-xl font-bold text-blue-600">{formatPrice(plan.price)}</div>}
-											{plan.monthly_payment && (
-												<p className="text-sm text-gray-500 mt-1">Aylik: {formatPrice(plan.monthly_payment)}</p>
-											)}
-										</button>
-									))}
-								</div>
-							</CardContent>
-						</Card>
-					)}
-
-					{/* Secili Plan Detaylari */}
-					{isResidential && selectedPlan && (
-						<Card className="bg-blue-50 border-blue-200">
-							<CardContent className="p-6">
-								<h4 className="font-semibold mb-3">Secili Daire Ozellikleri</h4>
-								<div className="space-y-3">
-									{selectedPlan.room_count && (
-										<div className="flex items-center gap-2">
-											<Home className="h-4 w-4 text-blue-600" />
-											<span className="text-sm">{selectedPlan.room_count} Oda</span>
-										</div>
-									)}
-									{selectedPlan.area && (
-										<div className="flex items-center gap-2">
-											<Ruler className="h-4 w-4 text-blue-600" />
-											<span className="text-sm">{selectedPlan.area} m²</span>
-										</div>
-									)}
-									{selectedPlan.bathroom_count && (
-										<div className="flex items-center gap-2">
-											<Bath className="h-4 w-4 text-blue-600" />
-											<span className="text-sm">{selectedPlan.bathroom_count} Banyo</span>
-										</div>
-									)}
-									{selectedPlan.bedroom_count && (
-										<div className="flex items-center gap-2">
-											<Bed className="h-4 w-4 text-blue-600" />
-											<span className="text-sm">{selectedPlan.bedroom_count} Yatak Odasi</span>
-										</div>
-									)}
-								</div>
-							</CardContent>
-						</Card>
-					)}
-
-					{/* Konut tipleri icin ozellikler listesi */}
-					{isResidential && realEstateData.features && realEstateData.features.length > 0 && (
-						<Card>
-							<CardContent className="p-6">
-								<h4 className="font-semibold mb-3">Proje Avantajlari</h4>
-								<div className="space-y-2">
-									{realEstateData.features.map((feature, index) => {
-										const featureLabels = {
-											guvenlik: "7/24 Guvenlik",
-											acik_otopark: "Acik Otopark",
-											kapali_otopark: "Kapali Otopark",
-											yuzme_havuzu: "Yuzme Havuzu",
-											fitness: "Fitness Salonu",
-											spa: "SPA",
-											sauna: "Sauna",
-											hamam: "Turk Hamami",
-											cocuk_oyun_alani: "Cocuk Oyun Alani",
-											kres: "Kres",
-											toplanti_salonu: "Toplanti Salonu",
-											sinema: "Sinema Salonu",
-											parti_alani: "Parti Alani",
-											market: "Market",
-											kafe: "Kafe/Restaurant",
-											yuruyus_alani: "Yuruyus Alani",
-											basketbol: "Basketbol Sahasi",
-											tenis: "Tenis Kortu",
-											voleybol: "Voleybol Sahasi",
-										};
-										return (
-											<div key={index} className="flex items-center gap-2">
-												<CheckCircle className="h-4 w-4 text-green-600" />
-												<span className="text-sm">{featureLabels[feature] || feature}</span>
-											</div>
-										);
-									})}
-								</div>
-							</CardContent>
-						</Card>
-					)}
+					{isResidential && renderPricePlansCard()}
 
 					{/* Contact Form */}
 					<CampaignLeadForm
@@ -885,47 +1175,31 @@ export default function CampaignRealEstateType({ campaign }) {
 
 					{/* Konum */}
 					{realEstateData.maps_url && (
-						<Card>
-							<CardContent className="p-6">
-								<Button asChild className="w-full" variant="outline">
-									<a href={realEstateData.maps_url} target="_blank" rel="noopener noreferrer">
-										<MapPin className="h-4 w-4 mr-2" />
-										Haritada Goruntule
-									</a>
-								</Button>
+						<Card className="overflow-hidden">
+							<CardContent className="p-0">
+								<div className="bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-4">
+									<h4 className="font-semibold text-white flex items-center gap-2">
+										<MapPin className="h-5 w-5" />
+										Proje Konumu
+									</h4>
+								</div>
+								<div className="p-4">
+									<p className="text-sm text-gray-600 mb-3">
+										{realEstateData.district}, {realEstateData.city}
+										{realEstateData.country && realEstateData.country !== "Turkiye" && `, ${realEstateData.country}`}
+									</p>
+									<Button asChild className="w-full bg-emerald-600 hover:bg-emerald-700">
+										<a href={realEstateData.maps_url} target="_blank" rel="noopener noreferrer">
+											<MapPin className="h-4 w-4 mr-2" />
+											Haritada Goruntule
+										</a>
+									</Button>
+								</div>
 							</CardContent>
 						</Card>
 					)}
 				</div>
 			</div>
-
-			{/* Satis Durumu - Sadece konut tipleri icin */}
-			{isResidential && realEstateData.sold_percentage && (
-				<Card>
-					<CardContent className="p-6">
-						<div className="flex items-center justify-between mb-3">
-							<h3 className="font-semibold">Satis Durumu</h3>
-							<span className="text-2xl font-bold text-blue-600">{realEstateData.sold_percentage}%</span>
-						</div>
-						<Progress value={realEstateData.sold_percentage} className="h-3" />
-						<p className="text-sm text-gray-500 mt-2">Projenin {realEstateData.sold_percentage}%'i satilmistir</p>
-					</CardContent>
-				</Card>
-			)}
-
-			{/* Gelistiriciler */}
-			{realEstateData.owners && realEstateData.owners.length > 0 && (
-				<div className="text-center py-4">
-					<p className="text-sm text-gray-500 mb-3">Proje Gelistiricileri</p>
-					<div className="flex justify-center gap-3 flex-wrap">
-						{realEstateData.owners.map((owner, index) => (
-							<Badge key={index} variant="secondary" className="px-4 py-2">
-								{owner}
-							</Badge>
-						))}
-					</div>
-				</div>
-			)}
 		</div>
 	);
 }
