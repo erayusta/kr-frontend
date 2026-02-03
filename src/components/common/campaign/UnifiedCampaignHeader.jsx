@@ -81,10 +81,10 @@ export default function UnifiedCampaignHeader({ campaign }) {
 
 	// Kampanya tipi ikonu
 	const getCampaignTypeIcon = () => {
-		if (isCar) return <Car className="h-5 w-5" />;
-		if (isProduct) return <Package className="h-5 w-5" />;
-		if (isActual) return <Newspaper className="h-5 w-5" />;
-		return <Tag className="h-5 w-5" />;
+		if (isCar) return <Car className="h-4 w-4" />;
+		if (isProduct) return <Package className="h-4 w-4" />;
+		if (isActual) return <Newspaper className="h-4 w-4" />;
+		return <Tag className="h-4 w-4" />;
 	};
 
 	// Kampanya tipi etiketi
@@ -99,32 +99,31 @@ export default function UnifiedCampaignHeader({ campaign }) {
 	const mainImage = campaign.mainImage || campaign.image;
 
 	return (
-		<section className="relative bg-slate-900">
+		<section className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 overflow-hidden">
 			{/* Arka Plan Gorseli */}
 			<div className="absolute inset-0">
 				<img
 					src={getImageUrl(mainImage)}
 					alt={campaign.title}
-					className="w-full h-full object-cover opacity-20"
+					className="w-full h-full object-cover opacity-15 blur-sm"
 				/>
-				<div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900/70" />
-				<div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/50" />
+				<div className="absolute inset-0 bg-gradient-to-r from-slate-800/95 via-slate-700/90 to-slate-800/80" />
 			</div>
 
 			{/* Icerik */}
 			<div className="relative">
 				{/* Breadcrumb */}
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
 					<nav className="flex items-center gap-2 text-sm flex-wrap">
-						<Link href="/" className="text-white/60 hover:text-white transition-colors">
+						<Link href="/" className="text-slate-300 hover:text-white transition-colors">
 							Anasayfa
 						</Link>
 						{campaign.categories?.[0] && (
 							<>
-								<ChevronRight className="h-4 w-4 text-white/40" />
+								<ChevronRight className="h-3.5 w-3.5 text-slate-500" />
 								<Link
 									href={`/kategori/${campaign.categories[0].slug}`}
-									className="text-white/60 hover:text-white transition-colors"
+									className="text-slate-300 hover:text-white transition-colors"
 								>
 									{campaign.categories[0].name}
 								</Link>
@@ -132,98 +131,99 @@ export default function UnifiedCampaignHeader({ campaign }) {
 						)}
 						{campaign.brands?.[0] && (
 							<>
-								<ChevronRight className="h-4 w-4 text-white/40" />
+								<ChevronRight className="h-3.5 w-3.5 text-slate-500" />
 								<Link
 									href={`/marka/${campaign.brands[0].slug}`}
-									className="text-white/60 hover:text-white transition-colors"
+									className="text-slate-300 hover:text-white transition-colors"
 								>
 									{campaign.brands[0].name}
 								</Link>
 							</>
 						)}
-						<ChevronRight className="h-4 w-4 text-white/40" />
-						<span className="text-white font-medium truncate max-w-[250px]">
+						<ChevronRight className="h-3.5 w-3.5 text-slate-500" />
+						<span className="text-white font-medium truncate max-w-[200px]">
 							{campaign.title}
 						</span>
 					</nav>
 				</div>
 
 				{/* Ana Icerik */}
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
 						{/* Sol Taraf - Bilgiler */}
-						<div className="space-y-6">
-							{/* Kampanya Tipi Badge */}
-							<div className="flex items-center gap-3">
-								<Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30 backdrop-blur-sm px-3 py-1.5">
+						<div className="space-y-4">
+							{/* Ust kisim: Marka + Kampanya Tipi */}
+							<div className="flex items-center gap-3 flex-wrap">
+								{/* Marka Logo - Kucuk */}
+								{campaign.brands?.[0]?.logo && (
+									<Link href={`/marka/${campaign.brands[0].slug}`}>
+										<div className="bg-white rounded-lg px-3 py-1.5 shadow-sm hover:shadow-md transition-shadow">
+											<Image
+												src={getBrandLogo(campaign.brands[0].logo)}
+												alt={campaign.brands[0].name}
+												width={80}
+												height={28}
+												className="h-6 w-auto object-contain"
+											/>
+										</div>
+									</Link>
+								)}
+
+								{/* Kampanya Tipi Badge */}
+								<Badge className="bg-orange-500/90 text-white border-0 px-2.5 py-1 text-xs font-medium">
 									{getCampaignTypeIcon()}
-									<span className="ml-1.5">{getCampaignTypeLabel()}</span>
+									<span className="ml-1">{getCampaignTypeLabel()}</span>
 								</Badge>
 							</div>
 
-							{/* Marka Logo */}
-							{campaign.brands?.[0]?.logo && (
-								<Link href={`/marka/${campaign.brands[0].slug}`} className="inline-block">
-									<div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 inline-block border border-white/10">
-										<Image
-											src={getBrandLogo(campaign.brands[0].logo)}
-											alt={campaign.brands[0].name}
-											width={140}
-											height={56}
-											className="h-12 w-auto object-contain brightness-0 invert"
-										/>
-									</div>
-								</Link>
-							)}
-
 							{/* Baslik */}
-							<h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+							<h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
 								{campaign.title}
 							</h1>
 
 							{/* Aciklama */}
 							{campaign.description && (
-								<p className="text-white/70 text-lg leading-relaxed max-w-xl">
+								<p className="text-slate-300 text-base leading-relaxed line-clamp-2">
 									{campaign.description}
 								</p>
 							)}
 
 							{/* Durum Badge'leri */}
-							<div className="flex items-center gap-3 flex-wrap">
+							<div className="flex items-center gap-2 flex-wrap">
 								{isActual ? (
-									<Badge className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-sm font-medium">
-										<Newspaper className="h-4 w-4 mr-2" />
+									<Badge className="bg-blue-500 text-white px-3 py-1 text-xs font-medium">
+										<Newspaper className="h-3.5 w-3.5 mr-1" />
 										Aktuel Katalog
 									</Badge>
 								) : hasEndDate ? (
 									!isExpired ? (
 										<Badge
-											className={`px-4 py-2 text-sm font-medium ${
+											className={`px-3 py-1 text-xs font-medium text-white ${
 												remainingDays <= 3
-													? "bg-red-500 hover:bg-red-600"
+													? "bg-red-500"
 													: remainingDays <= 7
-														? "bg-orange-500 hover:bg-orange-600"
-														: "bg-green-500 hover:bg-green-600"
-											} text-white`}
+														? "bg-orange-500"
+														: "bg-emerald-500"
+											}`}
 										>
-											<Clock className="h-4 w-4 mr-2" />
+											<Clock className="h-3.5 w-3.5 mr-1" />
 											{remainingDays === 0 ? "Son Gun!" : `Son ${remainingDays} Gun`}
 										</Badge>
 									) : (
-										<Badge className="bg-red-500/80 text-white px-4 py-2 text-sm font-medium">
-											<Clock className="h-4 w-4 mr-2" />
-											Kampanya Sona Erdi
+										<Badge className="bg-red-500/80 text-white px-3 py-1 text-xs font-medium">
+											<Clock className="h-3.5 w-3.5 mr-1" />
+											Sona Erdi
 										</Badge>
 									)
 								) : (
-									<Badge className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 text-sm font-medium">
-										<Clock className="h-4 w-4 mr-2" />
+									<Badge className="bg-emerald-500 text-white px-3 py-1 text-xs font-medium">
+										<Clock className="h-3.5 w-3.5 mr-1" />
 										Devam Ediyor
 									</Badge>
 								)}
 
 								{campaign.categories?.[0] && (
-									<Badge className="bg-white/10 text-white border-white/20 backdrop-blur-sm px-4 py-2 text-sm">
+									<Badge variant="outline" className="text-slate-200 border-slate-500 px-3 py-1 text-xs">
 										{campaign.categories[0].name}
 									</Badge>
 								)}
@@ -231,24 +231,23 @@ export default function UnifiedCampaignHeader({ campaign }) {
 
 							{/* Tarih Bilgisi */}
 							{(campaign.start_date || campaign.end_date) && (
-								<div className="flex items-center gap-3 text-white/70">
-									<Calendar className="h-5 w-5 text-orange-400" />
-									<span className="text-base">
+								<div className="flex items-center gap-2 text-slate-300 text-sm">
+									<Calendar className="h-4 w-4 text-orange-400" />
+									<span>
 										{formatDate(campaign.start_date)} - {formatDate(campaign.end_date)}
 									</span>
 								</div>
 							)}
 
 							{/* Aksiyon Butonlari */}
-							<div className="flex items-center gap-4 pt-4 flex-wrap">
+							<div className="flex items-center gap-3 pt-2 flex-wrap">
 								{campaign.link && !isExpired && (
 									<Button
 										asChild
-										size="lg"
-										className="bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/25"
+										className="bg-orange-500 hover:bg-orange-600 text-white shadow-md"
 									>
 										<a href={campaign.link} target="_blank" rel="noopener noreferrer">
-											<ExternalLink className="h-5 w-5 mr-2" />
+											<ExternalLink className="h-4 w-4 mr-1.5" />
 											{isActual ? "Markete Git" : "Kampanyaya Git"}
 										</a>
 									</Button>
@@ -258,12 +257,11 @@ export default function UnifiedCampaignHeader({ campaign }) {
 								{hasDownloadableFiles && downloadableFiles.length === 1 && (
 									<Button
 										variant="outline"
-										size="lg"
-										className="border-blue-400/50 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400"
+										className="border-slate-500 text-white hover:bg-slate-600/50"
 										asChild
 									>
 										<a href={getDownloadUrl(downloadableFiles[0])}>
-											<Download className="h-5 w-5 mr-2" />
+											<Download className="h-4 w-4 mr-1.5" />
 											Katalog Indir
 										</a>
 									</Button>
@@ -272,14 +270,10 @@ export default function UnifiedCampaignHeader({ campaign }) {
 								{hasDownloadableFiles && downloadableFiles.length > 1 && (
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
-											<Button
-												variant="outline"
-												size="lg"
-												className="border-blue-400/50 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400"
-											>
-												<Download className="h-5 w-5 mr-2" />
+											<Button variant="outline" className="border-slate-500 text-white hover:bg-slate-600/50">
+												<Download className="h-4 w-4 mr-1.5" />
 												Katalog Indir
-												<span className="ml-2 text-xs bg-blue-500/30 px-2 py-0.5 rounded-full">
+												<span className="ml-1.5 text-xs bg-slate-600 px-1.5 py-0.5 rounded">
 													{downloadableFiles.length}
 												</span>
 											</Button>
@@ -291,9 +285,7 @@ export default function UnifiedCampaignHeader({ campaign }) {
 												return (
 													<DropdownMenuItem key={index} asChild className="cursor-pointer">
 														<a href={getDownloadUrl(url)}>
-															<FileText
-																className={`h-4 w-4 mr-2 ${isPdf ? "text-red-500" : "text-blue-500"}`}
-															/>
+															<FileText className={`h-4 w-4 mr-2 ${isPdf ? "text-red-500" : "text-blue-500"}`} />
 															<span className="truncate">{fileName}</span>
 														</a>
 													</DropdownMenuItem>
@@ -305,14 +297,13 @@ export default function UnifiedCampaignHeader({ campaign }) {
 
 								<Button
 									variant="outline"
-									size="lg"
 									disabled={!canToggle}
 									onClick={toggle}
-									className={`border-white/30 text-white hover:bg-white/10 ${
-										isFavorite ? "bg-red-500/20 border-red-400/50 text-red-300" : ""
+									className={`border-slate-500 text-white hover:bg-slate-600/50 ${
+										isFavorite ? "bg-red-500/20 border-red-400/50" : ""
 									}`}
 								>
-									<Heart className="h-5 w-5 mr-2" fill={isFavorite ? "currentColor" : "none"} />
+									<Heart className="h-4 w-4 mr-1.5" fill={isFavorite ? "currentColor" : "none"} />
 									{isFavorite ? "Favorilerde" : "Favorilere Ekle"}
 								</Button>
 							</div>
@@ -320,37 +311,33 @@ export default function UnifiedCampaignHeader({ campaign }) {
 
 						{/* Sag Taraf - Gorsel */}
 						<div className="relative flex justify-center lg:justify-end">
-							<div className="relative">
+							<div className="relative w-full max-w-md">
 								{/* Ana Gorsel */}
-								<div className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 shadow-2xl">
-									<div className="relative aspect-[4/3] w-full max-w-lg overflow-hidden rounded-xl bg-gradient-to-br from-white/10 to-white/5">
+								<div className="relative bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20 shadow-xl">
+									<div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-white">
 										<Image
 											src={getImageUrl(mainImage)}
 											alt={campaign.title}
 											fill
-											className="object-contain p-4"
-											sizes="(max-width: 1024px) 100vw, 500px"
+											className="object-contain p-2"
+											sizes="(max-width: 1024px) 100vw, 400px"
 											priority
 										/>
 									</div>
 
-									{/* Marka Logo Overlay */}
+									{/* Marka Logo Overlay - Kucuk */}
 									{campaign.brands?.[0]?.logo && (
-										<div className="absolute bottom-6 right-6 bg-white rounded-lg px-4 py-2 shadow-xl">
+										<div className="absolute bottom-5 right-5 bg-white rounded-md px-2 py-1 shadow-lg">
 											<Image
 												src={getBrandLogo(campaign.brands[0].logo)}
 												alt={campaign.brands[0].name}
-												width={80}
-												height={32}
-												className="h-6 w-auto object-contain"
+												width={60}
+												height={24}
+												className="h-5 w-auto object-contain"
 											/>
 										</div>
 									)}
 								</div>
-
-								{/* Dekoratif Elementler */}
-								<div className="absolute -top-4 -right-4 w-24 h-24 bg-orange-500/20 rounded-full blur-2xl" />
-								<div className="absolute -bottom-4 -left-4 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl" />
 							</div>
 						</div>
 					</div>
