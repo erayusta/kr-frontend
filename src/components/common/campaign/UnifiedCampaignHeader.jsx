@@ -264,9 +264,8 @@ export default function UnifiedCampaignHeader({ campaign }) {
 								{/* Katalog Indir - Aktuel icin */}
 								{hasDownloadableFiles && downloadableFiles.length === 1 && (
 									<Button
-										variant="outline"
-										className="border-slate-500 text-white hover:bg-slate-600/50"
 										asChild
+										className="bg-blue-600 hover:bg-blue-700 text-white shadow-md"
 									>
 										<a href={getDownloadUrl(downloadableFiles[0])}>
 											<Download className="h-4 w-4 mr-1.5" />
@@ -278,10 +277,10 @@ export default function UnifiedCampaignHeader({ campaign }) {
 								{hasDownloadableFiles && downloadableFiles.length > 1 && (
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
-											<Button variant="outline" className="border-slate-500 text-white hover:bg-slate-600/50">
+											<Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
 												<Download className="h-4 w-4 mr-1.5" />
 												Katalog Indir
-												<span className="ml-1.5 text-xs bg-slate-600 px-1.5 py-0.5 rounded">
+												<span className="ml-1.5 text-xs bg-blue-500 px-1.5 py-0.5 rounded">
 													{downloadableFiles.length}
 												</span>
 											</Button>
@@ -304,11 +303,12 @@ export default function UnifiedCampaignHeader({ campaign }) {
 								)}
 
 								<Button
-									variant="outline"
 									onClick={canToggle ? toggle : undefined}
-									className={`border-white/40 text-white hover:bg-white/10 cursor-pointer ${
-										isFavorite ? "bg-red-500/20 border-red-400/50 text-red-300" : ""
-									} ${!canToggle ? "opacity-90" : ""}`}
+									className={`shadow-md cursor-pointer ${
+										isFavorite
+											? "bg-red-500 hover:bg-red-600 text-white"
+											: "bg-slate-600 hover:bg-slate-500 text-white"
+									}`}
 								>
 									<Heart className="h-4 w-4 mr-1.5" fill={isFavorite ? "currentColor" : "none"} />
 									{isFavorite ? "Favorilerde" : "Favorilere Ekle"}
