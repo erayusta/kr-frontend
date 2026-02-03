@@ -163,6 +163,19 @@ export default function CampaignRealEstateType({ campaign }) {
 		return usages[usage] || usage;
 	};
 
+	// Teslim durumu cevirisi
+	const getDeliveryLabel = (delivery) => {
+		const deliveryTypes = {
+			daire_teslimati: "Daire Teslimatı",
+			anahtar_teslimi: "Anahtar Teslimi",
+			teslimata_hazir: "Teslimata Hazır",
+			ciplak_daire: "Çıplak Daire",
+			asamali_teslimat: "Aşamalı Teslimat",
+			pesin_veya_kredili: "Peşin veya Kredili Ödeme",
+		};
+		return deliveryTypes[delivery] || delivery;
+	};
+
 	// Feature icon ve label mapping
 	const featureConfig = {
 		guvenlik: { icon: Shield, label: "7/24 Guvenlik", color: "text-blue-600", bg: "bg-blue-50" },
@@ -705,7 +718,7 @@ export default function CampaignRealEstateType({ campaign }) {
 								</div>
 								<div>
 									<p className="text-xs text-gray-500">Teslim Durumu</p>
-									<p className="font-semibold text-gray-800">{realEstateData.unit_delivery}</p>
+									<p className="font-semibold text-gray-800">{getDeliveryLabel(realEstateData.unit_delivery)}</p>
 								</div>
 							</div>
 						)}
