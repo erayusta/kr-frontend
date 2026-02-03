@@ -1,5 +1,15 @@
-import { ChevronLeft, ChevronRight, Shield } from "lucide-react";
-import { useState } from "react";
+import {
+	Check,
+	Settings,
+	Shield,
+	TrendingUp,
+	User,
+	Baby,
+	PersonStanding,
+	ShieldCheck,
+	ImageOff,
+} from "lucide-react";
+import { useState, useMemo } from "react";
 import {
 	Area,
 	AreaChart,
@@ -11,34 +21,122 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { IMAGE_BASE_URL } from "@/constants/site";
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	CarouselPrevious,
+	CarouselNext,
+} from "@/components/ui/carousel";
+import { IMAGE_BASE_URL, STORAGE_URL } from "@/constants/site";
 import CampaignLeadForm from "@/components/common/campaign/CampaignLeadForm";
 
-export default function CampaignCarType({ campaign }) {
-	console.log("car hocam", campaign);
-	const [activeImageIndex, setActiveImageIndex] = useState(0);
-	const [selectedColorIndex, setSelectedColorIndex] = useState(0);
+// Renk gorseli komponenti
+function ColorImageDisplay({ selectedColorIndex, selectedColorImage, carData, getImageUrl }) {
+	const [imageError, setImageError] = useState(false);
+	const [imageKey, setImageKey] = useState(0);
 
-	// car verisini kontrol et - item veya car olabilir
+	// selectedColorIndex degistiginde hatayi sifirla
+	useMemo(() => {
+		setImageError(false);
+		setImageKey((prev) => prev + 1);
+	}, [selectedColorIndex]);
+
+	const imageUrl = getImageUrl(selectedColorImage);
+
+	// Debug log
+	console.log("Color image debug:", {
+		selectedColorIndex,
+		selectedColorImage,
+		imageUrl,
+		color: carData.colors?.[selectedColorIndex],
+	});
+
+	if (selectedColorIndex === null) {
+		return (
+			<div className="h-full min-h-[250px] bg-gradient-to-br from-white to-gray-50 rounded-xl flex items-center justify-center">
+				<div className="text-center text-gray-400">
+					<div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+						<Settings className="w-8 h-8" />
+					</div>
+					<p className="text-sm">Renk gorselini gormek icin<br />bir renk secin</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (!selectedColorImage || !imageUrl || imageError) {
+		return (
+			<div className="h-full min-h-[250px] bg-gradient-to-br from-white to-gray-50 rounded-xl flex items-center justify-center">
+				<div className="text-center text-gray-400">
+					<div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+						<ImageOff className="w-8 h-8" />
+					</div>
+					<p className="text-sm">Bu renk icin gorsel yuklenmmis</p>
+					<p className="text-xs mt-1 text-gray-300">{selectedColorImage || "Gorsel yok"}</p>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="relative h-full min-h-[250px] bg-gradient-to-br from-white to-gray-50 rounded-xl overflow-hidden shadow-inner">
+			<img
+				key={imageKey}
+				src={imageUrl}
+				alt={`${carData.brand} ${carData.model} - ${carData.colors[selectedColorIndex]?.name}`}
+				className="w-full h-full object-contain p-4"
+				onError={() => setImageError(true)}
+			/>
+			<div className="absolute bottom-4 left-4 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-md">
+				<div
+					className="w-4 h-4 rounded-full border border-gray-300"
+					style={{ backgroundColor: carData.colors[selectedColorIndex]?.code || "#999" }}
+				/>
+				<span className="text-sm font-medium text-gray-700">
+					{carData.colors[selectedColorIndex]?.name}
+				</span>
+			</div>
+		</div>
+	);
+}
+
+export default function CampaignCarType({ campaign }) {
+	const [activeImageIndex, setActiveImageIndex] = useState(0);
+	const [selectedColorIndex, setSelectedColorIndex] = useState(null);
+
 	const carData = campaign.car || campaign.item;
 	if (!carData) return null;
 
-	// Görsel URL'ini düzenle
-	const getImageUrl = (image) => {
-		if (!image)
-			return "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=800";
-		return image.startsWith("http") ? image : `${IMAGE_BASE_URL}/cars/${image}`;
+	// Debug: Renk verilerini konsola yazdir
+	console.log("Car colors data:", carData.colors);
+
+	const getImageUrl = (image, useStorage = false) => {
+		if (!image) return null;
+		if (image.startsWith("http")) return image;
+
+		// Storage URL kullan (local uploads - cars/colors)
+		if (useStorage || image.startsWith("cars/colors/")) {
+			return `${STORAGE_URL}/${image}`;
+		}
+
+		// CDN URL kullan (genel gorseller)
+		if (image.startsWith("cars/")) {
+			return `${IMAGE_BASE_URL}/${image}`;
+		}
+		return `${IMAGE_BASE_URL}/cars/${image}`;
 	};
 
-	// Aktif görsel
-	const activeImages =
-		carData.colors &&
-		selectedColorIndex !== null &&
-		carData.colors[selectedColorIndex]?.image
-			? [carData.colors[selectedColorIndex].image]
-			: carData.images || [];
+	const activeImages = useMemo(() => {
+		return carData.images || [];
+	}, [carData.images]);
 
-	const activeImage = activeImages[activeImageIndex] || activeImages[0];
+	const selectedColorImage = useMemo(() => {
+		if (selectedColorIndex === null) return null;
+		const color = carData.colors?.[selectedColorIndex];
+		console.log("Selected color:", color);
+		return color?.car_image || color?.image || null;
+	}, [selectedColorIndex, carData.colors]);
 
 	// Fiyat formatlama
 	const formatPrice = (price) => {
@@ -46,24 +144,38 @@ export default function CampaignCarType({ campaign }) {
 		return new Intl.NumberFormat("tr-TR").format(price) + " TL";
 	};
 
-	// Görsel navigasyon
-	const nextImage = () => {
-		setActiveImageIndex((prev) => (prev + 1) % activeImages.length);
-	};
+	// Fiyat istatistikleri
+	const priceStats = useMemo(() => {
+		if (!carData.history_prices || carData.history_prices.length === 0) {
+			return { min: 0, max: 0, current: 0 };
+		}
+		const prices = carData.history_prices.map((p) => p.price);
+		return {
+			min: Math.min(...prices),
+			max: Math.max(...prices),
+			current: carData.history_prices[carData.history_prices.length - 1]?.price,
+		};
+	}, [carData.history_prices]);
 
-	const prevImage = () => {
-		setActiveImageIndex(
-			(prev) => (prev - 1 + activeImages.length) % activeImages.length,
-		);
-	};
+	// Grafik verisi
+	const chartData = useMemo(() => {
+		if (!carData.history_prices) return [];
+		return carData.history_prices.map((item) => ({
+			date: new Date(item.date).toLocaleDateString("tr-TR", {
+				day: "numeric",
+				month: "short",
+			}),
+			price: item.price,
+		}));
+	}, [carData.history_prices]);
 
 	// Tooltip özelleştirme
 	const CustomTooltip = ({ active, payload, label }) => {
 		if (active && payload && payload.length) {
 			return (
-				<div className="bg-white p-3 rounded-lg shadow-md border text-sm">
-					<p className="font-medium">{label}</p>
-					<p className="text-blue-600 font-semibold">
+				<div className="bg-white p-3 rounded-lg shadow-lg border text-sm">
+					<p className="font-medium text-gray-600">{label}</p>
+					<p className="text-blue-600 font-bold text-lg">
 						{formatPrice(payload[0].value)}
 					</p>
 				</div>
@@ -73,236 +185,370 @@ export default function CampaignCarType({ campaign }) {
 	};
 
 	return (
-		<div className="flex flex-col md:flex-row w-full gap-0">
-			{/* SOL TARAF GÖRSEL GALERİ */}
-			<div className="w-12/12  md:w-3/12">
-				<div className="space-y-4">
-					<Card className="relative rounded-lg overflow-hidden bg-transparent">
-						<img
-							src={getImageUrl(activeImage)}
-							alt={`${carData.brand} ${carData.model}`}
-							className="w-full h-[400px] object-contain"
-							onError={(e) => {
-								e.target.onerror = null;
-								e.target.src =
-									"https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=800";
-							}}
-						/>
-
-						{/* Görsel Navigasyon */}
-						{activeImages.length > 1 && (
-							<>
-								<button
-									onClick={prevImage}
-									className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all"
-								>
-									<ChevronLeft className="h-5 w-5" />
-								</button>
-								<button
-									onClick={nextImage}
-									className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all"
-								>
-									<ChevronRight className="h-5 w-5" />
-								</button>
-							</>
-						)}
-
-						{/* Görsel Sayacı */}
-						<div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-							{activeImageIndex + 1} / {activeImages.length}
-						</div>
-					</Card>
-
-					{/* Küçük Görsel Galerisi */}
-					<div className="flex gap-2 overflow-x-auto pb-2">
+		<div className="flex flex-col w-full gap-6">
+			{/* ANA GÖRSEL SLİDER - Tam Genişlik */}
+			<div className="w-full">
+				<Carousel
+					className="w-full"
+					index={activeImageIndex}
+					onChange={setActiveImageIndex}
+				>
+					<CarouselContent>
 						{activeImages.map((image, index) => (
+							<CarouselItem key={index}>
+								<div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-gradient-to-b from-gray-50 to-gray-100">
+									{getImageUrl(image) ? (
+										<img
+											src={getImageUrl(image)}
+											alt={`${carData.brand} ${carData.model}`}
+											className="w-full h-full object-contain"
+											onError={(e) => {
+												e.target.onerror = null;
+												e.target.style.display = "none";
+											}}
+										/>
+									) : (
+										<div className="w-full h-full flex items-center justify-center text-gray-400">
+											<svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+											</svg>
+										</div>
+									)}
+								</div>
+							</CarouselItem>
+						))}
+					</CarouselContent>
+					<CarouselPrevious className="left-4" />
+					<CarouselNext className="right-4" />
+				</Carousel>
+
+				{/* Dot Navigation */}
+				{activeImages.length > 1 && (
+					<div className="flex justify-center gap-2 mt-4">
+						{activeImages.map((_, idx) => (
 							<button
-								key={index}
-								onClick={() => setActiveImageIndex(index)}
-								className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
-									activeImageIndex === index
-										? "border-blue-500"
-										: "border-gray-200"
+								key={idx}
+								onClick={() => setActiveImageIndex(idx)}
+								className={`h-2.5 rounded-full transition-all ${
+									idx === activeImageIndex
+										? "bg-orange-500 w-6"
+										: "bg-gray-300 hover:bg-gray-400 w-2.5"
 								}`}
-							>
-								<img
-									src={getImageUrl(image)}
-									alt={`Thumbnail ${index + 1}`}
-									className="w-10 h-10 object-cover"
-								/>
-							</button>
+							/>
 						))}
 					</div>
+				)}
+			</div>
 
-					{/* Renk Seçenekleri */}
-					{carData.colors && carData.colors.length > 0 && (
-						<Card className="bg-transparent p-4 rounded-lg">
-							<p className="text-sm font-medium text-gray-700 mb-3">
+			{/* KÜÇÜK GÖRSEL GALERİSİ (Thumbnail strip) */}
+			{activeImages.length > 1 && (
+				<div className="flex gap-2 overflow-x-auto pb-2 px-1">
+					{activeImages.map((image, index) => (
+						<button
+							key={index}
+							onClick={() => setActiveImageIndex(index)}
+							className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+								activeImageIndex === index
+									? "border-orange-500 shadow-md"
+									: "border-gray-200 hover:border-orange-300"
+							}`}
+						>
+							<img
+								src={getImageUrl(image)}
+								alt={`Thumbnail ${index + 1}`}
+								className="w-16 h-12 object-cover bg-gray-200"
+								onError={(e) => {
+									e.target.onerror = null;
+									e.target.style.display = "none";
+								}}
+							/>
+						</button>
+					))}
+				</div>
+			)}
+
+			{/* RENK SEÇENEKLERİ */}
+			{carData.colors && carData.colors.length > 0 && (
+				<div className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl p-6 shadow-sm border">
+					<div className="flex flex-col lg:flex-row gap-6">
+						{/* Sol taraf - Renk seçim butonları */}
+						<div className="lg:w-1/3">
+							<h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+								<div className="w-1 h-6 bg-orange-500 rounded-full"></div>
 								Renk Seçenekleri
-							</p>
-							<div className="flex gap-2 flex-wrap">
+							</h3>
+							<div className="flex flex-col gap-2">
 								{carData.colors.map((color, index) => (
 									<button
 										key={index}
-										onClick={() => {
-											setSelectedColorIndex(index);
-											setActiveImageIndex(0);
-										}}
-										className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
+										onClick={() => setSelectedColorIndex(index)}
+										className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all ${
 											selectedColorIndex === index
-												? "border-blue-500 bg-blue-50"
-												: "border-gray-200 bg-white hover:border-gray-300"
+												? "border-orange-500 bg-white shadow-lg scale-[1.02]"
+												: "border-transparent bg-white/60 hover:bg-white hover:shadow-md"
 										}`}
 									>
+										{/* Renk dairesi */}
 										<div
-											className="w-5 h-5 rounded-full border border-gray-300"
-											style={{ backgroundColor: color.code }}
+											className={`w-8 h-8 rounded-full border-2 shadow-inner ${
+												selectedColorIndex === index
+													? "border-orange-500 ring-2 ring-orange-200"
+													: "border-gray-300"
+											}`}
+											style={{ backgroundColor: color.code || "#999" }}
 										/>
-										<span className="text-sm">{color.name}</span>
+										<span
+											className={`text-sm font-medium flex-1 text-left ${
+												selectedColorIndex === index
+													? "text-gray-900"
+													: "text-gray-600"
+											}`}
+										>
+											{color.name}
+										</span>
+										{/* Seçili işareti */}
+										{selectedColorIndex === index && (
+											<div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+												<Check className="w-4 h-4 text-white" />
+											</div>
+										)}
 									</button>
 								))}
 							</div>
+						</div>
+
+						{/* Sag taraf - Secili renk gorseli */}
+						<div className="lg:w-2/3">
+							<ColorImageDisplay
+								selectedColorIndex={selectedColorIndex}
+								selectedColorImage={selectedColorImage}
+								carData={carData}
+								getImageUrl={getImageUrl}
+							/>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* ANA İÇERİK ALANI */}
+			<div className="flex flex-col lg:flex-row gap-6">
+				{/* SOL TARAF - Teknik Özellikler ve Euro NCAP */}
+				<div className="w-full lg:w-8/12 space-y-6">
+					{/* Başlık ve Fiyat */}
+					<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+						<h2 className="text-2xl text-[#1C2B4A] font-bold">
+							{carData.brand} {carData.model}
+						</h2>
+						{priceStats.current > 0 && (
+							<div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-md">
+								{formatPrice(priceStats.current)}
+							</div>
+						)}
+					</div>
+
+					{/* TEKNİK ÖZELLİKLER */}
+					{carData.attributes && carData.attributes.length > 0 && (
+						<Card className="bg-white shadow-sm border">
+							<CardContent className="p-6">
+								<h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+									<Settings className="w-5 h-5 text-gray-500" />
+									Teknik Özellikler
+								</h3>
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+									{carData.attributes.slice(0, 10).map((attr, index) => (
+										<div
+											key={index}
+											className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+										>
+											<span className="text-sm text-gray-600">{attr.name}</span>
+											<span className="text-sm font-semibold text-gray-900 bg-white px-3 py-1 rounded-md shadow-sm">
+												{attr.value}
+											</span>
+										</div>
+									))}
+								</div>
+							</CardContent>
+						</Card>
+					)}
+
+					{/* FİYAT GEÇMİŞİ GRAFİĞİ */}
+					{carData.history_prices && carData.history_prices.length > 0 && (
+						<Card className="bg-white shadow-sm border">
+							<CardContent className="p-6">
+								<div className="flex items-center justify-between mb-4">
+									<h3 className="font-semibold text-gray-800 flex items-center gap-2">
+										<TrendingUp className="w-5 h-5 text-blue-500" />
+										Fiyat Geçmişi
+									</h3>
+									<Badge variant="secondary" className="bg-blue-50 text-blue-700">
+										Son {carData.history_prices.length} kayıt
+									</Badge>
+								</div>
+
+								<div className="w-full h-64">
+									<ResponsiveContainer width="100%" height="100%">
+										<AreaChart data={chartData}>
+											<defs>
+												<linearGradient
+													id="priceGradient"
+													x1="0"
+													y1="0"
+													x2="0"
+													y2="1"
+												>
+													<stop
+														offset="5%"
+														stopColor="#3b82f6"
+														stopOpacity={0.3}
+													/>
+													<stop
+														offset="95%"
+														stopColor="#3b82f6"
+														stopOpacity={0}
+													/>
+												</linearGradient>
+											</defs>
+											<CartesianGrid
+												strokeDasharray="3 3"
+												stroke="#e5e7eb"
+												vertical={false}
+											/>
+											<XAxis
+												dataKey="date"
+												tick={{ fontSize: 11, fill: "#6b7280" }}
+												axisLine={{ stroke: "#e5e7eb" }}
+												tickLine={false}
+											/>
+											<YAxis
+												tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`}
+												tick={{ fontSize: 11, fill: "#6b7280" }}
+												axisLine={false}
+												tickLine={false}
+												width={50}
+											/>
+											<Tooltip content={<CustomTooltip />} />
+											<Area
+												type="monotone"
+												dataKey="price"
+												stroke="#3b82f6"
+												strokeWidth={2}
+												fill="url(#priceGradient)"
+												dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4 }}
+												activeDot={{ fill: "#2563eb", strokeWidth: 0, r: 6 }}
+											/>
+										</AreaChart>
+									</ResponsiveContainer>
+								</div>
+
+								{/* Fiyat özeti */}
+								<div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
+									<div className="text-center">
+										<p className="text-xs text-gray-500">En Düşük</p>
+										<p className="font-bold text-green-600">
+											{formatPrice(priceStats.min)}
+										</p>
+									</div>
+									<div className="text-center">
+										<p className="text-xs text-gray-500">Güncel</p>
+										<p className="font-bold text-blue-600">
+											{formatPrice(priceStats.current)}
+										</p>
+									</div>
+									<div className="text-center">
+										<p className="text-xs text-gray-500">En Yüksek</p>
+										<p className="font-bold text-red-600">
+											{formatPrice(priceStats.max)}
+										</p>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					)}
+
+					{/* EURO NCAP BİLGİLERİ */}
+					{carData.euroncap && (
+						<Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+							<CardContent className="p-6">
+								<div className="flex items-center justify-between mb-6">
+									<div className="flex items-center gap-3">
+										<div className="p-2 bg-amber-500 rounded-lg">
+											<Shield className="h-5 w-5 text-white" />
+										</div>
+										<div>
+											<h3 className="font-semibold text-gray-800">Euro NCAP</h3>
+											<p className="text-xs text-gray-500">
+												Güvenlik Değerlendirmesi
+											</p>
+										</div>
+									</div>
+									<Badge className="bg-amber-500 text-white">
+										{carData.euroncap.testYear || new Date().getFullYear()}
+									</Badge>
+								</div>
+
+								<div className="grid grid-cols-2 gap-4">
+									{[
+										{
+											label: "Yetişkin Yolcu",
+											value: carData.euroncap.activePassengerScore,
+											icon: User,
+										},
+										{
+											label: "Çocuk Yolcu",
+											value: carData.euroncap.childPassengerScore,
+											icon: Baby,
+										},
+										{
+											label: "Yaya Güvenliği",
+											value: carData.euroncap.pedestrianPassengerScore,
+											icon: PersonStanding,
+										},
+										{
+											label: "Güvenlik Donanımı",
+											value: carData.euroncap.securityEquipmentScore,
+											icon: ShieldCheck,
+										},
+									].map((item, index) => (
+										<div
+											key={index}
+											className="bg-white/80 backdrop-blur rounded-xl p-4"
+										>
+											<div className="flex items-center gap-2 mb-2">
+												<item.icon className="w-4 h-4 text-amber-600" />
+												<span className="text-xs font-medium text-gray-600">
+													{item.label}
+												</span>
+											</div>
+											<div className="flex items-end gap-2">
+												<span className="text-3xl font-bold text-amber-600">
+													{item.value || 0}
+												</span>
+												<span className="text-sm text-gray-500 mb-1">%</span>
+											</div>
+											{/* Progress bar */}
+											<div className="mt-2 w-full bg-amber-100 rounded-full h-2">
+												<div
+													className="bg-gradient-to-r from-amber-400 to-amber-500 h-2 rounded-full transition-all"
+													style={{ width: `${item.value || 0}%` }}
+												/>
+											</div>
+										</div>
+									))}
+								</div>
+							</CardContent>
 						</Card>
 					)}
 				</div>
-			</div>
 
-			{/* ORTA KISIM BİLGİLER */}
-			<div className="w-12/12  md:w-6/12 space-y-2 px-2 ">
-				<div className="flex justify-between ">
-					<h2 className="text-lg text-[#1C2B4A] font-bold">
-						{carData.brand} {carData.model}
-					</h2>
-					<div className="bg-blue-500 text-white px-1 py-1 rounded-lg text-sm font-semibold">
-						{formatPrice(
-							carData.history_prices[carData.history_prices.length - 1]?.price,
-						)}
-					</div>
+				{/* SAĞ TARAF - İletişim Formu */}
+				<div className="w-full lg:w-4/12">
+					<CampaignLeadForm
+						campaign={campaign}
+						brandLogo={campaign.brands?.[0]?.logo}
+						brandName={campaign.brands?.[0]?.name}
+						variant="car"
+					/>
 				</div>
-
-				<Card className="grid grid-cols-2 gap-6 p-8 bg-transparent">
-					{carData.attributes &&
-						carData.attributes.slice(0, 10).map((attr, index) => (
-							<div key={index} className="flex justify-between items-center">
-								<span className="text-sm font-semibold text-[#1C2B4A]">
-									{attr.name}
-								</span>
-								<Badge className="bg-gray-200 hover:cursor-pointer hover:bg-gray-300 w-[90px] flex justify-center">
-									<span className="text-sm font-bold text-[#1C2B4A]">
-										{attr.value}
-									</span>
-								</Badge>
-							</div>
-						))}
-				</Card>
-
-				{/* Euro NCAP */}
-				{carData.euroncap && (
-					<Card className="bg-transparent">
-						<CardContent className="p-6">
-							<div className="flex items-center gap-2 mb-4">
-								<Shield className="h-5 w-5 text-yellow-600" />
-								<h3 className="font-semibold">Euro NCAP Güvenlik Skorları</h3>
-								<Badge variant="secondary" className="ml-auto">
-									{carData.euroncap.testYear || new Date().getFullYear()}
-								</Badge>
-							</div>
-
-							<div className="grid grid-cols-2 gap-3">
-								{[
-									{
-										label: "Yetişkin Yolcu",
-										value: carData.euroncap.activePassengerScore,
-									},
-									{
-										label: "Çocuk Yolcu",
-										value: carData.euroncap.childPassengerScore,
-									},
-									{
-										label: "Yaya Güvenliği",
-										value: carData.euroncap.pedestrianPassengerScore,
-									},
-									{
-										label: "Güvenlik Donanımı",
-										value: carData.euroncap.securityEquipmentScore,
-									},
-								].map((item, index) => (
-									<div key={String(index)} className="rounded-lg p-3">
-										<p className="text-xs text-gray-600 mb-1">{item.label}</p>
-										<div className="flex items-center gap-2">
-											<div className="text-2xl font-bold text-amber-500">
-												{item.value || 0}%
-											</div>
-											<div className="flex-1">
-												<div className="w-full bg-gray-200 rounded-full h-2">
-													<div
-														className="bg-amber-500 h-2 rounded-full transition-all"
-														style={{ width: `${item.value || 0}%` }}
-													/>
-												</div>
-											</div>
-										</div>
-									</div>
-								))}
-							</div>
-						</CardContent>
-					</Card>
-				)}
-
-				{/* Fiyat Analizi */}
-				{carData.history_prices && carData.history_prices.length > 0 && (
-					<Card className="bg-transparent mt-6">
-						<CardContent className="p-6">
-							<div className="w-full h-48">
-								<ResponsiveContainer width="100%" height="100%">
-									<AreaChart
-										data={carData.history_prices.map((item) => ({
-											date: new Date(item.date).toLocaleDateString("tr-TR", {
-												day: "numeric",
-												month: "short",
-												year: "numeric",
-											}),
-											price: item.price,
-										}))}
-									>
-										<CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-										<XAxis
-											dataKey="date"
-											tick={{ fontSize: 11 }}
-											tickLine={{ stroke: "#9ca3af" }}
-										/>
-										<YAxis
-											tickFormatter={(value) =>
-												new Intl.NumberFormat("tr-TR").format(value)
-											}
-											tick={{ fontSize: 12 }}
-											tickLine={{ stroke: "#9ca3af" }}
-										/>
-										<Tooltip content={<CustomTooltip />} />
-										<Area
-											type="monotone"
-											dataKey="price"
-											stroke="#2563eb"
-											fill="#2563eb"
-											strokeWidth={2}
-											fillOpacity={0.3}
-										/>
-									</AreaChart>
-								</ResponsiveContainer>
-							</div>
-						</CardContent>
-					</Card>
-				)}
-			</div>
-
-			{/* SAĞ TARAF FORM */}
-			<div className="w-12/12 md:w-3/12">
-				<CampaignLeadForm
-					campaign={campaign}
-					brandLogo={campaign.brands?.[0]?.logo}
-					brandName={campaign.brands?.[0]?.name}
-					variant="car"
-				/>
 			</div>
 		</div>
 	);
