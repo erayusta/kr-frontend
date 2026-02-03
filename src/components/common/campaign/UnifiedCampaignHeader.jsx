@@ -99,15 +99,23 @@ export default function UnifiedCampaignHeader({ campaign }) {
 	const mainImage = campaign.mainImage || campaign.image;
 
 	return (
-		<section className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 overflow-hidden">
-			{/* Arka Plan Gorseli */}
+		<section className="relative bg-slate-800 overflow-hidden">
+			{/* Arka Plan - Sag gorselin opacityli, uzatilmis hali */}
 			<div className="absolute inset-0">
-				<img
-					src={getImageUrl(mainImage)}
-					alt={campaign.title}
-					className="w-full h-full object-cover opacity-15 blur-sm"
-				/>
-				<div className="absolute inset-0 bg-gradient-to-r from-slate-800/95 via-slate-700/90 to-slate-800/80" />
+				{/* Ana gorsel - uzatilmis, opacityli */}
+				<div className="absolute inset-0 flex items-center justify-center">
+					<img
+						src={getImageUrl(mainImage)}
+						alt=""
+						className="w-full h-full object-cover scale-110 opacity-25"
+					/>
+				</div>
+				{/* Gradient overlay */}
+				<div className="absolute inset-0 bg-gradient-to-r from-slate-800 via-slate-800/90 to-slate-800/70" />
+				<div className="absolute inset-0 bg-gradient-to-t from-slate-800 via-transparent to-slate-800/80" />
+				{/* Border efekti - ust ve alt cizgi */}
+				<div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+				<div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 			</div>
 
 			{/* Icerik */}
@@ -297,11 +305,10 @@ export default function UnifiedCampaignHeader({ campaign }) {
 
 								<Button
 									variant="outline"
-									disabled={!canToggle}
-									onClick={toggle}
-									className={`border-slate-500 text-white hover:bg-slate-600/50 ${
-										isFavorite ? "bg-red-500/20 border-red-400/50" : ""
-									}`}
+									onClick={canToggle ? toggle : undefined}
+									className={`border-white/40 text-white hover:bg-white/10 cursor-pointer ${
+										isFavorite ? "bg-red-500/20 border-red-400/50 text-red-300" : ""
+									} ${!canToggle ? "opacity-90" : ""}`}
 								>
 									<Heart className="h-4 w-4 mr-1.5" fill={isFavorite ? "currentColor" : "none"} />
 									{isFavorite ? "Favorilerde" : "Favorilere Ekle"}
