@@ -1,10 +1,8 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
-import CampaignCarHeader from "@/components/common/campaign/CampaignCarHeader";
+import UnifiedCampaignHeader from "@/components/common/campaign/UnifiedCampaignHeader";
 import CampaignContent from "@/components/common/campaign/CampaignContent";
-import CampaignHeader from "@/components/common/campaign/CampaignHeader";
-import CampaignProductHeader from "@/components/common/campaign/CampaignProductHeader";
 import LatestCampaigns from "@/components/common/campaign/LatestCampaigns";
 import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
@@ -101,13 +99,7 @@ export default function Campaign({ campaign, sections, categories, isGone, ads }
 			{/* Header banner - Header'ın üstünde gösterilir */}
 			<Ads ads={ads} positions={["campaign_header"]} itemType="campaign" />
 
-			{campaign?.car ? (
-				<CampaignCarHeader campaign={campaign} />
-			) : campaign?.itemType === "product" ? (
-				<CampaignProductHeader campaign={campaign} />
-			) : (
-				<CampaignHeader campaign={campaign} />
-			)}
+			<UnifiedCampaignHeader campaign={campaign} />
 
 			{/* Content middle */}
 			<Ads ads={ads} positions={["content_middle"]} itemType="campaign" />
