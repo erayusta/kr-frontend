@@ -7,6 +7,7 @@ import {
 	Baby,
 	PersonStanding,
 	ShieldCheck,
+	ImageOff,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import {
@@ -27,37 +28,113 @@ import {
 	CarouselPrevious,
 	CarouselNext,
 } from "@/components/ui/carousel";
-import { IMAGE_BASE_URL } from "@/constants/site";
+import { IMAGE_BASE_URL, STORAGE_URL } from "@/constants/site";
 import CampaignLeadForm from "@/components/common/campaign/CampaignLeadForm";
+
+// Renk gorseli komponenti
+function ColorImageDisplay({ selectedColorIndex, selectedColorImage, carData, getImageUrl }) {
+	const [imageError, setImageError] = useState(false);
+	const [imageKey, setImageKey] = useState(0);
+
+	// selectedColorIndex degistiginde hatayi sifirla
+	useMemo(() => {
+		setImageError(false);
+		setImageKey((prev) => prev + 1);
+	}, [selectedColorIndex]);
+
+	const imageUrl = getImageUrl(selectedColorImage);
+
+	// Debug log
+	console.log("Color image debug:", {
+		selectedColorIndex,
+		selectedColorImage,
+		imageUrl,
+		color: carData.colors?.[selectedColorIndex],
+	});
+
+	if (selectedColorIndex === null) {
+		return (
+			<div className="h-full min-h-[250px] bg-gradient-to-br from-white to-gray-50 rounded-xl flex items-center justify-center">
+				<div className="text-center text-gray-400">
+					<div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+						<Settings className="w-8 h-8" />
+					</div>
+					<p className="text-sm">Renk gorselini gormek icin<br />bir renk secin</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (!selectedColorImage || !imageUrl || imageError) {
+		return (
+			<div className="h-full min-h-[250px] bg-gradient-to-br from-white to-gray-50 rounded-xl flex items-center justify-center">
+				<div className="text-center text-gray-400">
+					<div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+						<ImageOff className="w-8 h-8" />
+					</div>
+					<p className="text-sm">Bu renk icin gorsel yuklenmmis</p>
+					<p className="text-xs mt-1 text-gray-300">{selectedColorImage || "Gorsel yok"}</p>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="relative h-full min-h-[250px] bg-gradient-to-br from-white to-gray-50 rounded-xl overflow-hidden shadow-inner">
+			<img
+				key={imageKey}
+				src={imageUrl}
+				alt={`${carData.brand} ${carData.model} - ${carData.colors[selectedColorIndex]?.name}`}
+				className="w-full h-full object-contain p-4"
+				onError={() => setImageError(true)}
+			/>
+			<div className="absolute bottom-4 left-4 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-md">
+				<div
+					className="w-4 h-4 rounded-full border border-gray-300"
+					style={{ backgroundColor: carData.colors[selectedColorIndex]?.code || "#999" }}
+				/>
+				<span className="text-sm font-medium text-gray-700">
+					{carData.colors[selectedColorIndex]?.name}
+				</span>
+			</div>
+		</div>
+	);
+}
 
 export default function CampaignCarType({ campaign }) {
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
 	const [selectedColorIndex, setSelectedColorIndex] = useState(null);
 
-	// car verisini kontrol et - item veya car olabilir
 	const carData = campaign.car || campaign.item;
 	if (!carData) return null;
 
-	// Görsel URL'ini düzenle
-	const getImageUrl = (image) => {
+	// Debug: Renk verilerini konsola yazdir
+	console.log("Car colors data:", carData.colors);
+
+	const getImageUrl = (image, useStorage = false) => {
 		if (!image) return null;
 		if (image.startsWith("http")) return image;
-		// cars/colors/ dizini için de çalışacak
+
+		// Storage URL kullan (local uploads - cars/colors)
+		if (useStorage || image.startsWith("cars/colors/")) {
+			return `${STORAGE_URL}/${image}`;
+		}
+
+		// CDN URL kullan (genel gorseller)
 		if (image.startsWith("cars/")) {
 			return `${IMAGE_BASE_URL}/${image}`;
 		}
 		return `${IMAGE_BASE_URL}/cars/${image}`;
 	};
 
-	// Ana galeri görselleri (renk görselleri hariç)
 	const activeImages = useMemo(() => {
 		return carData.images || [];
 	}, [carData.images]);
 
-	// Seçili rengin görseli
 	const selectedColorImage = useMemo(() => {
 		if (selectedColorIndex === null) return null;
 		const color = carData.colors?.[selectedColorIndex];
+		console.log("Selected color:", color);
 		return color?.car_image || color?.image || null;
 	}, [selectedColorIndex, carData.colors]);
 
@@ -240,63 +317,14 @@ export default function CampaignCarType({ campaign }) {
 							</div>
 						</div>
 
-						{/* Sağ taraf - Seçili renk görseli */}
+						{/* Sag taraf - Secili renk gorseli */}
 						<div className="lg:w-2/3">
-							{selectedColorIndex !== null && selectedColorImage && getImageUrl(selectedColorImage) ? (
-								<div className="relative h-full min-h-[250px] bg-gradient-to-br from-white to-gray-50 rounded-xl overflow-hidden shadow-inner">
-									<img
-										src={getImageUrl(selectedColorImage)}
-										alt={`${carData.brand} ${carData.model} - ${carData.colors[selectedColorIndex]?.name}`}
-										className="w-full h-full object-contain p-4"
-										onError={(e) => {
-											e.target.onerror = null;
-											e.target.style.display = "none";
-											e.target.parentElement.innerHTML = `
-												<div class="h-full min-h-[250px] flex items-center justify-center">
-													<div class="text-center text-gray-400">
-														<div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-															<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-																<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-															</svg>
-														</div>
-														<p class="text-sm">Bu renk için görsel bulunamadı</p>
-													</div>
-												</div>
-											`;
-										}}
-									/>
-									{/* Renk etiketi */}
-									<div className="absolute bottom-4 left-4 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-md">
-										<div
-											className="w-4 h-4 rounded-full border border-gray-300"
-											style={{ backgroundColor: carData.colors[selectedColorIndex]?.code || "#999" }}
-										/>
-										<span className="text-sm font-medium text-gray-700">
-											{carData.colors[selectedColorIndex]?.name}
-										</span>
-									</div>
-								</div>
-							) : selectedColorIndex !== null ? (
-								<div className="h-full min-h-[250px] bg-gradient-to-br from-white to-gray-50 rounded-xl flex items-center justify-center">
-									<div className="text-center text-gray-400">
-										<div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-											<svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-											</svg>
-										</div>
-										<p className="text-sm">Bu renk için görsel yüklenmemiş</p>
-									</div>
-								</div>
-							) : (
-								<div className="h-full min-h-[250px] bg-gradient-to-br from-white to-gray-50 rounded-xl flex items-center justify-center">
-									<div className="text-center text-gray-400">
-										<div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-											<Settings className="w-8 h-8" />
-										</div>
-										<p className="text-sm">Renk görselini görmek için<br />bir renk seçin</p>
-									</div>
-								</div>
-							)}
+							<ColorImageDisplay
+								selectedColorIndex={selectedColorIndex}
+								selectedColorImage={selectedColorImage}
+								carData={carData}
+								getImageUrl={getImageUrl}
+							/>
 						</div>
 					</div>
 				</div>
