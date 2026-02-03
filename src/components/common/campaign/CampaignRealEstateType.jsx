@@ -6,8 +6,6 @@ import {
 	Calendar,
 	Car,
 	CheckCircle,
-	ChevronLeft,
-	ChevronRight,
 	Droplets,
 	Home,
 	Layers,
@@ -47,6 +45,13 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	CarouselPrevious,
+	CarouselNext,
+} from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { IMAGE_BASE_URL } from "@/constants/site";
 import { cn } from "@/lib/utils";
@@ -204,19 +209,6 @@ export default function CampaignRealEstateType({ campaign }) {
 		if (!image) return "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800";
 		if (image.startsWith("http")) return image;
 		return `${IMAGE_BASE_URL}/real-estates/${image}`;
-	};
-
-	// Gorsel navigasyon
-	const nextImage = () => {
-		if (realEstateData.images && realEstateData.images.length > 0) {
-			setActiveImageIndex((prev) => (prev + 1) % realEstateData.images.length);
-		}
-	};
-
-	const prevImage = () => {
-		if (realEstateData.images && realEstateData.images.length > 0) {
-			setActiveImageIndex((prev) => (prev - 1 + realEstateData.images.length) % realEstateData.images.length);
-		}
 	};
 
 	const images = realEstateData.images || ["placeholder"];
@@ -1076,69 +1068,81 @@ export default function CampaignRealEstateType({ campaign }) {
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				{/* Sol: Gorsel Galerisi (2 kolon) */}
 				<div className="lg:col-span-2 space-y-6">
-					{/* Ana Gorsel */}
-					<Card className="overflow-hidden shadow-lg">
-						<CardContent className="p-0">
-							<div className="relative">
-								<img
-									src={getImageUrl(images[activeImageIndex])}
-									alt={`${realEstateData.name} - ${activeImageIndex + 1}`}
-									className="w-full h-[500px] object-cover"
-									onError={(e) => {
-										e.target.onerror = null;
-										e.target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800";
-									}}
-								/>
+					{/* Ana Gorsel Slider */}
+					<div className="w-full">
+						<Carousel className="w-full" opts={{ loop: true }}>
+							<CarouselContent>
+								{images.map((image, index) => (
+									<CarouselItem key={index}>
+										<div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-gradient-to-b from-gray-50 to-gray-100">
+											<img
+												src={getImageUrl(image)}
+												alt={`${realEstateData.name} - ${index + 1}`}
+												className="w-full h-full object-cover"
+												onError={(e) => {
+													e.target.onerror = null;
+													e.target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800";
+												}}
+											/>
+											{/* Property Type Badge */}
+											<div className="absolute top-4 left-4">
+												<Badge className={cn("text-white px-4 py-2 text-sm shadow-lg", getPropertyTypeBadgeColor(propertyType))}>
+													{getPropertyTypeLabel(propertyType)}
+												</Badge>
+											</div>
+											{/* Image Counter */}
+											<div className="absolute bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-medium">
+												{index + 1} / {images.length}
+											</div>
+										</div>
+									</CarouselItem>
+								))}
+							</CarouselContent>
+							<CarouselPrevious className="left-4 bg-white/90 hover:bg-white shadow-lg" />
+							<CarouselNext className="right-4 bg-white/90 hover:bg-white shadow-lg" />
+						</Carousel>
 
-								{images.length > 1 && (
-									<>
-										<button
-											onClick={prevImage}
-											className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all"
-										>
-											<ChevronLeft className="h-6 w-6" />
-										</button>
-										<button
-											onClick={nextImage}
-											className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all"
-										>
-											<ChevronRight className="h-6 w-6" />
-										</button>
-									</>
-								)}
-
-								<div className="absolute bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-medium">
-									{activeImageIndex + 1} / {images.length}
-								</div>
-
-								{/* Property Type Badge on Image */}
-								<div className="absolute top-4 left-4">
-									<Badge className={cn("text-white px-4 py-2 text-sm shadow-lg", getPropertyTypeBadgeColor(propertyType))}>
-										{getPropertyTypeLabel(propertyType)}
-									</Badge>
-								</div>
+						{/* Dot Navigation */}
+						{images.length > 1 && (
+							<div className="flex justify-center gap-2 mt-4">
+								{images.map((_, idx) => (
+									<button
+										key={idx}
+										onClick={() => setActiveImageIndex(idx)}
+										className={`h-2.5 rounded-full transition-all ${
+											idx === activeImageIndex
+												? "bg-orange-500 w-6"
+												: "bg-gray-300 hover:bg-gray-400 w-2.5"
+										}`}
+									/>
+								))}
 							</div>
-						</CardContent>
-					</Card>
+						)}
+					</div>
 
-					{/* Kucuk Gorsel Galerisi */}
+					{/* Kucuk Gorsel Galerisi (Thumbnails) */}
 					{images.length > 1 && (
-						<div className="grid grid-cols-4 md:grid-cols-6 gap-2">
-							{images.slice(0, 6).map((image, index) => (
+						<div className="flex gap-2 overflow-x-auto pb-2">
+							{images.map((image, index) => (
 								<button
 									key={index}
 									onClick={() => setActiveImageIndex(index)}
 									className={cn(
-										"relative rounded-lg overflow-hidden border-2 transition-all aspect-square",
-										activeImageIndex === index ? "border-orange-500 ring-2 ring-orange-200" : "border-gray-200 hover:border-orange-300"
+										"flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all",
+										activeImageIndex === index
+											? "border-orange-500 shadow-md ring-2 ring-orange-200"
+											: "border-gray-200 hover:border-orange-300"
 									)}
 								>
-									<img src={getImageUrl(image)} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
-									{index === 5 && images.length > 6 && (
-										<div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-											<span className="text-white font-bold">+{images.length - 6}</span>
-										</div>
-									)}
+									<img
+										src={getImageUrl(image)}
+										alt={`Thumbnail ${index + 1}`}
+										className="w-full h-full object-cover"
+										onError={(e) => {
+											e.target.onerror = null;
+											e.target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800";
+										}}
+									/>
 								</button>
 							))}
 						</div>
