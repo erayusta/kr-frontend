@@ -1,4 +1,4 @@
-import { Bell, ChevronRight, Clock, Heart, Tag } from "lucide-react";
+import { ChevronRight, Clock, Heart, Megaphone, Tag, Zap } from "lucide-react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -73,7 +73,13 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 		stores?: unknown;
 		latest_prices?: unknown;
 		latestPrices?: unknown;
+		display_mode?: string;
+		description?: string;
+		title?: string;
 	};
+
+	const displayMode = productData?.display_mode || "price_comparison";
+
 	const stores: Store[] = Array.isArray(productData?.stores)
 		? (productData.stores as Store[])
 		: [];
@@ -138,9 +144,36 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 		}).format(price);
 	};
 
-	// Button styles as objects for inline styling (fallback for Tailwind issues)
+	// Display mode configs
+	const modeConfig = {
+		price_comparison: {
+			badgeLabel: priceSourceCount > 0 ? `${priceSourceCount} mağazada karşılaştırıldı` : "Fiyat Karşılaştırma",
+			badgeColor: "#14b8a6",
+			badgeIcon: <Tag className="h-3 w-3" />,
+			ctaLabel: lowestPrice?.link ? "Mağazaya Git" : "Kampanyaya Git",
+			ctaLink: lowestPrice?.link || campaign?.link,
+		},
+		announcement: {
+			badgeLabel: "Duyuru",
+			badgeColor: "#3b82f6",
+			badgeIcon: <Megaphone className="h-3 w-3" />,
+			ctaLabel: "Kampanyaya Git",
+			ctaLink: campaign?.link,
+		},
+		promotion: {
+			badgeLabel: "Promosyon",
+			badgeColor: "#8b5cf6",
+			badgeIcon: <Zap className="h-3 w-3" />,
+			ctaLabel: "Kampanyaya Git",
+			ctaLink: campaign?.link,
+		},
+	};
+
+	const config = modeConfig[displayMode] || modeConfig.price_comparison;
+
+	// Button styles
 	const primaryButtonStyle = {
-		backgroundColor: "#f97316",
+		backgroundColor: displayMode === "announcement" ? "#3b82f6" : displayMode === "promotion" ? "#8b5cf6" : "#f97316",
 		color: "white",
 		padding: "12px 24px",
 		borderRadius: "12px",
@@ -151,6 +184,9 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 		textDecoration: "none",
 		transition: "background-color 0.2s",
 	};
+
+	const hoverColor = displayMode === "announcement" ? "#2563eb" : displayMode === "promotion" ? "#7c3aed" : "#ea580c";
+	const normalColor = primaryButtonStyle.backgroundColor;
 
 	return (
 		<section className="border-b border-gray-200">
@@ -186,7 +222,7 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 							<div className="relative w-full aspect-square p-3">
 								<Image
 									src={getImageUrl(campaign.image)}
-									alt={campaign.title || "Kampanya gÃ¶rseli"}
+									alt={campaign.title || "Kampanya görseli"}
 									fill
 									className="object-contain"
 									sizes="240px"
@@ -205,21 +241,21 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 									{campaign.title}
 								</h1>
 
-								{/* Category Badge */}
-								{categories.length > 0 && (
-									<div className="flex flex-wrap gap-2">
-										<span
-											className="inline-flex items-center gap-1 px-3 py-1 text-white text-xs font-semibold rounded-full"
-											style={{ backgroundColor: "#14b8a6" }}
-										>
-											<Tag className="h-3 w-3" />
-											{categories[0]?.name?.toUpperCase()}: KAMPANYA
-										</span>
-									</div>
-								)}
+								{/* Display Mode Badge */}
+								<div className="flex flex-wrap gap-2">
+									<span
+										className="inline-flex items-center gap-1 px-3 py-1 text-white text-xs font-semibold rounded-full"
+										style={{ backgroundColor: config.badgeColor }}
+									>
+										{config.badgeIcon}
+										{displayMode === "price_comparison" && categories.length > 0
+											? `${categories[0]?.name?.toUpperCase()}: KAMPANYA`
+											: config.badgeLabel.toUpperCase()}
+									</span>
+								</div>
 							</div>
 
-							{/* Price Section */}
+							{/* Price / Info Section */}
 							<div className="flex flex-col lg:flex-row lg:items-center gap-4 p-4 rounded-xl">
 								<div className="flex items-center justify-between gap-4 w-full">
 									<div className="flex gap-4">
@@ -235,56 +271,102 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 											</div>
 										)}
 										<div>
-											<p
-												className="text-xs font-semibold uppercase tracking-wide"
-												style={{ color: "#ea580c" }}
-											>
-												{priceSourceCount > 0
-													? `${priceSourceCount} Fiyat Arasında En Ucuz`
-													: "Kampanya Fiyatı"}
-											</p>
-											<p className="text-xs text-gray-500">{brandName}</p>
-											{lowestPrice ? (
-												<p className="text-3xl font-bold text-gray-900 mt-1">
-													{formatPrice(lowestPrice.price)}{" "}
-													<span className="text-lg font-semibold">TL</span>
-												</p>
-											) : (
-												<p
-													className="text-lg font-semibold mt-1"
-													style={{ color: "#ea580c" }}
-												>
-													Fiyat için siteyi ziyaret edin
-												</p>
+											{/* Price Comparison Mode: show price info */}
+											{displayMode === "price_comparison" && (
+												<>
+													<p
+														className="text-xs font-semibold uppercase tracking-wide"
+														style={{ color: "#ea580c" }}
+													>
+														{priceSourceCount > 0
+															? `${priceSourceCount} Fiyat Arasında En Ucuz`
+															: "Kampanya Fiyatı"}
+													</p>
+													<p className="text-xs text-gray-500">{brandName}</p>
+													{lowestPrice ? (
+														<p className="text-3xl font-bold text-gray-900 mt-1">
+															{formatPrice(lowestPrice.price)}{" "}
+															<span className="text-lg font-semibold">TL</span>
+														</p>
+													) : (
+														<p
+															className="text-lg font-semibold mt-1"
+															style={{ color: "#ea580c" }}
+														>
+															Fiyat için siteyi ziyaret edin
+														</p>
+													)}
+												</>
+											)}
+
+											{/* Announcement Mode: show description */}
+											{displayMode === "announcement" && (
+												<>
+													<p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+														Ürün Duyurusu
+													</p>
+													<p className="text-xs text-gray-500">{brandName}</p>
+													{productData?.description ? (
+														<p className="text-sm text-gray-700 mt-1 line-clamp-2">
+															{productData.description}
+														</p>
+													) : (
+														<p className="text-sm text-gray-500 mt-1">
+															Detaylar için kampanya sayfasını ziyaret edin
+														</p>
+													)}
+												</>
+											)}
+
+											{/* Promotion Mode: show promo highlight */}
+											{displayMode === "promotion" && (
+												<>
+													<p className="text-xs font-semibold uppercase tracking-wide text-purple-600">
+														Özel Promosyon
+													</p>
+													<p className="text-xs text-gray-500">{brandName}</p>
+													{lowestPrice ? (
+														<p className="text-3xl font-bold text-gray-900 mt-1">
+															{formatPrice(lowestPrice.price)}{" "}
+															<span className="text-lg font-semibold">TL</span>
+														</p>
+													) : (
+														<p className="text-sm text-gray-700 mt-1">
+															Fırsatı kaçırmayın!
+														</p>
+													)}
+												</>
 											)}
 										</div>
 									</div>
 
 									<div className="flex flex-col gap-2">
-										{lowestPrice?.link && (
+										{/* Price comparison: show store link if available */}
+										{displayMode === "price_comparison" && lowestPrice?.link && (
 											<a
-												href={lowestPrice.link}
+												href={lowestPrice.link as string}
 												target="_blank"
 												rel="noopener noreferrer"
 												style={primaryButtonStyle}
-												onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ea580c"; }}
-												onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f97316"; }}
+												onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = hoverColor; }}
+												onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = normalColor; }}
 											>
 												Mağazaya Git
 												<ChevronRight className="h-4 w-4" />
 											</a>
 										)}
 
-										{campaign.link && (
+										{/* Show campaign link for non-price_comparison modes, or for price_comparison only when campaign.link exists and differs from store link */}
+										{config.ctaLink && !(displayMode === "price_comparison" && lowestPrice?.link && config.ctaLink === lowestPrice.link) && (
 											<a
-												href={campaign.link}
+												href={config.ctaLink as string}
 												target="_blank"
 												rel="noopener noreferrer"
 												style={primaryButtonStyle}
-												onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ea580c"; }}
-												onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#f97316"; }}
+												onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = hoverColor; }}
+												onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = normalColor; }}
 											>
-												Kampanyaya Git
+												{config.ctaLabel}
 												<ChevronRight className="h-4 w-4" />
 											</a>
 										)}
@@ -355,7 +437,7 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 
 							{/* Campaign Date Range */}
 							{(campaign.start_date || campaign.end_date) && (
-								<p className="text-sm text-gray-500">
+								<p className="text-sm text-gray-500 mt-2">
 									Kampanya Tarihi:{" "}
 									<span className="font-medium text-gray-700">
 										{formatDate(campaign.start_date)} -{" "}
@@ -370,6 +452,3 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 		</section>
 	);
 }
-
-
-
