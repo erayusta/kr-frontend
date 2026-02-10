@@ -7,6 +7,8 @@ import { getImageUrl } from "@/utils/imageUtils";
 import { IMAGE_BASE_URL } from "@/constants/site";
 import { useFavorite } from "@/hooks/useFavorite";
 import { remainingDay } from "@/utils/campaign";
+import { useState } from "react";
+import AuthDialog from "@/components/common/auth/AuthDialog";
 
 export default function CampaignCarHeader({ campaign }) {
 	const hasEndDate = campaign.end_date || campaign.endDate;
@@ -14,7 +16,18 @@ export default function CampaignCarHeader({ campaign }) {
 	const isExpired = remainingDays !== null && remainingDays < 0;
 
 	const favoriteId = campaign?.id ?? campaign?._id ?? campaign?.slug;
-	const { isFavorite, toggle, canToggle } = useFavorite("campaign", favoriteId);
+	const { isFavorite, toggle, isLoggedIn } = useFavorite("campaign", favoriteId);
+	const [authOpen, setAuthOpen] = useState(false);
+
+	const handleFavoriteClick = (e) => {
+		if (!isLoggedIn) {
+			e?.preventDefault?.();
+			e?.stopPropagation?.();
+			setAuthOpen(true);
+			return;
+		}
+		toggle(e);
+	};
 
 	const getBrandLogo = (logo) => {
 		if (!logo) return null;
@@ -158,8 +171,7 @@ export default function CampaignCarHeader({ campaign }) {
 
 							<Button
 								variant="outline"
-								disabled={!canToggle}
-								onClick={toggle}
+								onClick={handleFavoriteClick}
 								className={`border-white/30 text-white hover:bg-white/10 ${
 									isFavorite ? "bg-red-500/20 border-red-400/50" : ""
 								}`}
@@ -170,6 +182,7 @@ export default function CampaignCarHeader({ campaign }) {
 								/>
 								{isFavorite ? "Favorilerde" : "Favorilere Ekle"}
 							</Button>
+							<AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
 						</div>
 					</div>
 

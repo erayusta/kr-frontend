@@ -30,7 +30,12 @@ export async function getServerSideProps(context) {
 			props: {
 				campaign: response.data || null,
 				sections: response.sections || [],
-				categories: response.related ? [{ campaigns: response.related }] : [],
+				categories: response.related
+				? [{
+					campaigns: response.related,
+					slug: response.data?.categories?.[0]?.slug || null,
+				}]
+				: [],
 				ads: response.ads || [],
 			},
 		};

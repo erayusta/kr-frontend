@@ -30,7 +30,12 @@ interface ForgotPasswordFormData {
 	email: string;
 }
 
-const AuthDialog = () => {
+interface AuthDialogProps {
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
+}
+
+const AuthDialog = ({ open, onOpenChange }: AuthDialogProps = {}) => {
 	const [activeTab, setActiveTab] = useState<"login" | "register" | "forgot-password">("login");
 	const [forgotPasswordSent, setForgotPasswordSent] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -125,14 +130,18 @@ const AuthDialog = () => {
 		forgotPasswordForm.reset();
 	};
 
+	const isControlled = open !== undefined;
+
 	return (
-		<Dialog>
-			<DialogTrigger asChild>
-				<Button className="h-9 flex gap-x-2 bg-orange-500 px-4 text-sm font-medium text-white transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-600">
-					<User2 size={20} />
-					<span>Giriş Yap</span>
-				</Button>
-			</DialogTrigger>
+		<Dialog open={isControlled ? open : undefined} onOpenChange={isControlled ? onOpenChange : undefined}>
+			{!isControlled && (
+				<DialogTrigger asChild>
+					<Button className="h-9 flex gap-x-2 bg-orange-500 px-4 text-sm font-medium text-white transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-600">
+						<User2 size={20} />
+						<span>Giriş Yap</span>
+					</Button>
+				</DialogTrigger>
+			)}
 			<DialogContent className="sm:max-w-[425px]">
 				{activeTab === "login" ? (
 					<div className="flex items-center justify-center px-4">

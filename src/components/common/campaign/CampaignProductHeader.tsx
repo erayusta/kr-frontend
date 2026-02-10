@@ -1,8 +1,10 @@
 import { ChevronRight, Clock, Heart, Megaphone, Tag, Zap } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useFavorite } from "@/hooks/useFavorite";
+import AuthDialog from "@/components/common/auth/AuthDialog";
 
 type CampaignBrand = { logo?: string; name?: string };
 type CampaignCategory = { id?: string | number; name?: string };
@@ -134,7 +136,18 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 		latestPrices.length > 0 ? latestPrices.length : stores.length;
 
 	const favoriteId = campaign?.id ?? campaign?._id ?? campaign?.slug;
-	const { isFavorite, toggle, canToggle } = useFavorite("campaign", favoriteId);
+	const { isFavorite, toggle, isLoggedIn } = useFavorite("campaign", favoriteId);
+	const [authOpen, setAuthOpen] = useState(false);
+
+	const handleFavoriteClick = (e: React.MouseEvent) => {
+		if (!isLoggedIn) {
+			e.preventDefault();
+			e.stopPropagation();
+			setAuthOpen(true);
+			return;
+		}
+		toggle(e);
+	};
 
 	const formatPrice = (price) => {
 		if (!price) return "";
@@ -416,9 +429,8 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 								<div className="flex items-center gap-3">
 									<button
 										type="button"
-										disabled={!canToggle}
 										aria-pressed={isFavorite}
-										onClick={toggle}
+										onClick={handleFavoriteClick}
 										className={`inline-flex items-center gap-2 px-4 py-2 border-2 rounded-xl text-sm font-medium transition-all duration-200 ${
 											isFavorite
 												? "border-orange-400 text-orange-700 bg-orange-50"
@@ -432,6 +444,7 @@ export default function CampaignProductHeader({ campaign }: { campaign: Campaign
 										/>
 										{isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
 									</button>
+									<AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
 								</div>
 							</div>
 
