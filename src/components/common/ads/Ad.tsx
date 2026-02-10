@@ -216,6 +216,15 @@ export default function Ad({
     );
   }
 
+  // Footer: centered horizontally
+  if (pos === "footer") {
+    return (
+      <div className={`${className || ""} mt-4 mb-8`.trim()} style={{ display: "flex", justifyContent: "center" }}>
+        <AdItem ad={ad} />
+      </div>
+    );
+  }
+
   // Fallback: inline flow (no extra alignment/sizing)
   return <div className={`my-4 ${className || ""}`.trim()}><AdItem ad={ad} /></div>;
 }
