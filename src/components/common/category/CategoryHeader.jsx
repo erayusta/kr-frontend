@@ -21,7 +21,7 @@ export default function ({ category }) {
     <div className="flex gap-x-3 items-center justify-between">
      <div className="flex flex-row gap-3 items-center">
        <div className="inline-block rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium dark:bg-gray-700 dark:text-gray-200">
-       <div dangerouslySetInnerHTML={{__html:category.parentId == null ? getIcon(category.name):getIcon(category.parent.name)}}></div>
+       <div dangerouslySetInnerHTML={{__html: getIcon(category.name, category.parent?.name)}}></div>
        </div>
        <h1 className="text-xl md:text-3xl w-[85%] font-bold tracking-tighter ">{category.name}</h1>
      </div>
