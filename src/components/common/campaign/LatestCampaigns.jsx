@@ -8,11 +8,12 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Autoplay from "embla-carousel-autoplay"
 import { Card,CardContent,CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 
 
 const CategoryCampaginsCarousel = ({category, style, title}) => {
 // Başlık belirleme: özel title > category.name > varsayılan
-const displayTitle = title || (category.name ? `${category.name === 'Seyahat' ? 'Gayrimenkul Proje' : category.name === 'Bankacılık' ? 'Otomotiv' : category.name} Kampanyaları` : 'Benzer Kategori Kampanyaları');
+const displayTitle = title || (category.name ? `${category.name === 'Seyahat' ? 'Gayrimenkul Proje' : category.name === 'Bankacılık' ? 'Otomotiv' : category.name} Kampanyaları` : 'Benzer Kampanyalar');
 const iconName = category.name === 'Seyahat' ? 'Ev Yaşam & Ofis' : category.name === 'Bankacılık' ? 'Otomotiv' : category.name;
 
 return(<Card key={category.id} className="bg-transparent max-w-full">
@@ -22,9 +23,15 @@ return(<Card key={category.id} className="bg-transparent max-w-full">
      <CardTitle className="text-lg sm:text-xl">{displayTitle}</CardTitle>
      </div>
 
-     <Button variant="outline" className="w-full sm:w-auto">
-       Tümünü Gör
-     </Button>
+     {category.slug ? (
+       <Button asChild variant="outline" className="w-full sm:w-auto">
+         <Link href={`/kategori/${category.slug}`}>Tümünü Gör</Link>
+       </Button>
+     ) : (
+       <Button variant="outline" className="w-full sm:w-auto">
+         Tümünü Gör
+       </Button>
+     )}
     </CardHeader>
     <CardContent>
       <Carousel
