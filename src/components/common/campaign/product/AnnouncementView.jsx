@@ -1,6 +1,6 @@
 import { Bell, ExternalLink } from "lucide-react";
 import { useState } from "react";
-import CampaignLeadForm from "@/components/common/campaign/CampaignLeadForm";
+
 import ProductImageGallery from "./ProductImageGallery";
 
 export default function AnnouncementView({
@@ -152,13 +152,6 @@ export default function AnnouncementView({
 							</div>
 						)}
 
-						{/* Lead Form */}
-						<CampaignLeadForm
-							campaign={campaign}
-							brandLogo={brandLogo}
-							brandName={brandName}
-							variant="product"
-						/>
 					</div>
 				</div>
 			</div>

@@ -1,7 +1,7 @@
 import { ChevronRight, Clock, ExternalLink, Store, Zap } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import CampaignLeadForm from "@/components/common/campaign/CampaignLeadForm";
+
 import ProductImageGallery from "./ProductImageGallery";
 import PriceHistoryChart from "./PriceHistoryChart";
 
@@ -210,13 +210,6 @@ export default function PromotionView({
 							</Card>
 						)}
 
-						{/* Lead Form in sidebar */}
-						<CampaignLeadForm
-							campaign={campaign}
-							brandLogo={brandLogo}
-							brandName={brandName}
-							variant="product"
-						/>
 					</div>
 				</div>
 

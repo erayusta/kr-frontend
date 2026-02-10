@@ -55,7 +55,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { IMAGE_BASE_URL } from "@/constants/site";
 import { cn } from "@/lib/utils";
-import CampaignLeadForm from "@/components/common/campaign/CampaignLeadForm";
+
 
 export default function CampaignRealEstateType({ campaign }) {
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -1181,14 +1181,6 @@ export default function CampaignRealEstateType({ campaign }) {
 
 					{/* Konut tipleri icin Fiyat Planlari */}
 					{isResidential && renderPricePlansCard()}
-
-					{/* Contact Form */}
-					<CampaignLeadForm
-						campaign={campaign}
-						brandLogo={campaign.brands?.[0]?.logo}
-						brandName={campaign.brands?.[0]?.name}
-						variant="product"
-					/>
 
 					{/* Konum */}
 					{realEstateData.maps_url && (

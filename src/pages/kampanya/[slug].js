@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
 import UnifiedCampaignHeader from "@/components/common/campaign/UnifiedCampaignHeader";
 import CampaignContent from "@/components/common/campaign/CampaignContent";
+import CampaignFormWidget from "@/components/common/campaign/CampaignFormWidget";
 import LatestCampaigns from "@/components/common/campaign/LatestCampaigns";
 import { Layout } from "@/components/layouts/layout";
 import serverApiRequest from "@/lib/serverApiRequest";
@@ -117,6 +118,8 @@ export default function Campaign({ campaign, sections, categories, isGone, ads }
 			<section className="md:container">
 				<LatestCampaigns data={categories} />
 			</section>
+
+			<CampaignFormWidget campaign={campaign} />
 		</Layout>
 	);
 }

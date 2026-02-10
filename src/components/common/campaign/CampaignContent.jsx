@@ -7,7 +7,7 @@ import CampaignCouponType from "./CampaignCouponType";
 import CampaignCreditType from "./CampaignCreditType";
 import CampaignProductType from "./CampaignProductType";
 import CampaignRealEstateType from "./CampaignRealEstateType";
-import CampaignLeadForm from "./CampaignLeadForm";
+
 
 export default function CampaignContent({ campaign, sections, ads }) {
 	const contentRef = useRef(null);
@@ -129,9 +129,6 @@ export default function CampaignContent({ campaign, sections, ads }) {
 						) && (
 							<div className="lg:col-span-4">
 								<div className="sticky top-4 space-y-6">
-									{/* Kampanya İletişim Formu */}
-									<CampaignLeadForm variant="product" campaignId={campaign?.id} />
-
 									{/* Reklam */}
 									{getAdByPosition(ads, "sidebar", "campaign") && (
 										<Ad
