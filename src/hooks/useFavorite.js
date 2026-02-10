@@ -47,5 +47,5 @@ export function useFavorite(type, id) {
         [type, normalizedId, isLoggedIn],
     );
 
-    return { isFavorite, toggle, canToggle: Boolean(normalizedId && isLoggedIn) };
+    return { isFavorite, toggle, canToggle: Boolean(normalizedId && isLoggedIn), isLoggedIn };
 }

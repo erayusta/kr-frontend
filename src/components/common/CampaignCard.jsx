@@ -5,6 +5,7 @@ import { remainingDay } from "@/utils/campaign";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { useFavorite } from "@/hooks/useFavorite";
+import AuthDialog from "@/components/common/auth/AuthDialog";
 import Image from "next/image";
 
 const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => {
@@ -12,7 +13,18 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 	const [mounted, setMounted] = useState(false);
 	const [imgSrc, setImgSrc] = useState(image);
 	const [imgError, setImgError] = useState(false);
-	const { isFavorite, toggle, canToggle } = useFavorite("campaign", id ?? slug);
+	const { isFavorite, toggle, isLoggedIn } = useFavorite("campaign", id ?? slug);
+	const [authOpen, setAuthOpen] = useState(false);
+
+	const handleFavoriteClick = (e) => {
+		if (!isLoggedIn) {
+			e.preventDefault();
+			e.stopPropagation();
+			setAuthOpen(true);
+			return;
+		}
+		toggle(e);
+	};
 
 	useEffect(() => {
 		setMounted(true);
@@ -72,19 +84,21 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 	);
 
 	const FavoriteButton = () => (
-		<Button
-			disabled={!canToggle}
-			aria-pressed={isFavorite}
-			onClick={toggle}
-			className={`bottom-5 right-5 absolute rounded-full p-1 shadow-md ${
-				isFavorite ? "bg-orange-500" : "bg-black/30 hover:bg-orange-500"
-			}`}
-			size="icon"
-			variant="ghost"
-		>
-			<HeartIcon className="h-4 w-4 text-white" fill={isFavorite ? "currentColor" : "none"} />
-			<span className="sr-only">Add to Favorites</span>
-		</Button>
+		<>
+			<Button
+				aria-pressed={isFavorite}
+				onClick={handleFavoriteClick}
+				className={`bottom-5 right-5 absolute rounded-full p-1 shadow-md ${
+					isFavorite ? "bg-orange-500" : "bg-black/30 hover:bg-orange-500"
+				}`}
+				size="icon"
+				variant="ghost"
+			>
+				<HeartIcon className="h-4 w-4 text-white" fill={isFavorite ? "currentColor" : "none"} />
+				<span className="sr-only">Add to Favorites</span>
+			</Button>
+			<AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+		</>
 	);
 
     const CardImage = () => (

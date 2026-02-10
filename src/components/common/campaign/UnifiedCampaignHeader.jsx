@@ -21,6 +21,8 @@ import {
 import { IMAGE_BASE_URL } from "@/constants/site";
 import { useFavorite } from "@/hooks/useFavorite";
 import { remainingDay } from "@/utils/campaign";
+import { useState } from "react";
+import AuthDialog from "@/components/common/auth/AuthDialog";
 
 export default function UnifiedCampaignHeader({ campaign }) {
 	// Kampanya tipi belirleme
@@ -61,7 +63,18 @@ export default function UnifiedCampaignHeader({ campaign }) {
 
 	// Favoriler
 	const favoriteId = campaign?.id ?? campaign?._id ?? campaign?.slug;
-	const { isFavorite, toggle, canToggle } = useFavorite("campaign", favoriteId);
+	const { isFavorite, toggle, isLoggedIn } = useFavorite("campaign", favoriteId);
+	const [authOpen, setAuthOpen] = useState(false);
+
+	const handleFavoriteClick = (e) => {
+		if (!isLoggedIn) {
+			e?.preventDefault?.();
+			e?.stopPropagation?.();
+			setAuthOpen(true);
+			return;
+		}
+		toggle(e);
+	};
 
 	// Tarih formatlama
 	const formatDate = (dateString) => {
@@ -244,7 +257,7 @@ export default function UnifiedCampaignHeader({ campaign }) {
 
 							<Button
 								variant="ghost"
-								onClick={canToggle ? toggle : undefined}
+								onClick={handleFavoriteClick}
 								className={`border border-white/30 text-white hover:bg-transparent hover:text-white/80 ${
 									isFavorite ? "text-red-400 border-red-400/50" : ""
 								}`}
@@ -255,6 +268,7 @@ export default function UnifiedCampaignHeader({ campaign }) {
 								/>
 								{isFavorite ? "Favorilerde" : "Favorilere Ekle"}
 							</Button>
+							<AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
 						</div>
 					</div>
 

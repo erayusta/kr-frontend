@@ -21,6 +21,8 @@ import {
 import { IMAGE_BASE_URL } from "@/constants/site";
 import { useFavorite } from "@/hooks/useFavorite";
 import { remainingDay } from "@/utils/campaign";
+import { useState } from "react";
+import AuthDialog from "@/components/common/auth/AuthDialog";
 
 export default function CampaignHeader({ campaign }) {
 	const getImageUrl = (image) => {
@@ -60,7 +62,18 @@ export default function CampaignHeader({ campaign }) {
 	const isExpired = remainingDays !== null && remainingDays < 0;
 
 	const favoriteId = campaign?.id ?? campaign?._id ?? campaign?.slug;
-	const { isFavorite, toggle, canToggle } = useFavorite("campaign", favoriteId);
+	const { isFavorite, toggle, isLoggedIn } = useFavorite("campaign", favoriteId);
+	const [authOpen, setAuthOpen] = useState(false);
+
+	const handleFavoriteClick = (e) => {
+		if (!isLoggedIn) {
+			e?.preventDefault?.();
+			e?.stopPropagation?.();
+			setAuthOpen(true);
+			return;
+		}
+		toggle(e);
+	};
 
 	const formatDate = (dateString) => {
 		if (!dateString) return "";
@@ -250,8 +263,7 @@ export default function CampaignHeader({ campaign }) {
 
 							<Button
 								variant="outline"
-								disabled={!canToggle}
-								onClick={toggle}
+								onClick={handleFavoriteClick}
 								className={isFavorite ? "border-red-200 text-red-500 hover:bg-red-50" : ""}
 							>
 								<Heart
@@ -260,6 +272,7 @@ export default function CampaignHeader({ campaign }) {
 								/>
 								{isFavorite ? "Favorilerde" : "Favorilere Ekle"}
 							</Button>
+							<AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
 						</div>
 					</div>
 
