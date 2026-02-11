@@ -14,14 +14,13 @@ RUN npm run build
 FROM node:18-alpine AS production
 
 WORKDIR /app
-ENV NODE_ENV production
- 
-# Copy build artifacts
-COPY --from=build /app/.next ./.next
+ENV NODE_ENV=production
+
+# standalone output bundles next.config.js + required node_modules + server
+COPY --from=build /app/.next/standalone ./
+# Static files are not included in standalone, copy separately
+COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/package-lock.json ./package-lock.json
-COPY --from=build /app/node_modules ./node_modules
 
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

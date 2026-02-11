@@ -18,10 +18,14 @@ export async function getServerSideProps(context) {
 		"public, s-maxage=60, stale-while-revalidate=300",
 	);
 
+	const slug = context.params.slug;
+	console.log(`[Category SSR] START slug=${slug}`);
+
 	try {
 		const query = new URLSearchParams(context.query).toString();
-		const url = `/categories/${context.params.slug}?${query}`;
+		const url = `/categories/${slug}?${query}`;
 		const data = await serverApiRequest(url, "get");
+		console.log(`[Category SSR] API response received, has data: ${!!data?.data}`);
 
 		return {
 			props: {
@@ -32,7 +36,13 @@ export async function getServerSideProps(context) {
 			},
 		};
 	} catch (error) {
-		console.log("hata!", error);
+		console.error(`[Category SSR] ERROR slug=${slug}:`, error.message);
+		if (error.response) {
+			console.error(`[Category SSR] Status: ${error.response.status}`);
+		}
+		if (error.code) {
+			console.error(`[Category SSR] Error code: ${error.code}`);
+		}
 		return {
 			notFound: true,
 		};
