@@ -125,6 +125,7 @@ const AdItem = ({ ad, maxWidth }: AdItemProps) => {
         <img
           src={ad.image}
           alt={ad.name}
+          loading="lazy"
           width={width}
           height={height}
           style={{

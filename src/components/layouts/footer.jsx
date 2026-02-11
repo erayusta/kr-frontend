@@ -62,6 +62,7 @@ const Footer = () => {
 							src="https://kampanyaradar-static.b-cdn.net/kampanyaradar/general/Mlk7WBxx36Op0Ej.png"
 							width={120}
 							alt="KampanyaRadar Logo"
+						loading="lazy"
 						/>
 
 						<ul className="mt-8 flex justify-start gap-6 sm:mt-0 sm:justify-end">

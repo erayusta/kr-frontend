@@ -98,6 +98,7 @@ export default function UnifiedCampaignHeader({ campaign }) {
 					src={getImageUrl(mainImage)}
 					alt={campaign.title}
 					className="absolute inset-0 w-full h-full object-cover opacity-30"
+					loading="lazy"
 				/>
 				<div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-800/70 to-transparent" />
 
@@ -279,6 +280,7 @@ export default function UnifiedCampaignHeader({ campaign }) {
 								src={getImageUrl(mainImage)}
 								alt={campaign.title}
 								className="max-w-lg h-auto object-contain drop-shadow-2xl rounded-xl"
+								loading="lazy"
 								onError={(e) => {
 									e.target.onerror = null;
 									e.target.src = "/images/placeholder-campaign.jpg";

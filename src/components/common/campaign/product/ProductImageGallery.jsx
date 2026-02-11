@@ -47,6 +47,7 @@ export default function ProductImageGallery({
 							src={productImages[currentIndex]}
 							alt={title}
 							className="w-full aspect-square object-contain"
+						loading="lazy"
 						/>
 						{productImages.length > 1 && (
 							<>

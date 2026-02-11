@@ -25,7 +25,12 @@ interface HomeProps {
 	posts: any[];
 }
 
-export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
+export const getServerSideProps: GetServerSideProps<HomeProps> = async ({ res }) => {
+	res.setHeader(
+		"Cache-Control",
+		"public, s-maxage=60, stale-while-revalidate=300",
+	);
+
 	try {
 		const data = await serverApiRequest("/", "get");
 
