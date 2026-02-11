@@ -29,7 +29,7 @@ import {
 	CarouselNext,
 } from "@/components/ui/carousel";
 import { IMAGE_BASE_URL, STORAGE_URL } from "@/constants/site";
-import CampaignLeadForm from "@/components/common/campaign/CampaignLeadForm";
+
 
 // Renk gorseli komponenti
 function ColorImageDisplay({ selectedColorIndex, selectedColorImage, carData, getImageUrl }) {
@@ -331,9 +331,8 @@ export default function CampaignCarType({ campaign }) {
 			)}
 
 			{/* ANA İÇERİK ALANI */}
-			<div className="flex flex-col lg:flex-row gap-6">
-				{/* SOL TARAF - Teknik Özellikler ve Euro NCAP */}
-				<div className="w-full lg:w-8/12 space-y-6">
+			<div className="flex flex-col gap-6">
+				<div className="w-full space-y-6">
 					{/* Başlık ve Fiyat */}
 					<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 						<h2 className="text-2xl text-[#1C2B4A] font-bold">
@@ -540,15 +539,6 @@ export default function CampaignCarType({ campaign }) {
 					)}
 				</div>
 
-				{/* SAĞ TARAF - İletişim Formu */}
-				<div className="w-full lg:w-4/12">
-					<CampaignLeadForm
-						campaign={campaign}
-						brandLogo={campaign.brands?.[0]?.logo}
-						brandName={campaign.brands?.[0]?.name}
-						variant="car"
-					/>
-				</div>
 			</div>
 		</div>
 	);
