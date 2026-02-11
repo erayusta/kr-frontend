@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.github
+.env.local
+.env.development
+*.md
+.DS_Store
+pictures
