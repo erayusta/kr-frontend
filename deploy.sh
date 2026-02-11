@@ -4,6 +4,8 @@ set -e
 APP_NAME="kr-frontend-app"
 IMAGE_NAME="kr-frontend"
 PORT="127.0.0.1:3000:3000"
+NETWORK="kr-backend_kampanyaradar_network"
+INTERNAL_API="http://kampanyaradar_backend/api/v1"
 
 # Renk kodları
 GREEN='\033[0;32m'
@@ -35,8 +37,8 @@ docker rm ${APP_NAME} 2>/dev/null || true
 log "Starting new container..."
 docker run -d \
   -p ${PORT} \
-  --add-host=host.docker.internal:host-gateway \
-  -e INTERNAL_API_URL=http://host.docker.internal:8080/api/v1 \
+  --network=${NETWORK} \
+  -e INTERNAL_API_URL=${INTERNAL_API} \
   --restart=unless-stopped \
   --name ${APP_NAME} \
   ${IMAGE_NAME}:latest
