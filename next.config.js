@@ -8,8 +8,7 @@ const nextConfig = {
 		ignoreDuringBuilds: true,
 	},
 	images: {
-		formats: ["image/avif", "image/webp"],
-		minimumCacheTTL: 86400,
+		unoptimized: true,
 		remotePatterns: [
 			{
 				protocol: "https",
