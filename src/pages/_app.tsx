@@ -25,12 +25,10 @@ export default function App({ Component, pageProps }: AppProps) {
 		const handleError = (err: Error & { cancelled?: boolean }, url: string) => {
 			setLoading(false);
 			if (err.cancelled) return;
-			// Stale build ID recovery: if _next/data fetch fails, do a full page reload
-			const isStaleError =
-				err.message?.includes("Failed to load") ||
-				err.message?.includes("Loading chunk") ||
-				err.message?.includes("404");
-			if (isStaleError && typeof window !== "undefined") {
+			// Stale build recovery: any uncancelled route error likely means
+			// stale build ID (_next/data 404) or failed chunk load.
+			// Do a full page reload so the browser fetches the new build.
+			if (typeof window !== "undefined") {
 				const key = `__stale_reload_${url}`;
 				if (!sessionStorage.getItem(key)) {
 					sessionStorage.setItem(key, "1");
