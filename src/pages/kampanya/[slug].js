@@ -16,12 +16,18 @@ const Ads = dynamic(
 );
 
 export async function getServerSideProps(context) {
+	const slug = context.params.slug;
+	console.log(`[Campaign SSR] START slug=${slug}`);
+
 	try {
 		const response = await serverApiRequest(
-			`/campaigns/${context.params.slug}`,
+			`/campaigns/${slug}`,
 			"get",
 		);
+		console.log(`[Campaign SSR] API response received, has data: ${!!response?.data}`);
+
 		if (!response || !response.data) {
+			console.error(`[Campaign SSR] No data for slug=${slug}, response keys:`, Object.keys(response || {}));
 			return {
 				notFound: true,
 			};
@@ -41,7 +47,13 @@ export async function getServerSideProps(context) {
 			},
 		};
 	} catch (error) {
-		console.error("[Campaign Page Error]", error.message);
+		console.error(`[Campaign SSR] ERROR slug=${slug}:`, error.message);
+		if (error.response) {
+			console.error(`[Campaign SSR] Status: ${error.response.status}, Data:`, JSON.stringify(error.response.data).slice(0, 500));
+		}
+		if (error.code) {
+			console.error(`[Campaign SSR] Error code: ${error.code}`);
+		}
 		return {
 			notFound: true,
 		};
