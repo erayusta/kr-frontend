@@ -22,6 +22,7 @@ export default function ({data}) {
                   width="100"
                   src={item.logo}
                   alt={`${item.bankName} Logo`}
+                  loading="lazy"
                   className=""
                 />
               </th>

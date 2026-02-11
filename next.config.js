@@ -8,8 +8,8 @@ const nextConfig = {
 		ignoreDuringBuilds: true,
 	},
 	images: {
-		unoptimized: true,
-		domains: ["kampanyaradar-static.b-cdn.net", "localhost"],
+		formats: ["image/avif", "image/webp"],
+		minimumCacheTTL: 86400,
 		remotePatterns: [
 			{
 				protocol: "https",
@@ -22,6 +22,12 @@ const nextConfig = {
 				hostname: "localhost",
 				port: "8080",
 				pathname: "/storage/**",
+			},
+			{
+				protocol: "https",
+				hostname: "kampanyaradar.s3.us-east-1.amazonaws.com",
+				port: "",
+				pathname: "/**",
 			},
 		],
 	},

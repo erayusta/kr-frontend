@@ -86,6 +86,7 @@ function ColorImageDisplay({ selectedColorIndex, selectedColorImage, carData, ge
 				src={imageUrl}
 				alt={`${carData.brand} ${carData.model} - ${carData.colors[selectedColorIndex]?.name}`}
 				className="w-full h-full object-contain p-4"
+			loading="lazy"
 				onError={() => setImageError(true)}
 			/>
 			<div className="absolute bottom-4 left-4 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-md">
@@ -202,6 +203,7 @@ export default function CampaignCarType({ campaign }) {
 											src={getImageUrl(image)}
 											alt={`${carData.brand} ${carData.model}`}
 											className="w-full h-full object-contain"
+											loading="lazy"
 											onError={(e) => {
 												e.target.onerror = null;
 												e.target.style.display = "none";
@@ -257,6 +259,7 @@ export default function CampaignCarType({ campaign }) {
 								src={getImageUrl(image)}
 								alt={`Thumbnail ${index + 1}`}
 								className="w-16 h-12 object-cover bg-gray-200"
+								loading="lazy"
 								onError={(e) => {
 									e.target.onerror = null;
 									e.target.style.display = "none";

@@ -13,6 +13,11 @@ const Ads = dynamic(
 );
 
 export async function getServerSideProps(context) {
+	context.res.setHeader(
+		"Cache-Control",
+		"public, s-maxage=60, stale-while-revalidate=300",
+	);
+
 	try {
 		const query = new URLSearchParams(context.query).toString();
 		const url = `/categories/${context.params.slug}?${query}`;

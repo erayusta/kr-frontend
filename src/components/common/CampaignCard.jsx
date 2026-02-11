@@ -1,12 +1,15 @@
 import { ChevronRight, Clock10Icon, HeartIcon } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { remainingDay } from "@/utils/campaign";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { useFavorite } from "@/hooks/useFavorite";
 import AuthDialog from "@/components/common/auth/AuthDialog";
 import Image from "next/image";
+
+const BLUR_DATA_URL =
+	"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+";
 
 const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => {
 	const [remaining, setRemaining] = useState(null);
@@ -15,6 +18,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 	const [imgError, setImgError] = useState(false);
 	const { isFavorite, toggle, isLoggedIn } = useFavorite("campaign", id ?? slug);
 	const [authOpen, setAuthOpen] = useState(false);
+	const retryCount = useRef(0);
 
 	const handleFavoriteClick = (e) => {
 		if (!isLoggedIn) {
@@ -31,17 +35,28 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 		setRemaining(remainingDay(end_date || endDate));
 	}, [end_date, endDate]);
 
-	const handleImageError = (e) => {
-		const currentSrc = e.target.src;
+	const handleImageError = () => {
+		const currentSrc = imgSrc;
+
+		// Retry same URL up to 2 times for transient HTTP/2 errors
+		if (retryCount.current < 2) {
+			retryCount.current += 1;
+			const separator = currentSrc.includes("?") ? "&" : "?";
+			setImgSrc(`${currentSrc.replace(/[?&]_retry=\d+/, "")}${separator}_retry=${retryCount.current}`);
+			return;
+		}
+
+		// Reset retry counter for fallback path attempts
+		retryCount.current = 0;
 
 		if (currentSrc.includes("/campains/uploads/")) {
-			const withoutUploads = currentSrc.replace("/campains/uploads/", "/campains/");
+			const withoutUploads = currentSrc.replace(/[?&]_retry=\d+/, "").replace("/campains/uploads/", "/campains/");
 			setImgSrc(withoutUploads);
 		} else if (currentSrc.includes("/campains/") && !currentSrc.includes("/uploads/")) {
-			const correctedUrl = currentSrc.replace("/campains/", "/campaigns/");
+			const correctedUrl = currentSrc.replace(/[?&]_retry=\d+/, "").replace("/campains/", "/campaigns/");
 			setImgSrc(correctedUrl);
 		} else if (currentSrc.includes("/campaigns/") && !currentSrc.includes("/uploads/")) {
-			const withUploads = currentSrc.replace("/campaigns/", "/campaigns/uploads/");
+			const withUploads = currentSrc.replace(/[?&]_retry=\d+/, "").replace("/campaigns/", "/campaigns/uploads/");
 			setImgSrc(withUploads);
 		} else {
 			setImgError(true);
@@ -70,6 +85,7 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
 							src={brand.logo}
 							title={brand.name || "Marka"}
 							alt={brand.name || "Marka"}
+							loading="lazy"
 						/>
 					)}
 				</div>
@@ -113,6 +129,8 @@ const CampaignCard = ({ image, title, brands, id, endDate, end_date, slug }) => 
                     sizes="(max-width: 768px) 100vw, 33vw"
                     onError={handleImageError}
                     priority={false}
+                    placeholder="blur"
+                    blurDataURL={BLUR_DATA_URL}
                 />
             ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50">

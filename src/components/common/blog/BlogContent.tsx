@@ -33,6 +33,7 @@ export default function BlogContent({ post, ads }: BlogContentProps) {
                                         alt={post?.title || "Blog görseli"}
                                         className="md:w-[336px] md:h-[280px] rounded-sm w-full h-full object-fill object-center shadow-sm justify-center mt-2"
                                         src={imgUrl}
+                                        loading="lazy"
                                     />
                                 )}
                                 <Ad variant="inline" ad={getAd("post_content_one")} />

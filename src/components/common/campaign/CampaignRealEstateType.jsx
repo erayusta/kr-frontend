@@ -1079,6 +1079,7 @@ export default function CampaignRealEstateType({ campaign }) {
 												src={getImageUrl(image)}
 												alt={`${realEstateData.name} - ${index + 1}`}
 												className="w-full h-full object-cover"
+												loading="lazy"
 												onError={(e) => {
 													e.target.onerror = null;
 													e.target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800";
@@ -1138,6 +1139,7 @@ export default function CampaignRealEstateType({ campaign }) {
 										src={getImageUrl(image)}
 										alt={`Thumbnail ${index + 1}`}
 										className="w-full h-full object-cover"
+										loading="lazy"
 										onError={(e) => {
 											e.target.onerror = null;
 											e.target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800";
