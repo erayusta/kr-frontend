@@ -79,15 +79,21 @@ const GuestMenu = ({
 	menuItems: any;
 	onCreateCampaign: () => void;
 }) => (
-	<SheetContent className="max-w-md rounded-t-md px-5" side="bottom">
-		<LoanGrid />
+	<SheetContent className="flex flex-col w-[85vw] max-w-sm !p-0 overflow-hidden" side="right">
+		<div className="flex-1 overflow-y-auto overscroll-contain px-5 pt-10 pb-4">
+			<div className="mb-6">
+				<LoanGrid />
+			</div>
 
-		<div className="flex flex-col mt-10 overflow-x-scroll h-[450px] px-4">
-			<div className="text-md font-semibold mb-2">Kategoriler</div>
-			<CategoryAccordion menuItems={menuItems} />
+			<hr />
+
+			<div className="mt-4">
+				<div className="text-md font-semibold mb-2">Kategoriler</div>
+				<CategoryAccordion menuItems={menuItems} />
+			</div>
 		</div>
 
-		<div className="grid grid-cols-2 gap-x-3 mt-5">
+		<div className="grid grid-cols-2 gap-x-3 px-5 py-4 border-t shrink-0">
 			<Button onClick={onCreateCampaign} variant="outline">
 				<Newspaper className="mr-2" size={20} />
 				Kampanya Oluştur
@@ -106,14 +112,14 @@ const UserMenu = ({
 	profile: any;
 	onCreateCampaign: () => void;
 }) => (
-	<SheetContent className="w-full max-w-full" side="right">
-		<div className="flex h-24 items-center justify-center px-4">
+	<SheetContent className="flex flex-col w-[85vw] max-w-sm overflow-hidden" side="right">
+		<div className="flex items-center justify-center py-4 shrink-0">
 			<Link className="flex flex-col items-center gap-2 font-semibold" href="#">
 				<NavbarAvatar size="65" profile={profile} />@{profile?.firstName}
 			</Link>
 		</div>
 
-		<div className="flex flex-row items-center justify-between gap-x-2 px-4 py-2">
+		<div className="flex flex-row items-center justify-between gap-x-2 px-4 py-2 shrink-0">
 			<Button variant="outline" className="w-full">
 				<Settings className="mr-2" size={20} /> Hesabım
 			</Button>
@@ -122,19 +128,22 @@ const UserMenu = ({
 			</Button>
 		</div>
 
-		<hr className="my-2" />
-		<LoanGrid />
-		<hr className="my-2" />
+		<hr className="my-2 shrink-0" />
 
-		<div className="flex mt-10 flex-col px-0">
-			<div className="text-md font-semibold mb-2">Kategoriler</div>
-			<CategoryAccordion menuItems={menuItems} />
+		<div className="flex-1 min-h-0 overflow-y-auto px-1">
+			<LoanGrid />
+			<hr className="my-2" />
+
+			<div className="flex flex-col mt-4 px-0">
+				<div className="text-md font-semibold mb-2">Kategoriler</div>
+				<CategoryAccordion menuItems={menuItems} />
+			</div>
 		</div>
 	</SheetContent>
 );
 
 const LoanGrid = () => (
-	<div className="grid grid-cols-3 gap-y-2">
+	<div className="grid grid-cols-3 gap-y-2 shrink-0">
 		{LOAN_TYPES.map((loan, index) => (
 			<Button
 				key={`mobile-loan-${index}`}
