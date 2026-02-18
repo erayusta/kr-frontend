@@ -254,21 +254,23 @@ export default function CampaignCarType({ campaign, htmlContent }) {
 						)}
 					</div>
 
-					{/* Teknik Özellikler - Kompakt */}
+					{/* Teknik Özellikler */}
 					{carData.attributes && carData.attributes.length > 0 && (
-						<div>
-							<h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2 text-sm">
-								<Settings className="w-4 h-4 text-gray-500" />
+						<div className="bg-gradient-to-br from-slate-50 to-blue-50/40 rounded-xl p-4 border border-slate-100">
+							<h3 className="font-semibold text-[#1C2B4A] mb-3 flex items-center gap-2 text-sm">
+								<div className="p-1.5 bg-blue-500 rounded-lg">
+									<Settings className="w-3.5 h-3.5 text-white" />
+								</div>
 								Teknik Özellikler
 							</h3>
 							<div className="grid grid-cols-2 gap-2">
 								{carData.attributes.slice(0, 8).map((attr, index) => (
 									<div
 										key={index}
-										className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg text-sm"
+										className="flex items-center justify-between gap-2 px-3 py-2 bg-white rounded-lg border border-gray-100"
 									>
-										<span className="text-gray-500 text-xs">{attr.name}</span>
-										<span className="font-semibold text-gray-900 text-xs bg-white px-2 py-0.5 rounded-md shadow-sm">
+										<span className="text-gray-500 text-xs truncate">{attr.name}</span>
+										<span className="font-bold text-blue-700 text-xs whitespace-nowrap bg-blue-50 px-2 py-0.5 rounded-md">
 											{attr.value}
 										</span>
 									</div>
