@@ -1,4 +1,4 @@
-import { useState, useId, useRef, useCallback } from "react";
+import { useState, useId, useRef, useCallback, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import InputMask from "react-input-mask";
 import { X, MessageSquare } from "lucide-react";
@@ -13,8 +13,13 @@ export default function CampaignFormWidget({ campaign }) {
 }
 
 function FormWidgetInner({ campaign }) {
-	const [isOpen, setIsOpen] = useState(true);
+	const [isOpen, setIsOpen] = useState(false);
 	const [submitted, setSubmitted] = useState(false);
+
+	// Desktop'ta açık, mobilde kapalı başlat
+	useEffect(() => {
+		setIsOpen(window.innerWidth >= 1024);
+	}, []);
 	const lastSubmitTime = useRef(0);
 	const formId = useId();
 	const { toast } = useToast();
