@@ -65,7 +65,7 @@ export default function CampaignContent({ campaign, sections, ads }) {
 			(campaign?.itemType === "car" || campaign?.item_type === "car") &&
 			(campaign.car || campaign.item)
 		) {
-			return <CampaignCarType campaign={campaign} />;
+			return <CampaignCarType campaign={campaign} htmlContent={htmlContent} />;
 		}
 		if (
 			(campaign?.itemType === "product" || campaign?.item_type === "product") &&
