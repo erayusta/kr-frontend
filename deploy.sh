@@ -21,9 +21,12 @@ err()  { echo -e "${RED}[ERROR]${NC} $1"; }
 log "Pulling latest code..."
 git pull || { err "git pull failed"; exit 1; }
 
-# 2. Docker image build (cache kullanarak)
+# 2. Docker image build (BuildKit + cache)
 log "Building Docker image..."
-docker build -t ${IMAGE_NAME}:latest -t ${IMAGE_NAME}:$(git rev-parse --short HEAD) . || {
+DOCKER_BUILDKIT=1 docker build \
+  -t ${IMAGE_NAME}:latest \
+  -t ${IMAGE_NAME}:$(git rev-parse --short HEAD) \
+  . || {
   err "Docker build failed"
   exit 1
 }
