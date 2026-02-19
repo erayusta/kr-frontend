@@ -1,24 +1,23 @@
-# Stage 1: Build
-FROM node:18-alpine AS build
+# syntax=docker/dockerfile:1
 
+# Stage 1: Dependencies
+FROM node:18-alpine AS deps
 WORKDIR /app
-
 COPY package.json package-lock.json* ./
 RUN npm ci
 
+# Stage 2: Build
+FROM node:18-alpine AS build
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+RUN --mount=type=cache,target=/app/.next/cache npm run build
 
-
-# Stage 2: Run
+# Stage 3: Run
 FROM node:18-alpine AS production
-
 WORKDIR /app
 ENV NODE_ENV=production
-
-# standalone output bundles next.config.js + required node_modules + server
 COPY --from=build /app/.next/standalone ./
-# Static files are not included in standalone, copy separately
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 
