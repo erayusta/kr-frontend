@@ -123,25 +123,152 @@ export default function CampaignCarType({ campaign, htmlContent }) {
 	return (
 		<div className="flex flex-col w-full gap-6">
 
-			{/* ===== ANA KART: Bütünleşik Layout ===== */}
+			{/* ===== ANA KART: Float Layout — içerik uzunsa galeri altına sarar ===== */}
 			<Card className="overflow-hidden border border-gray-200 bg-[#fffaf4]">
-				<div className="grid grid-cols-1 lg:grid-cols-12">
+				<CardContent className="p-5 lg:p-6">
 
-					{/* SOL: Başlık + Fiyat + İçerik */}
-					<div className="lg:col-span-7 p-5 lg:p-6 flex flex-col order-2 lg:order-1">
-						{/* Başlık ve Fiyat */}
-						<div className="mb-4">
-							<h2 className="text-2xl font-bold text-[#1C2B4A]">
-								{carData.brand} {carData.model}
-							</h2>
-							{priceStats.current > 0 && (
-								<div className="mt-3 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-md">
-									{formatPrice(priceStats.current)}
+					{/* SAĞ PANEL: Galeri + Teknik Özellikler — float ile sağa yaslanır */}
+					<div className="lg:float-right lg:w-5/12 lg:ml-6 mb-5 rounded-xl overflow-hidden bg-gradient-to-b from-gray-50 to-gray-100/50 border border-gray-200">
+						{/* Ana Görsel */}
+						<div className="relative aspect-[4/3] overflow-hidden">
+							{selectedColorIndex !== null && selectedColorImage && getImageUrl(selectedColorImage) && !colorImageError ? (
+								<>
+									{/* biome-ignore lint/a11y/useAltText: dynamic car color image */}
+									<img
+										src={getImageUrl(selectedColorImage)}
+										alt={`${carData.brand} ${carData.model} - ${carData.colors[selectedColorIndex]?.name}`}
+										className="w-full h-full object-contain p-4"
+										loading="lazy"
+										onError={() => setColorImageError(true)}
+									/>
+									<div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+										<div
+											className="w-2.5 h-2.5 rounded-full border border-gray-300"
+											style={{ backgroundColor: carData.colors[selectedColorIndex]?.code || "#999" }}
+										/>
+										<span className="text-[11px] font-medium text-gray-700">
+											{carData.colors[selectedColorIndex]?.name}
+										</span>
+									</div>
+								</>
+							) : activeImages.length > 0 && getImageUrl(activeImages[activeImageIndex]) ? (
+								<>
+									{/* biome-ignore lint/a11y/useAltText: dynamic car image */}
+									<img
+										src={getImageUrl(activeImages[activeImageIndex])}
+										alt={`${carData.brand} ${carData.model}`}
+										className="w-full h-full object-contain p-4"
+										loading="lazy"
+										onError={(e) => {
+											e.target.onerror = null;
+											e.target.style.display = "none";
+										}}
+									/>
+									{activeImages.length > 1 && (
+										<div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-sm">
+											{activeImageIndex + 1} / {activeImages.length}
+										</div>
+									)}
+								</>
+							) : (
+								<div className="w-full h-full flex items-center justify-center text-gray-400">
+									<ImageOff className="w-12 h-12" />
 								</div>
 							)}
 						</div>
 
-						{/* Kampanya İçeriği (HTML) */}
+						{/* Thumbnail + Renk Seçici */}
+						<div className="flex items-center gap-2 px-3 py-2.5 overflow-x-auto border-t border-gray-200/60">
+							{activeImages.length > 1 && activeImages.map((image, index) => (
+								<button
+									key={`img-${index}`}
+									onClick={() => {
+										setActiveImageIndex(index);
+										setSelectedColorIndex(null);
+									}}
+									className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+										selectedColorIndex === null && activeImageIndex === index
+											? "border-orange-500 shadow-md"
+											: "border-gray-200 hover:border-orange-300"
+									}`}
+								>
+									{/* biome-ignore lint/a11y/useAltText: thumbnail */}
+									<img
+										src={getImageUrl(image)}
+										alt={`Thumbnail ${index + 1}`}
+										className="w-11 h-11 object-cover bg-gray-100"
+										loading="lazy"
+										onError={(e) => {
+											e.target.onerror = null;
+											e.target.style.display = "none";
+										}}
+									/>
+								</button>
+							))}
+
+							{activeImages.length > 1 && carData.colors && carData.colors.length > 0 && (
+								<div className="flex-shrink-0 w-px h-8 bg-gray-300 mx-1" />
+							)}
+
+							{carData.colors && carData.colors.length > 0 && carData.colors.map((color, index) => (
+								<button
+									key={`color-${index}`}
+									onClick={() => setSelectedColorIndex(selectedColorIndex === index ? null : index)}
+									title={color.name}
+									className={`group relative flex-shrink-0 rounded-full transition-all ${
+										selectedColorIndex === index
+											? "ring-2 ring-orange-500 ring-offset-2 scale-110"
+											: "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
+									}`}
+								>
+									<div
+										className="w-8 h-8 rounded-full border-2 border-white shadow-md"
+										style={{ backgroundColor: color.code || "#999" }}
+									/>
+									{selectedColorIndex === index && (
+										<div className="absolute inset-0 flex items-center justify-center">
+											<Check className="w-3.5 h-3.5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+										</div>
+									)}
+								</button>
+							))}
+						</div>
+
+						{/* Teknik Özellikler — galeri altında, aynı blokta */}
+						{carData.attributes && carData.attributes.length > 0 && (
+							<div className="px-3 pb-3 pt-1 border-t border-gray-200/60">
+								<h3 className="font-semibold text-[#1C2B4A] mb-2 flex items-center gap-2 text-xs uppercase tracking-wide">
+									<Settings className="w-3.5 h-3.5 text-orange-500" />
+									Teknik Özellikler
+								</h3>
+								<div className="grid grid-cols-2 gap-1.5">
+									{carData.attributes.slice(0, 8).map((attr, index) => (
+										<div
+											key={index}
+											className="flex items-center justify-between gap-1 px-2.5 py-1.5 bg-white/80 rounded-md text-[11px]"
+										>
+											<span className="text-gray-500 truncate">{attr.name}</span>
+											<span className="font-bold text-orange-700 whitespace-nowrap bg-orange-50 px-1.5 py-0.5 rounded">
+												{attr.value}
+											</span>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+					</div>
+
+					{/* İÇERİK: Başlık + Fiyat + HTML — float'ın yanında başlar, uzunsa altına sarar */}
+					<div>
+						<h2 className="text-2xl font-bold text-[#1C2B4A] mb-1">
+							{carData.brand} {carData.model}
+						</h2>
+						{priceStats.current > 0 && (
+							<div className="mt-2 mb-4 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-md">
+								{formatPrice(priceStats.current)}
+							</div>
+						)}
+
 						{htmlContent && (
 							<div
 								ref={contentRef}
@@ -151,139 +278,9 @@ export default function CampaignCarType({ campaign, htmlContent }) {
 						)}
 					</div>
 
-					{/* SAĞ: Galeri + Teknik Özellikler */}
-					<div className="lg:col-span-5 order-1 lg:order-2 bg-gradient-to-b from-gray-50 to-gray-100/50 lg:border-l border-b lg:border-b-0 border-gray-200">
-						<div className="lg:sticky lg:top-4">
-							{/* Ana Görsel */}
-							<div className="relative aspect-[4/3] overflow-hidden">
-								{selectedColorIndex !== null && selectedColorImage && getImageUrl(selectedColorImage) && !colorImageError ? (
-									<>
-										{/* biome-ignore lint/a11y/useAltText: dynamic car color image */}
-										<img
-											src={getImageUrl(selectedColorImage)}
-											alt={`${carData.brand} ${carData.model} - ${carData.colors[selectedColorIndex]?.name}`}
-											className="w-full h-full object-contain p-4"
-											loading="lazy"
-											onError={() => setColorImageError(true)}
-										/>
-										<div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
-											<div
-												className="w-2.5 h-2.5 rounded-full border border-gray-300"
-												style={{ backgroundColor: carData.colors[selectedColorIndex]?.code || "#999" }}
-											/>
-											<span className="text-[11px] font-medium text-gray-700">
-												{carData.colors[selectedColorIndex]?.name}
-											</span>
-										</div>
-									</>
-								) : activeImages.length > 0 && getImageUrl(activeImages[activeImageIndex]) ? (
-									<>
-										{/* biome-ignore lint/a11y/useAltText: dynamic car image */}
-										<img
-											src={getImageUrl(activeImages[activeImageIndex])}
-											alt={`${carData.brand} ${carData.model}`}
-											className="w-full h-full object-contain p-4"
-											loading="lazy"
-											onError={(e) => {
-												e.target.onerror = null;
-												e.target.style.display = "none";
-											}}
-										/>
-										{activeImages.length > 1 && (
-											<div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-sm">
-												{activeImageIndex + 1} / {activeImages.length}
-											</div>
-										)}
-									</>
-								) : (
-									<div className="w-full h-full flex items-center justify-center text-gray-400">
-										<ImageOff className="w-12 h-12" />
-									</div>
-								)}
-							</div>
-
-							{/* Thumbnail + Renk Seçici */}
-							<div className="flex items-center gap-2 px-4 py-2.5 overflow-x-auto border-t border-gray-200/60">
-								{activeImages.length > 1 && activeImages.map((image, index) => (
-									<button
-										key={`img-${index}`}
-										onClick={() => {
-											setActiveImageIndex(index);
-											setSelectedColorIndex(null);
-										}}
-										className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
-											selectedColorIndex === null && activeImageIndex === index
-												? "border-orange-500 shadow-md"
-												: "border-gray-200 hover:border-orange-300"
-										}`}
-									>
-										{/* biome-ignore lint/a11y/useAltText: thumbnail */}
-										<img
-											src={getImageUrl(image)}
-											alt={`Thumbnail ${index + 1}`}
-											className="w-11 h-11 object-cover bg-gray-100"
-											loading="lazy"
-											onError={(e) => {
-												e.target.onerror = null;
-												e.target.style.display = "none";
-											}}
-										/>
-									</button>
-								))}
-
-								{activeImages.length > 1 && carData.colors && carData.colors.length > 0 && (
-									<div className="flex-shrink-0 w-px h-8 bg-gray-300 mx-1" />
-								)}
-
-								{carData.colors && carData.colors.length > 0 && carData.colors.map((color, index) => (
-									<button
-										key={`color-${index}`}
-										onClick={() => setSelectedColorIndex(selectedColorIndex === index ? null : index)}
-										title={color.name}
-										className={`group relative flex-shrink-0 rounded-full transition-all ${
-											selectedColorIndex === index
-												? "ring-2 ring-orange-500 ring-offset-2 scale-110"
-												: "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
-										}`}
-									>
-										<div
-											className="w-8 h-8 rounded-full border-2 border-white shadow-md"
-											style={{ backgroundColor: color.code || "#999" }}
-										/>
-										{selectedColorIndex === index && (
-											<div className="absolute inset-0 flex items-center justify-center">
-												<Check className="w-3.5 h-3.5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
-											</div>
-										)}
-									</button>
-								))}
-							</div>
-
-							{/* Teknik Özellikler — galeri altında, aynı blokta */}
-							{carData.attributes && carData.attributes.length > 0 && (
-								<div className="px-4 pb-4 pt-1">
-									<h3 className="font-semibold text-[#1C2B4A] mb-2.5 flex items-center gap-2 text-xs uppercase tracking-wide">
-										<Settings className="w-3.5 h-3.5 text-orange-500" />
-										Teknik Özellikler
-									</h3>
-									<div className="grid grid-cols-2 gap-1.5">
-										{carData.attributes.slice(0, 8).map((attr, index) => (
-											<div
-												key={index}
-												className="flex items-center justify-between gap-1 px-2.5 py-1.5 bg-white/80 rounded-md text-[11px]"
-											>
-												<span className="text-gray-500 truncate">{attr.name}</span>
-												<span className="font-bold text-orange-700 whitespace-nowrap bg-orange-50 px-1.5 py-0.5 rounded">
-													{attr.value}
-												</span>
-											</div>
-										))}
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
+					{/* Float clear */}
+					<div className="clear-both" />
+				</CardContent>
 			</Card>
 
 			{/* ===== FİYAT GEÇMİŞİ ===== */}
