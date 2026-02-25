@@ -79,7 +79,7 @@ export default function CampaignContent({ campaign, sections, ads }) {
 				campaign?.item_type === "real_estate") &&
 			(campaign.real_estate || campaign.realEstate)
 		) {
-			return <CampaignRealEstateType campaign={campaign} />;
+			return <CampaignRealEstateType campaign={campaign} htmlContent={htmlContent} />;
 		}
 		return null;
 	};
@@ -96,7 +96,7 @@ export default function CampaignContent({ campaign, sections, ads }) {
 					<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 						{/* Sol Taraf - İçerik */}
 						<div
-							className={`${campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product" || campaign?.itemType === "actual" || campaign?.item_type === "actual" ? "lg:col-span-12" : "lg:col-span-8"}`}
+							className={`${campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product" || campaign?.itemType === "actual" || campaign?.item_type === "actual" || campaign?.itemType === "real-estate" || campaign?.item_type === "real-estate" || campaign?.item_type === "real_estate" ? "lg:col-span-12" : "lg:col-span-8"}`}
 						>
 							{htmlContent &&
 								campaign?.itemType !== "product" &&
@@ -104,7 +104,10 @@ export default function CampaignContent({ campaign, sections, ads }) {
 								campaign?.itemType !== "car" &&
 								campaign?.item_type !== "car" &&
 								campaign?.itemType !== "actual" &&
-								campaign?.item_type !== "actual" && (
+								campaign?.item_type !== "actual" &&
+								campaign?.itemType !== "real-estate" &&
+								campaign?.item_type !== "real-estate" &&
+								campaign?.item_type !== "real_estate" && (
 									<Card className="overflow-hidden border-2 border-gray-200">
 										{/* Tab Content */}
 										<CardContent className="p-6 lg:p-8 bg-[#fffaf4]">
@@ -118,14 +121,17 @@ export default function CampaignContent({ campaign, sections, ads }) {
 								)}
 						</div>
 
-						{/* Sağ Taraf - Form - Car, Product ve Actual için gösterilmez, kendi içerikleri var */}
+						{/* Sağ Taraf - Form - Car, Product, Actual ve Real Estate için gösterilmez, kendi içerikleri var */}
 						{!(
 							campaign?.itemType === "car" ||
 							campaign?.item_type === "car" ||
 							campaign?.itemType === "product" ||
 							campaign?.item_type === "product" ||
 							campaign?.itemType === "actual" ||
-							campaign?.item_type === "actual"
+							campaign?.item_type === "actual" ||
+							campaign?.itemType === "real-estate" ||
+							campaign?.item_type === "real-estate" ||
+							campaign?.item_type === "real_estate"
 						) && (
 							<div className="lg:col-span-4">
 								<div className="sticky top-4 space-y-6">
