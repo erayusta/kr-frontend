@@ -28,9 +28,12 @@ export default function UnifiedCampaignHeader({ campaign }) {
 	// Kampanya tipi belirleme
 	const isActual = campaign?.itemType === "actual" || campaign?.item_type === "actual";
 
+	// Image error state
+	const [imageError, setImageError] = useState(false);
+
 	// Gorsel URL
 	const getImageUrl = (image) => {
-		if (!image) return "/images/placeholder-campaign.jpg";
+		if (!image) return null;
 		if (image.startsWith("http")) return image;
 		return `${IMAGE_BASE_URL}/${image}`;
 	};
@@ -131,12 +134,17 @@ export default function UnifiedCampaignHeader({ campaign }) {
 			<div className="lg:hidden">
 				{/* Hero Görsel */}
 				<div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
-					{/* biome-ignore lint/a11y/useAltText: campaign image */}
-					<img
-						src={getImageUrl(mainImage)}
-						alt={campaign.title}
-						className="w-full h-full object-cover"
-					/>
+					{getImageUrl(mainImage) && !imageError ? (
+						// biome-ignore lint/a11y/useAltText: campaign image
+						<img
+							src={getImageUrl(mainImage)}
+							alt={campaign.title}
+							className="w-full h-full object-cover"
+							onError={() => setImageError(true)}
+						/>
+					) : (
+						<div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-50" />
+					)}
 					<div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/60 to-transparent" />
 
 					{/* Durum Badge - Sol Üst */}
@@ -286,13 +294,18 @@ export default function UnifiedCampaignHeader({ campaign }) {
 			<div className="hidden lg:block">
 				<div className="relative overflow-hidden rounded-md">
 					{/* Arka Plan */}
-					{/* biome-ignore lint/a11y/useAltText: background image */}
-					<img
-						src={getImageUrl(mainImage)}
-						alt=""
-						className="absolute inset-0 w-full h-full object-cover opacity-30"
-						loading="lazy"
-					/>
+					{getImageUrl(mainImage) && !imageError ? (
+						// biome-ignore lint/a11y/useAltText: background image
+						<img
+							src={getImageUrl(mainImage)}
+							alt=""
+							className="absolute inset-0 w-full h-full object-cover opacity-30"
+							loading="lazy"
+							onError={() => setImageError(true)}
+						/>
+					) : (
+						<div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-amber-50 opacity-30" />
+					)}
 					<div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-800/70 to-transparent" />
 
 					{/* Content */}
@@ -445,17 +458,20 @@ export default function UnifiedCampaignHeader({ campaign }) {
 						{/* Sag Taraf - Gorsel */}
 						<div className="relative flex justify-end">
 							<div className="relative">
-								{/* biome-ignore lint/a11y/useAltText: campaign image */}
-								<img
-									src={getImageUrl(mainImage)}
-									alt={campaign.title}
-									className="max-w-lg h-auto object-contain drop-shadow-2xl rounded-xl"
-									loading="lazy"
-									onError={(e) => {
-										e.target.onerror = null;
-										e.target.src = "/images/placeholder-campaign.jpg";
-									}}
-								/>
+								{getImageUrl(mainImage) && !imageError ? (
+									// biome-ignore lint/a11y/useAltText: campaign image
+									<img
+										src={getImageUrl(mainImage)}
+										alt={campaign.title}
+										className="max-w-lg h-auto object-contain drop-shadow-2xl rounded-xl"
+										loading="lazy"
+										onError={() => setImageError(true)}
+									/>
+								) : (
+									<div className="max-w-lg w-80 h-60 bg-gradient-to-br from-orange-100 to-amber-50 rounded-xl flex items-center justify-center">
+										<span className="text-orange-300 text-6xl font-bold opacity-50">KR</span>
+									</div>
+								)}
 								{campaign.brands?.[0]?.logo && (
 									<div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
 										<Image
