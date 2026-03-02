@@ -2,6 +2,7 @@ import type { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { NextSeo } from "next-seo";
 import BrandCarousel from "@/components/common/home/BrandCarousel";
+import CategoryCarousel from "@/components/common/home/CategoryCarousel";
 import CategoryCampaginCarousel from "@/components/common/home/CategoryCampaignCarousel";
 import HeroCarousel from "@/components/common/home/HeroCarousel";
 import HeroLp from "@/components/common/home/HeroLp";
@@ -21,6 +22,7 @@ interface HomeProps {
 	categories: any[];
 	carousels: any[];
 	brands: any[];
+	allCategories: any[];
 	ads: Ad[];
 	posts: any[];
 }
@@ -39,6 +41,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ({ res })
 				categories: data?.categories || [],
 				carousels: data?.sliders || [],
 				brands: data?.brands || [],
+				allCategories: data?.allCategories || [],
 				ads: data?.ads || [],
 				posts: data?.posts || [],
 			},
@@ -51,6 +54,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ({ res })
 				categories: [],
 				carousels: [],
 				brands: [],
+				allCategories: [],
 				ads: [],
 				posts: [],
 			},
@@ -62,6 +66,7 @@ export default function Home({
 	categories,
 	carousels,
 	brands,
+	allCategories,
 	posts,
 	ads,
 }: HomeProps) {
@@ -110,6 +115,7 @@ export default function Home({
 						<HeroLp />
 					</div>
 					<BrandCarousel data={brands} />
+					<CategoryCarousel data={allCategories} />
 				</div>
 
 				{/* Content middle */}

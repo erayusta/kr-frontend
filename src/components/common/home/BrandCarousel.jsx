@@ -10,6 +10,7 @@ import {
 export default function BrandCarousel({ data }) {
 	return (
 		<div className="w-full mt-6">
+			<h2 className="text-lg font-semibold text-gray-900 mb-3">Markalar</h2>
 			<Carousel
 				plugins={[
 					Autoplay({
