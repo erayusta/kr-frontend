@@ -14,12 +14,16 @@ import {
 	ChevronRight,
 	X,
 	ZoomIn,
+	ShoppingBasket,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IMAGE_BASE_URL } from "@/constants/site";
 
+/* ================================================================
+   Lightbox — Tam ekran görsel görüntüleyici
+   ================================================================ */
 function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 	useEffect(() => {
 		const handleKey = (e) => {
@@ -40,7 +44,6 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 			className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-200"
 			onClick={onClose}
 		>
-			{/* Close */}
 			<button
 				onClick={onClose}
 				className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -49,12 +52,10 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 				<X className="h-6 w-6" />
 			</button>
 
-			{/* Counter */}
 			<div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full bg-white/10 text-white text-sm font-medium">
 				{currentIndex + 1} / {images.length}
 			</div>
 
-			{/* Prev */}
 			{images.length > 1 && (
 				<button
 					onClick={(e) => { e.stopPropagation(); onPrev(); }}
@@ -65,12 +66,10 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 				</button>
 			)}
 
-			{/* Image */}
 			<div
 				className="relative w-full h-full max-w-5xl max-h-[85vh] mx-4 flex items-center justify-center"
 				onClick={(e) => e.stopPropagation()}
 			>
-				{/* biome-ignore lint/a11y/useAltText: lightbox image */}
 				{/* biome-ignore lint/performance/noImgElement: CDN URL */}
 				<img
 					src={images[currentIndex]}
@@ -80,7 +79,6 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 				/>
 			</div>
 
-			{/* Next */}
 			{images.length > 1 && (
 				<button
 					onClick={(e) => { e.stopPropagation(); onNext(); }}
@@ -95,11 +93,60 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 	);
 }
 
+/* ================================================================
+   ZoomableImage — Mouse hover ile büyüteç efekti
+   ================================================================ */
+function ZoomableImage({ src, alt }) {
+	const containerRef = useRef(null);
+	const [showZoom, setShowZoom] = useState(false);
+	const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+
+	const handleMouseMove = (e) => {
+		if (!containerRef.current) return;
+		const rect = containerRef.current.getBoundingClientRect();
+		const x = ((e.clientX - rect.left) / rect.width) * 100;
+		const y = ((e.clientY - rect.top) / rect.height) * 100;
+		setZoomPos({ x, y });
+	};
+
+	return (
+		<div
+			ref={containerRef}
+			className="relative w-full h-full overflow-hidden cursor-crosshair"
+			onMouseEnter={() => setShowZoom(true)}
+			onMouseLeave={() => setShowZoom(false)}
+			onMouseMove={handleMouseMove}
+		>
+			{/* biome-ignore lint/performance/noImgElement: CDN URL */}
+			<img
+				src={src}
+				alt={alt}
+				className="w-full h-full object-contain p-2"
+				draggable={false}
+			/>
+			{showZoom && (
+				<div
+					className="absolute inset-0 pointer-events-none"
+					style={{
+						backgroundImage: `url(${src})`,
+						backgroundSize: "250%",
+						backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
+						backgroundRepeat: "no-repeat",
+					}}
+				/>
+			)}
+		</div>
+	);
+}
+
+/* ================================================================
+   CampaignActualType — Ana bileşen
+   ================================================================ */
 export default function CampaignActualType({ campaign, sections }) {
 	const contentRef = useRef(null);
 	const [lightboxIndex, setLightboxIndex] = useState(-1);
+	const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-	// Auto-expand first section on load
 	const [expandedSections, setExpandedSections] = useState(() => {
 		if (sections && sections.length > 0) {
 			return { [sections[0].id]: true };
@@ -107,24 +154,18 @@ export default function CampaignActualType({ campaign, sections }) {
 		return {};
 	});
 
-	// Get actual content (description)
 	const actualContent = campaign?.actual_content || campaign?.content;
 
-	// Get actual files (PDF/PNG) for download - check both actuals array and actuals_urls
 	const actualFiles = campaign?.actualsUrls || campaign?.actuals_urls || campaign?.actuals || [];
 
-	// Normalize file URLs - ensure they have full CDN path
 	const normalizeFileUrl = (url) => {
 		if (!url) return null;
 		if (url.startsWith("http")) return url;
-		// Add CDN base if not present
 		return `https://kampanyaradar-static.b-cdn.net/kampanyaradar/${url.replace(/^\//, '')}`;
 	};
 
-	// Get normalized file URLs
 	const normalizedFiles = actualFiles.map(normalizeFileUrl).filter(Boolean);
 
-	// Filter files by type
 	const pdfFiles = normalizedFiles.filter((url) => url?.toLowerCase()?.endsWith(".pdf"));
 	const imageFiles = normalizedFiles.filter((url) =>
 		url?.toLowerCase()?.endsWith(".png") ||
@@ -134,20 +175,18 @@ export default function CampaignActualType({ campaign, sections }) {
 	);
 
 	// Lightbox handlers
-	const openLightbox = (index) => setLightboxIndex(index);
 	const closeLightbox = useCallback(() => setLightboxIndex(-1), []);
-	const prevImage = useCallback(() => {
+	const prevLightbox = useCallback(() => {
 		setLightboxIndex((prev) => (prev - 1 + imageFiles.length) % imageFiles.length);
 	}, [imageFiles.length]);
-	const nextImage = useCallback(() => {
+	const nextLightbox = useCallback(() => {
 		setLightboxIndex((prev) => (prev + 1) % imageFiles.length);
 	}, [imageFiles.length]);
 
-	// Fix images in HTML content
 	useEffect(() => {
 		if (contentRef.current) {
-			const images = contentRef.current.querySelectorAll("img");
-			images.forEach((img) => {
+			const imgs = contentRef.current.querySelectorAll("img");
+			imgs.forEach((img) => {
 				img.onerror = function () {
 					this.style.display = "none";
 				};
@@ -177,7 +216,6 @@ export default function CampaignActualType({ campaign, sections }) {
 		}).format(price);
 	};
 
-	// Backend proxy ile indirme URL'i oluştur
 	const getDownloadUrl = (url) => {
 		const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 		return `${apiBase}/download?url=${encodeURIComponent(url)}`;
@@ -188,125 +226,188 @@ export default function CampaignActualType({ campaign, sections }) {
 		return url.split("/").pop() || "dosya";
 	};
 
+	const hasImages = imageFiles.length > 0;
+	const hasContent = !!actualContent;
+
 	return (
-		<div className="space-y-8">
+		<div className="flex flex-col w-full gap-6">
 			{/* Lightbox */}
 			{lightboxIndex >= 0 && (
 				<Lightbox
 					images={imageFiles}
 					currentIndex={lightboxIndex}
 					onClose={closeLightbox}
-					onPrev={prevImage}
-					onNext={nextImage}
+					onPrev={prevLightbox}
+					onNext={nextLightbox}
 				/>
 			)}
 
-			{/* Actual Description/Content */}
-			{actualContent && (
-				<Card className="border-2 border-gray-200">
-					<CardContent className="p-6 lg:p-8">
-						<div
-							ref={contentRef}
-							className="prose prose-gray max-w-none campaign-content"
-							dangerouslySetInnerHTML={{ __html: actualContent }}
-						/>
-					</CardContent>
-				</Card>
-			)}
+			{/* ===== ANA KART: Float Layout — Galeri + İçerik birlikte ===== */}
+			{(hasImages || hasContent) && (
+				<Card className="overflow-hidden border border-gray-200 bg-[#fffaf4]">
+					<CardContent className="p-5 lg:p-6">
 
-			{/* Aktüel Görselleri - Thumbnail Grid */}
-			{imageFiles.length > 0 && (
-				<Card className="border-2 border-orange-200 bg-orange-50/50">
-					<CardHeader className="pb-4">
-						<CardTitle className="text-xl flex items-center gap-2">
-							<ImageIcon className="h-5 w-5 text-orange-500" />
-							Aktüel Görselleri
-							<Badge variant="secondary" className="ml-1">
-								{imageFiles.length} Görsel
-							</Badge>
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-							{imageFiles.map((url, index) => (
-								<button
-									key={`thumb-${index}`}
-									type="button"
-									onClick={() => openLightbox(index)}
-									className="group relative aspect-[3/4] rounded-xl overflow-hidden bg-white border-2 border-gray-100 hover:border-orange-300 hover:shadow-lg transition-all duration-200"
-								>
-									{/* biome-ignore lint/performance/noImgElement: CDN URL */}
-									<img
-										src={url}
-										alt={`Aktüel görseli ${index + 1}`}
-										className="w-full h-full object-cover"
-										loading="lazy"
+						{/* SAĞ PANEL: Galeri — float ile sağa yaslanır */}
+						{hasImages && (
+							<div className="lg:float-right lg:w-5/12 lg:ml-6 mb-5 rounded-xl overflow-hidden bg-gradient-to-b from-gray-50 to-gray-100/50 border border-gray-200">
+								{/* Ana Görsel — mouse hover zoom */}
+								<div className="relative aspect-[3/4] overflow-hidden bg-white">
+									<ZoomableImage
+										src={imageFiles[activeImageIndex]}
+										alt={`Aktüel görseli ${activeImageIndex + 1}`}
 									/>
-									<div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
-										<div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2.5 rounded-full bg-white/90 shadow-md">
-											<ZoomIn className="h-5 w-5 text-orange-500" />
+
+									{/* Lightbox aç butonu */}
+									<button
+										type="button"
+										onClick={() => setLightboxIndex(activeImageIndex)}
+										className="absolute top-3 right-3 p-2 rounded-lg bg-white/80 hover:bg-orange-500 hover:text-white text-gray-600 shadow-md transition-colors"
+										aria-label="Tam ekran görüntüle"
+									>
+										<ZoomIn className="h-4 w-4" />
+									</button>
+
+									{/* Sayaç */}
+									{imageFiles.length > 1 && (
+										<div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-sm">
+											{activeImageIndex + 1} / {imageFiles.length}
+										</div>
+									)}
+
+									{/* Prev / Next oklar */}
+									{imageFiles.length > 1 && (
+										<>
+											<button
+												type="button"
+												onClick={() => setActiveImageIndex((prev) => (prev - 1 + imageFiles.length) % imageFiles.length)}
+												className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-orange-500 hover:text-white text-gray-600 shadow-md transition-colors"
+												aria-label="Önceki"
+											>
+												<ChevronLeft className="h-4 w-4" />
+											</button>
+											<button
+												type="button"
+												onClick={() => setActiveImageIndex((prev) => (prev + 1) % imageFiles.length)}
+												className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-orange-500 hover:text-white text-gray-600 shadow-md transition-colors"
+												aria-label="Sonraki"
+											>
+												<ChevronRight className="h-4 w-4" />
+											</button>
+										</>
+									)}
+								</div>
+
+								{/* Thumbnail şeridi */}
+								{imageFiles.length > 1 && (
+									<div className="flex items-center gap-2 px-3 py-2.5 overflow-x-auto border-t border-gray-200/60">
+										{imageFiles.map((url, index) => (
+											<button
+												key={`thumb-${index}`}
+												type="button"
+												onClick={() => setActiveImageIndex(index)}
+												className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+													activeImageIndex === index
+														? "border-orange-500 shadow-md"
+														: "border-gray-200 hover:border-orange-300"
+												}`}
+											>
+												{/* biome-ignore lint/performance/noImgElement: CDN thumbnail */}
+												<img
+													src={url}
+													alt={`Thumbnail ${index + 1}`}
+													className="w-11 h-11 object-cover bg-gray-100"
+													loading="lazy"
+												/>
+											</button>
+										))}
+									</div>
+								)}
+
+								{/* PDF İndirme — galeri altında, aynı blokta */}
+								{pdfFiles.length > 0 && (
+									<div className="px-3 pb-3 pt-1 border-t border-gray-200/60">
+										<h3 className="font-semibold text-[#1C2B4A] mb-2 flex items-center gap-2 text-xs uppercase tracking-wide">
+											<Download className="w-3.5 h-3.5 text-orange-500" />
+											Katalog İndir
+										</h3>
+										<div className="space-y-1.5">
+											{pdfFiles.map((url, index) => (
+												<a
+													key={`pdf-${index}`}
+													href={getDownloadUrl(url)}
+													className="flex items-center gap-2.5 px-2.5 py-2 bg-white/80 rounded-md hover:bg-red-50 transition-colors group"
+												>
+													<FileText className="h-4 w-4 text-red-500 flex-shrink-0" />
+													<span className="text-[11px] font-medium text-gray-700 group-hover:text-red-600 truncate">
+														{getFileName(url)}
+													</span>
+												</a>
+											))}
 										</div>
 									</div>
-								</button>
-							))}
-						</div>
+								)}
+							</div>
+						)}
+
+						{/* İÇERİK: Açıklama — float'ın yanında başlar, uzunsa altına sarar */}
+						{hasContent && (
+							<div>
+								<div
+									ref={contentRef}
+									className="prose prose-sm prose-gray max-w-none campaign-content"
+									dangerouslySetInnerHTML={{ __html: actualContent }}
+								/>
+							</div>
+						)}
+
+						<div className="clear-both" />
 					</CardContent>
 				</Card>
 			)}
 
-			{/* PDF Downloads */}
-			{pdfFiles.length > 0 && (
-				<Card className="border-2 border-orange-200 bg-orange-50/50">
-					<CardHeader className="pb-4">
+			{/* ===== AKTÜEL ÜRÜNLERİ KAROSEL — İleride API'den gelecek ürünler için ===== */}
+			<Card className="border border-gray-200 bg-white">
+				<CardHeader className="pb-4 border-b">
+					<div className="flex items-center justify-between">
 						<CardTitle className="text-xl flex items-center gap-2">
-							<Download className="h-5 w-5 text-orange-500" />
-							Katalog / Broşür İndir
+							<ShoppingBasket className="h-5 w-5 text-orange-500" />
+							Aktüel Ürünleri
 						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-							{pdfFiles.map((url, index) => (
-								<Button
-									key={`pdf-${index}`}
-									variant="outline"
-									className="h-auto py-4 px-4 flex items-center gap-3 justify-start bg-white hover:bg-red-50 border-red-200 hover:border-red-300 transition-colors"
-									asChild
-								>
-									<a href={getDownloadUrl(url)}>
-										<FileText className="h-8 w-8 text-red-500 flex-shrink-0" />
-										<div className="text-left overflow-hidden">
-											<p className="font-medium text-gray-900 truncate">
-												{getFileName(url)}
-											</p>
-											<p className="text-xs text-gray-500">PDF Dosyası</p>
-										</div>
-									</a>
-								</Button>
-							))}
+					</div>
+				</CardHeader>
+				<CardContent className="py-10">
+					<div className="flex flex-col items-center justify-center text-center">
+						<div className="p-4 bg-orange-50 rounded-full mb-4">
+							<Package className="h-8 w-8 text-orange-400" />
 						</div>
-					</CardContent>
-				</Card>
-			)}
+						<p className="text-gray-500 text-sm font-medium">
+							Bu aktüelin ürünleri yakında burada listelenecek.
+						</p>
+						<p className="text-gray-400 text-xs mt-1">
+							Fiyat karşılaştırmaları ve detaylar için takipte kalın.
+						</p>
+					</div>
+				</CardContent>
+			</Card>
 
-			{/* Actual Products Section */}
+			{/* ===== AKTÜEL DETAY ÜRÜNLERİ — Mevcut sections verisi ===== */}
 			{sections && sections.length > 0 && (
-				<Card className="border-2 border-gray-200">
+				<Card className="border border-gray-200">
 					<CardHeader className="pb-4 border-b">
 						<CardTitle className="text-xl flex items-center gap-2">
-							<Package className="h-5 w-5 text-orange-500" />
-							Aktüel Ürünleri
+							<Tag className="h-5 w-5 text-orange-500" />
+							Ürün Detayları
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="p-0">
 						{sections.map((section) => (
 							<div key={section.id} className="border-b last:border-b-0">
-								{/* Section Header */}
 								<button
 									onClick={() => toggleSection(section.id)}
 									className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
 								>
 									<div className="flex items-center gap-3">
-										<Tag className="h-5 w-5 text-orange-500" />
+										<Tag className="h-4 w-4 text-orange-500" />
 										<span className="font-semibold text-gray-900">
 											{section.title || "Kategori"}
 										</span>
@@ -321,20 +422,18 @@ export default function CampaignActualType({ campaign, sections }) {
 									)}
 								</button>
 
-								{/* Section Items */}
 								{expandedSections[section.id] && section.items && (
 									<div className="px-6 pb-6">
 										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 											{section.items.map((item) => (
 												<div
 													key={item.id}
-													className={`bg-white rounded-lg border-2 ${
+													className={`bg-white rounded-xl border-2 ${
 														item.highlight
 															? "border-orange-300 shadow-md"
 															: "border-gray-100"
-													} p-4 hover:shadow-lg transition-shadow`}
+													} p-4 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5`}
 												>
-													{/* Product Image */}
 													<div className="relative aspect-square mb-3 bg-gray-50 rounded-lg overflow-hidden">
 														<Image
 															src={getProductImage(item.image_url || item.product?.image)}
@@ -350,28 +449,23 @@ export default function CampaignActualType({ campaign, sections }) {
 														)}
 													</div>
 
-													{/* Product Info */}
 													<div className="space-y-2">
-														{/* Title */}
 														<h4 className="font-medium text-gray-900 text-sm line-clamp-2">
 															{item.title || item.product?.title || "Ürün"}
 														</h4>
 
-														{/* Brand */}
 														{item.brand && (
 															<p className="text-xs text-gray-500">
 																Marka: <span className="font-medium">{item.brand}</span>
 															</p>
 														)}
 
-														{/* Size/Unit */}
 														{item.unit_or_size && (
 															<p className="text-xs text-gray-500">
 																{item.unit_or_size}
 															</p>
 														)}
 
-														{/* Store */}
 														{item.store_brand && (
 															<div className="flex items-center gap-1 text-xs text-gray-500">
 																<Store className="h-3 w-3" />
@@ -379,7 +473,6 @@ export default function CampaignActualType({ campaign, sections }) {
 															</div>
 														)}
 
-														{/* Price */}
 														{item.snapshot_price && (
 															<div className="pt-2 border-t border-gray-100">
 																<p className="text-lg font-bold text-orange-600">
@@ -393,7 +486,6 @@ export default function CampaignActualType({ campaign, sections }) {
 															</div>
 														)}
 
-														{/* Note */}
 														{item.note && (
 															<p className="text-xs text-gray-600 italic bg-gray-50 p-2 rounded">
 																{item.note}
@@ -411,9 +503,9 @@ export default function CampaignActualType({ campaign, sections }) {
 				</Card>
 			)}
 
-			{/* No Products Message - only show if no content, no files, and no products */}
-			{!actualContent && (!sections || sections.length === 0) && normalizedFiles.length === 0 && (
-				<Card className="border-2 border-gray-200">
+			{/* Boş durum mesajı */}
+			{!hasContent && !hasImages && (!sections || sections.length === 0) && (
+				<Card className="border border-gray-200">
 					<CardContent className="p-8 text-center">
 						<Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
 						<p className="text-gray-500">
