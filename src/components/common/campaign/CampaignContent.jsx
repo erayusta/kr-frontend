@@ -9,7 +9,7 @@ import CampaignProductType from "./CampaignProductType";
 import CampaignRealEstateType from "./CampaignRealEstateType";
 
 
-export default function CampaignContent({ campaign, sections, ads }) {
+export default function CampaignContent({ campaign, sections, imageHotspots, ads }) {
 	const contentRef = useRef(null);
 	const isActual = campaign?.itemType === "actual";
 	const htmlContent = isActual ? campaign?.actual_content : campaign?.content;
@@ -50,7 +50,7 @@ export default function CampaignContent({ campaign, sections, ads }) {
 	// Kampanya tipine göre özel içerik göster
 	const renderSpecialContent = () => {
 		if (campaign?.itemType === "actual" || campaign?.item_type === "actual") {
-			return <CampaignActualType campaign={campaign} sections={sections} />;
+			return <CampaignActualType campaign={campaign} sections={sections} imageHotspots={imageHotspots} />;
 		}
 		if (campaign?.itemType === "coupon" || campaign?.item_type === "coupon") {
 			return <CampaignCouponType campaign={campaign} />;
@@ -86,12 +86,23 @@ export default function CampaignContent({ campaign, sections, ads }) {
 
 	const specialContent = renderSpecialContent();
 
+	const isActualType = campaign?.itemType === "actual" || campaign?.item_type === "actual";
+
 	return (
 		<section className="bg-[#FFFAF4] py-8 mt-6">
+			{/* Aktüel galeri — daha geniş alan, dar container dışında */}
+			{isActualType && specialContent && (
+				<div className="xl:mx-auto xl:px-8 mb-8">
+					<div className="container px-4">
+						{specialContent}
+					</div>
+				</div>
+			)}
+
 			<div className="xl:mx-auto xl:px-36">
 				<div className="container px-4">
-					{/* Özel İçerik (Ürün, Araba, Gayrimenkul) */}
-					{specialContent && <div className="mb-8">{specialContent}</div>}
+					{/* Özel İçerik (Ürün, Araba, Gayrimenkul) — aktüel hariç */}
+					{!isActualType && specialContent && <div className="mb-8">{specialContent}</div>}
 
 					<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 						{/* Sol Taraf - İçerik */}

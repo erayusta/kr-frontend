@@ -37,6 +37,7 @@ export async function getServerSideProps(context) {
 			props: {
 				campaign: response.data || null,
 				sections: response.sections || [],
+				imageHotspots: response.imageHotspots || [],
 				categories: response.related
 				? [{
 					campaigns: response.related,
@@ -60,7 +61,7 @@ export async function getServerSideProps(context) {
 	}
 }
 
-export default function Campaign({ campaign, sections, categories, isGone, ads }) {
+export default function Campaign({ campaign, sections, imageHotspots, categories, isGone, ads }) {
 	const router = useRouter();
 	const canonical = `${process.env.NEXT_PUBLIC_BASE_URL}/kampanya/${campaign?.slug || router.query.slug}`;
 
@@ -122,7 +123,7 @@ export default function Campaign({ campaign, sections, categories, isGone, ads }
 			{/* Content middle */}
 			<Ads ads={ads} positions={["content_middle"]} itemType="campaign" />
 
-			<CampaignContent campaign={campaign} sections={sections} />
+			<CampaignContent campaign={campaign} sections={sections} imageHotspots={imageHotspots} />
 
 			{/* Footer */}
 			<Ads ads={ads} positions={["footer"]} itemType="campaign" />

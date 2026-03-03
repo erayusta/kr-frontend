@@ -4,7 +4,6 @@ import Image from "next/image";
 import {
 	Download,
 	FileText,
-	ImageIcon,
 	Package,
 	Tag,
 	Store,
@@ -13,18 +12,18 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	X,
-	ZoomIn,
 	ShoppingBasket,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IMAGE_BASE_URL } from "@/constants/site";
+import ActualImageViewer from "./actual/ActualImageViewer";
+import HotspotOverlay from "./actual/HotspotOverlay";
 
 /* ================================================================
-   Lightbox — Tam ekran görsel görüntüleyici
+   Lightbox — Tam ekran görsel görüntüleyici (hotspot destekli)
    ================================================================ */
-function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
+function Lightbox({ images, currentIndex, onClose, onPrev, onNext, hotspots = [] }) {
 	useEffect(() => {
 		const handleKey = (e) => {
 			if (e.key === "Escape") onClose();
@@ -38,6 +37,8 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 			document.body.style.overflow = "";
 		};
 	}, [onClose, onPrev, onNext]);
+
+	const currentHotspots = hotspots.filter((h) => h.image_index === currentIndex);
 
 	return createPortal(
 		<div
@@ -77,6 +78,9 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 					className="max-w-full max-h-[85vh] object-contain rounded-lg select-none"
 					draggable={false}
 				/>
+				{currentHotspots.length > 0 && (
+					<HotspotOverlay hotspots={currentHotspots} />
+				)}
 			</div>
 
 			{images.length > 1 && (
@@ -94,55 +98,9 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 }
 
 /* ================================================================
-   ZoomableImage — Mouse hover ile büyüteç efekti
-   ================================================================ */
-function ZoomableImage({ src, alt }) {
-	const containerRef = useRef(null);
-	const [showZoom, setShowZoom] = useState(false);
-	const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
-
-	const handleMouseMove = (e) => {
-		if (!containerRef.current) return;
-		const rect = containerRef.current.getBoundingClientRect();
-		const x = ((e.clientX - rect.left) / rect.width) * 100;
-		const y = ((e.clientY - rect.top) / rect.height) * 100;
-		setZoomPos({ x, y });
-	};
-
-	return (
-		<div
-			ref={containerRef}
-			className="relative w-full h-full overflow-hidden cursor-crosshair"
-			onMouseEnter={() => setShowZoom(true)}
-			onMouseLeave={() => setShowZoom(false)}
-			onMouseMove={handleMouseMove}
-		>
-			{/* biome-ignore lint/performance/noImgElement: CDN URL */}
-			<img
-				src={src}
-				alt={alt}
-				className="w-full h-full object-contain p-2"
-				draggable={false}
-			/>
-			{showZoom && (
-				<div
-					className="absolute inset-0 pointer-events-none"
-					style={{
-						backgroundImage: `url(${src})`,
-						backgroundSize: "250%",
-						backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
-						backgroundRepeat: "no-repeat",
-					}}
-				/>
-			)}
-		</div>
-	);
-}
-
-/* ================================================================
    CampaignActualType — Ana bileşen
    ================================================================ */
-export default function CampaignActualType({ campaign, sections }) {
+export default function CampaignActualType({ campaign, sections, imageHotspots = [] }) {
 	const contentRef = useRef(null);
 	const [lightboxIndex, setLightboxIndex] = useState(-1);
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -239,129 +197,61 @@ export default function CampaignActualType({ campaign, sections }) {
 					onClose={closeLightbox}
 					onPrev={prevLightbox}
 					onNext={nextLightbox}
+					hotspots={imageHotspots}
 				/>
 			)}
 
-			{/* ===== ANA KART: Float Layout — Galeri + İçerik birlikte ===== */}
+			{/* ===== KATALOG KARTI — Galeri + Açıklama + PDF bütünleşik ===== */}
 			{(hasImages || hasContent) && (
-				<Card className="overflow-hidden border border-gray-200 bg-[#fffaf4]">
-					<CardContent className="p-5 lg:p-6">
+				<Card className="overflow-hidden border border-gray-200 bg-white shadow-sm">
+					{/* Galeri */}
+					{hasImages && (
+						<div className="bg-gradient-to-b from-gray-50 via-gray-50 to-gray-100/80">
+							<ActualImageViewer
+								imageFiles={imageFiles}
+								hotspots={imageHotspots}
+								activeIndex={activeImageIndex}
+								onActiveIndexChange={setActiveImageIndex}
+								onOpenLightbox={(idx) => setLightboxIndex(idx)}
+							/>
+						</div>
+					)}
 
-						{/* SAĞ PANEL: Galeri — float ile sağa yaslanır */}
-						{hasImages && (
-							<div className="lg:float-right lg:w-5/12 lg:ml-6 mb-5 rounded-xl overflow-hidden bg-gradient-to-b from-gray-50 to-gray-100/50 border border-gray-200">
-								{/* Ana Görsel — mouse hover zoom */}
-								<div className="relative aspect-[3/4] overflow-hidden bg-white">
-									<ZoomableImage
-										src={imageFiles[activeImageIndex]}
-										alt={`Aktüel görseli ${activeImageIndex + 1}`}
-									/>
-
-									{/* Lightbox aç butonu */}
-									<button
-										type="button"
-										onClick={() => setLightboxIndex(activeImageIndex)}
-										className="absolute top-3 right-3 p-2 rounded-lg bg-white/80 hover:bg-orange-500 hover:text-white text-gray-600 shadow-md transition-colors"
-										aria-label="Tam ekran görüntüle"
-									>
-										<ZoomIn className="h-4 w-4" />
-									</button>
-
-									{/* Sayaç */}
-									{imageFiles.length > 1 && (
-										<div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-sm">
-											{activeImageIndex + 1} / {imageFiles.length}
-										</div>
-									)}
-
-									{/* Prev / Next oklar */}
-									{imageFiles.length > 1 && (
-										<>
-											<button
-												type="button"
-												onClick={() => setActiveImageIndex((prev) => (prev - 1 + imageFiles.length) % imageFiles.length)}
-												className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-orange-500 hover:text-white text-gray-600 shadow-md transition-colors"
-												aria-label="Önceki"
-											>
-												<ChevronLeft className="h-4 w-4" />
-											</button>
-											<button
-												type="button"
-												onClick={() => setActiveImageIndex((prev) => (prev + 1) % imageFiles.length)}
-												className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-orange-500 hover:text-white text-gray-600 shadow-md transition-colors"
-												aria-label="Sonraki"
-											>
-												<ChevronRight className="h-4 w-4" />
-											</button>
-										</>
-									)}
+					{/* PDF + Açıklama alt bölüm */}
+					{(pdfFiles.length > 0 || hasContent) && (
+						<div className="border-t border-gray-200 bg-[#fffaf4]">
+							{/* PDF İndirme şeridi */}
+							{pdfFiles.length > 0 && (
+								<div className="px-5 lg:px-6 py-3 flex flex-wrap items-center gap-3 border-b border-gray-100">
+									<span className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+										<Download className="w-3.5 h-3.5 text-orange-500" />
+										Katalog
+									</span>
+									{pdfFiles.map((url, index) => (
+										<a
+											key={`pdf-${index}`}
+											href={getDownloadUrl(url)}
+											className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white rounded-full border border-gray-200 hover:border-red-300 hover:text-red-600 hover:bg-red-50 transition-colors shadow-sm"
+										>
+											<FileText className="h-3.5 w-3.5 text-red-500" />
+											{getFileName(url)}
+										</a>
+									))}
 								</div>
+							)}
 
-								{/* Thumbnail şeridi */}
-								{imageFiles.length > 1 && (
-									<div className="flex items-center gap-2 px-3 py-2.5 overflow-x-auto border-t border-gray-200/60">
-										{imageFiles.map((url, index) => (
-											<button
-												key={`thumb-${index}`}
-												type="button"
-												onClick={() => setActiveImageIndex(index)}
-												className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
-													activeImageIndex === index
-														? "border-orange-500 shadow-md"
-														: "border-gray-200 hover:border-orange-300"
-												}`}
-											>
-												{/* biome-ignore lint/performance/noImgElement: CDN thumbnail */}
-												<img
-													src={url}
-													alt={`Thumbnail ${index + 1}`}
-													className="w-11 h-11 object-cover bg-gray-100"
-													loading="lazy"
-												/>
-											</button>
-										))}
-									</div>
-								)}
-
-								{/* PDF İndirme — galeri altında, aynı blokta */}
-								{pdfFiles.length > 0 && (
-									<div className="px-3 pb-3 pt-1 border-t border-gray-200/60">
-										<h3 className="font-semibold text-[#1C2B4A] mb-2 flex items-center gap-2 text-xs uppercase tracking-wide">
-											<Download className="w-3.5 h-3.5 text-orange-500" />
-											Katalog İndir
-										</h3>
-										<div className="space-y-1.5">
-											{pdfFiles.map((url, index) => (
-												<a
-													key={`pdf-${index}`}
-													href={getDownloadUrl(url)}
-													className="flex items-center gap-2.5 px-2.5 py-2 bg-white/80 rounded-md hover:bg-red-50 transition-colors group"
-												>
-													<FileText className="h-4 w-4 text-red-500 flex-shrink-0" />
-													<span className="text-[11px] font-medium text-gray-700 group-hover:text-red-600 truncate">
-														{getFileName(url)}
-													</span>
-												</a>
-											))}
-										</div>
-									</div>
-								)}
-							</div>
-						)}
-
-						{/* İÇERİK: Açıklama — float'ın yanında başlar, uzunsa altına sarar */}
-						{hasContent && (
-							<div>
-								<div
-									ref={contentRef}
-									className="prose prose-sm prose-gray max-w-none campaign-content"
-									dangerouslySetInnerHTML={{ __html: actualContent }}
-								/>
-							</div>
-						)}
-
-						<div className="clear-both" />
-					</CardContent>
+							{/* Açıklama */}
+							{hasContent && (
+								<div className="px-5 lg:px-6 py-5">
+									<div
+										ref={contentRef}
+										className="prose prose-sm prose-gray max-w-none campaign-content"
+										dangerouslySetInnerHTML={{ __html: actualContent }}
+									/>
+								</div>
+							)}
+						</div>
+					)}
 				</Card>
 			)}
 
