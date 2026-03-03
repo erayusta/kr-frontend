@@ -1,24 +1,110 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import {
 	Download,
 	FileText,
-	ImageIcon,
 	Package,
 	Tag,
 	Store,
 	ChevronDown,
 	ChevronUp,
+	ChevronLeft,
+	ChevronRight,
+	X,
+	ShoppingBasket,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IMAGE_BASE_URL } from "@/constants/site";
+import ActualImageViewer from "./actual/ActualImageViewer";
+import HotspotOverlay from "./actual/HotspotOverlay";
 
-export default function CampaignActualType({ campaign, sections }) {
+/* ================================================================
+   Lightbox — Tam ekran görsel görüntüleyici (hotspot destekli)
+   ================================================================ */
+function Lightbox({ images, currentIndex, onClose, onPrev, onNext, hotspots = [] }) {
+	useEffect(() => {
+		const handleKey = (e) => {
+			if (e.key === "Escape") onClose();
+			if (e.key === "ArrowLeft") onPrev();
+			if (e.key === "ArrowRight") onNext();
+		};
+		document.addEventListener("keydown", handleKey);
+		document.body.style.overflow = "hidden";
+		return () => {
+			document.removeEventListener("keydown", handleKey);
+			document.body.style.overflow = "";
+		};
+	}, [onClose, onPrev, onNext]);
+
+	const currentHotspots = hotspots.filter((h) => h.image_index === currentIndex);
+
+	return createPortal(
+		<div
+			className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-200"
+			onClick={onClose}
+		>
+			<button
+				onClick={onClose}
+				className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+				aria-label="Kapat"
+			>
+				<X className="h-6 w-6" />
+			</button>
+
+			<div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full bg-white/10 text-white text-sm font-medium">
+				{currentIndex + 1} / {images.length}
+			</div>
+
+			{images.length > 1 && (
+				<button
+					onClick={(e) => { e.stopPropagation(); onPrev(); }}
+					className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-10 p-2 sm:p-3 rounded-full bg-white/10 hover:bg-orange-500 text-white transition-colors"
+					aria-label="Önceki görsel"
+				>
+					<ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+				</button>
+			)}
+
+			<div
+				className="relative w-full h-full max-w-5xl max-h-[85vh] mx-4 flex items-center justify-center"
+				onClick={(e) => e.stopPropagation()}
+			>
+				{/* biome-ignore lint/performance/noImgElement: CDN URL */}
+				<img
+					src={images[currentIndex]}
+					alt={`Aktüel görseli ${currentIndex + 1}`}
+					className="max-w-full max-h-[85vh] object-contain rounded-lg select-none"
+					draggable={false}
+				/>
+				{currentHotspots.length > 0 && (
+					<HotspotOverlay hotspots={currentHotspots} />
+				)}
+			</div>
+
+			{images.length > 1 && (
+				<button
+					onClick={(e) => { e.stopPropagation(); onNext(); }}
+					className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-10 p-2 sm:p-3 rounded-full bg-white/10 hover:bg-orange-500 text-white transition-colors"
+					aria-label="Sonraki görsel"
+				>
+					<ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+				</button>
+			)}
+		</div>,
+		document.body,
+	);
+}
+
+/* ================================================================
+   CampaignActualType — Ana bileşen
+   ================================================================ */
+export default function CampaignActualType({ campaign, sections, imageHotspots = [] }) {
 	const contentRef = useRef(null);
+	const [lightboxIndex, setLightboxIndex] = useState(-1);
+	const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-	// Auto-expand first section on load
 	const [expandedSections, setExpandedSections] = useState(() => {
 		if (sections && sections.length > 0) {
 			return { [sections[0].id]: true };
@@ -26,24 +112,18 @@ export default function CampaignActualType({ campaign, sections }) {
 		return {};
 	});
 
-	// Get actual content (description)
 	const actualContent = campaign?.actual_content || campaign?.content;
 
-	// Get actual files (PDF/PNG) for download - check both actuals array and actuals_urls
 	const actualFiles = campaign?.actualsUrls || campaign?.actuals_urls || campaign?.actuals || [];
 
-	// Normalize file URLs - ensure they have full CDN path
 	const normalizeFileUrl = (url) => {
 		if (!url) return null;
 		if (url.startsWith("http")) return url;
-		// Add CDN base if not present
 		return `https://kampanyaradar-static.b-cdn.net/kampanyaradar/${url.replace(/^\//, '')}`;
 	};
 
-	// Get normalized file URLs
 	const normalizedFiles = actualFiles.map(normalizeFileUrl).filter(Boolean);
 
-	// Filter files by type
 	const pdfFiles = normalizedFiles.filter((url) => url?.toLowerCase()?.endsWith(".pdf"));
 	const imageFiles = normalizedFiles.filter((url) =>
 		url?.toLowerCase()?.endsWith(".png") ||
@@ -52,11 +132,19 @@ export default function CampaignActualType({ campaign, sections }) {
 		url?.toLowerCase()?.endsWith(".webp")
 	);
 
-	// Fix images in HTML content
+	// Lightbox handlers
+	const closeLightbox = useCallback(() => setLightboxIndex(-1), []);
+	const prevLightbox = useCallback(() => {
+		setLightboxIndex((prev) => (prev - 1 + imageFiles.length) % imageFiles.length);
+	}, [imageFiles.length]);
+	const nextLightbox = useCallback(() => {
+		setLightboxIndex((prev) => (prev + 1) % imageFiles.length);
+	}, [imageFiles.length]);
+
 	useEffect(() => {
 		if (contentRef.current) {
-			const images = contentRef.current.querySelectorAll("img");
-			images.forEach((img) => {
+			const imgs = contentRef.current.querySelectorAll("img");
+			imgs.forEach((img) => {
 				img.onerror = function () {
 					this.style.display = "none";
 				};
@@ -86,7 +174,6 @@ export default function CampaignActualType({ campaign, sections }) {
 		}).format(price);
 	};
 
-	// Backend proxy ile indirme URL'i oluştur
 	const getDownloadUrl = (url) => {
 		const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 		return `${apiBase}/download?url=${encodeURIComponent(url)}`;
@@ -97,95 +184,120 @@ export default function CampaignActualType({ campaign, sections }) {
 		return url.split("/").pop() || "dosya";
 	};
 
+	const hasImages = imageFiles.length > 0;
+	const hasContent = !!actualContent;
+
 	return (
-		<div className="space-y-8">
-			{/* Actual Description/Content */}
-			{actualContent && (
-				<Card className="border-2 border-gray-200">
-					<CardContent className="p-6 lg:p-8">
-						<div
-							ref={contentRef}
-							className="prose prose-gray max-w-none campaign-content"
-							dangerouslySetInnerHTML={{ __html: actualContent }}
-						/>
-					</CardContent>
-				</Card>
+		<div className="flex flex-col w-full gap-6">
+			{/* Lightbox */}
+			{lightboxIndex >= 0 && (
+				<Lightbox
+					images={imageFiles}
+					currentIndex={lightboxIndex}
+					onClose={closeLightbox}
+					onPrev={prevLightbox}
+					onNext={nextLightbox}
+					hotspots={imageHotspots}
+				/>
 			)}
 
-			{/* Download Buttons Section */}
-			{(pdfFiles.length > 0 || imageFiles.length > 0) && (
-				<Card className="border-2 border-orange-200 bg-orange-50">
-					<CardHeader className="pb-4">
-						<CardTitle className="text-xl flex items-center gap-2">
-							<Download className="h-5 w-5 text-orange-500" />
-							Katalog / Broşür İndir
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-							{/* PDF Files */}
-							{pdfFiles.map((url, index) => (
-								<Button
-									key={`pdf-${index}`}
-									variant="outline"
-									className="h-auto py-4 px-4 flex items-center gap-3 justify-start bg-white hover:bg-red-50 border-red-200 hover:border-red-300 transition-colors"
-									asChild
-								>
-									<a href={getDownloadUrl(url)}>
-										<FileText className="h-8 w-8 text-red-500 flex-shrink-0" />
-										<div className="text-left overflow-hidden">
-											<p className="font-medium text-gray-900 truncate">
-												{getFileName(url)}
-											</p>
-											<p className="text-xs text-gray-500">PDF Dosyası</p>
-										</div>
-									</a>
-								</Button>
-							))}
-
-							{/* Image Files */}
-							{imageFiles.map((url, index) => (
-								<Button
-									key={`img-${index}`}
-									variant="outline"
-									className="h-auto py-4 px-4 flex items-center gap-3 justify-start bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 transition-colors"
-									asChild
-								>
-									<a href={getDownloadUrl(url)}>
-										<ImageIcon className="h-8 w-8 text-blue-500 flex-shrink-0" />
-										<div className="text-left overflow-hidden">
-											<p className="font-medium text-gray-900 truncate">
-												{getFileName(url)}
-											</p>
-											<p className="text-xs text-gray-500">Görsel Dosyası</p>
-										</div>
-									</a>
-								</Button>
-							))}
+			{/* ===== KATALOG KARTI — Galeri + Açıklama + PDF bütünleşik ===== */}
+			{(hasImages || hasContent) && (
+				<Card className="overflow-hidden border border-gray-200 bg-white shadow-sm">
+					{/* Galeri */}
+					{hasImages && (
+						<div className="bg-gradient-to-b from-gray-50 via-gray-50 to-gray-100/80">
+							<ActualImageViewer
+								imageFiles={imageFiles}
+								hotspots={imageHotspots}
+								activeIndex={activeImageIndex}
+								onActiveIndexChange={setActiveImageIndex}
+								onOpenLightbox={(idx) => setLightboxIndex(idx)}
+							/>
 						</div>
-					</CardContent>
+					)}
+
+					{/* PDF + Açıklama alt bölüm */}
+					{(pdfFiles.length > 0 || hasContent) && (
+						<div className="border-t border-gray-200 bg-[#fffaf4]">
+							{/* PDF İndirme şeridi */}
+							{pdfFiles.length > 0 && (
+								<div className="px-5 lg:px-6 py-3 flex flex-wrap items-center gap-3 border-b border-gray-100">
+									<span className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+										<Download className="w-3.5 h-3.5 text-orange-500" />
+										Katalog
+									</span>
+									{pdfFiles.map((url, index) => (
+										<a
+											key={`pdf-${index}`}
+											href={getDownloadUrl(url)}
+											className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white rounded-full border border-gray-200 hover:border-red-300 hover:text-red-600 hover:bg-red-50 transition-colors shadow-sm"
+										>
+											<FileText className="h-3.5 w-3.5 text-red-500" />
+											{getFileName(url)}
+										</a>
+									))}
+								</div>
+							)}
+
+							{/* Açıklama */}
+							{hasContent && (
+								<div className="px-5 lg:px-6 py-5">
+									<div
+										ref={contentRef}
+										className="prose prose-sm prose-gray max-w-none campaign-content"
+										dangerouslySetInnerHTML={{ __html: actualContent }}
+									/>
+								</div>
+							)}
+						</div>
+					)}
 				</Card>
 			)}
 
-			{/* Actual Products Section */}
+			{/* ===== AKTÜEL ÜRÜNLERİ KAROSEL — İleride API'den gelecek ürünler için ===== */}
+			<Card className="border border-gray-200 bg-white">
+				<CardHeader className="pb-4 border-b">
+					<div className="flex items-center justify-between">
+						<CardTitle className="text-xl flex items-center gap-2">
+							<ShoppingBasket className="h-5 w-5 text-orange-500" />
+							Aktüel Ürünleri
+						</CardTitle>
+					</div>
+				</CardHeader>
+				<CardContent className="py-10">
+					<div className="flex flex-col items-center justify-center text-center">
+						<div className="p-4 bg-orange-50 rounded-full mb-4">
+							<Package className="h-8 w-8 text-orange-400" />
+						</div>
+						<p className="text-gray-500 text-sm font-medium">
+							Bu aktüelin ürünleri yakında burada listelenecek.
+						</p>
+						<p className="text-gray-400 text-xs mt-1">
+							Fiyat karşılaştırmaları ve detaylar için takipte kalın.
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* ===== AKTÜEL DETAY ÜRÜNLERİ — Mevcut sections verisi ===== */}
 			{sections && sections.length > 0 && (
-				<Card className="border-2 border-gray-200">
+				<Card className="border border-gray-200">
 					<CardHeader className="pb-4 border-b">
 						<CardTitle className="text-xl flex items-center gap-2">
-							<Package className="h-5 w-5 text-orange-500" />
-							Aktüel Ürünleri
+							<Tag className="h-5 w-5 text-orange-500" />
+							Ürün Detayları
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="p-0">
 						{sections.map((section) => (
 							<div key={section.id} className="border-b last:border-b-0">
-								{/* Section Header */}
 								<button
 									onClick={() => toggleSection(section.id)}
 									className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
 								>
 									<div className="flex items-center gap-3">
-										<Tag className="h-5 w-5 text-orange-500" />
+										<Tag className="h-4 w-4 text-orange-500" />
 										<span className="font-semibold text-gray-900">
 											{section.title || "Kategori"}
 										</span>
@@ -200,20 +312,18 @@ export default function CampaignActualType({ campaign, sections }) {
 									)}
 								</button>
 
-								{/* Section Items */}
 								{expandedSections[section.id] && section.items && (
 									<div className="px-6 pb-6">
 										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 											{section.items.map((item) => (
 												<div
 													key={item.id}
-													className={`bg-white rounded-lg border-2 ${
+													className={`bg-white rounded-xl border-2 ${
 														item.highlight
 															? "border-orange-300 shadow-md"
 															: "border-gray-100"
-													} p-4 hover:shadow-lg transition-shadow`}
+													} p-4 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5`}
 												>
-													{/* Product Image */}
 													<div className="relative aspect-square mb-3 bg-gray-50 rounded-lg overflow-hidden">
 														<Image
 															src={getProductImage(item.image_url || item.product?.image)}
@@ -229,28 +339,23 @@ export default function CampaignActualType({ campaign, sections }) {
 														)}
 													</div>
 
-													{/* Product Info */}
 													<div className="space-y-2">
-														{/* Title */}
 														<h4 className="font-medium text-gray-900 text-sm line-clamp-2">
 															{item.title || item.product?.title || "Ürün"}
 														</h4>
 
-														{/* Brand */}
 														{item.brand && (
 															<p className="text-xs text-gray-500">
 																Marka: <span className="font-medium">{item.brand}</span>
 															</p>
 														)}
 
-														{/* Size/Unit */}
 														{item.unit_or_size && (
 															<p className="text-xs text-gray-500">
 																{item.unit_or_size}
 															</p>
 														)}
 
-														{/* Store */}
 														{item.store_brand && (
 															<div className="flex items-center gap-1 text-xs text-gray-500">
 																<Store className="h-3 w-3" />
@@ -258,7 +363,6 @@ export default function CampaignActualType({ campaign, sections }) {
 															</div>
 														)}
 
-														{/* Price */}
 														{item.snapshot_price && (
 															<div className="pt-2 border-t border-gray-100">
 																<p className="text-lg font-bold text-orange-600">
@@ -272,7 +376,6 @@ export default function CampaignActualType({ campaign, sections }) {
 															</div>
 														)}
 
-														{/* Note */}
 														{item.note && (
 															<p className="text-xs text-gray-600 italic bg-gray-50 p-2 rounded">
 																{item.note}
@@ -290,9 +393,9 @@ export default function CampaignActualType({ campaign, sections }) {
 				</Card>
 			)}
 
-			{/* No Products Message - only show if no content, no files, and no products */}
-			{!actualContent && (!sections || sections.length === 0) && normalizedFiles.length === 0 && (
-				<Card className="border-2 border-gray-200">
+			{/* Boş durum mesajı */}
+			{!hasContent && !hasImages && (!sections || sections.length === 0) && (
+				<Card className="border border-gray-200">
 					<CardContent className="p-8 text-center">
 						<Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
 						<p className="text-gray-500">
