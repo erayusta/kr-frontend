@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import {
 	Download,
@@ -9,14 +10,94 @@ import {
 	Store,
 	ChevronDown,
 	ChevronUp,
+	ChevronLeft,
+	ChevronRight,
+	X,
+	ZoomIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IMAGE_BASE_URL } from "@/constants/site";
 
+function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
+	useEffect(() => {
+		const handleKey = (e) => {
+			if (e.key === "Escape") onClose();
+			if (e.key === "ArrowLeft") onPrev();
+			if (e.key === "ArrowRight") onNext();
+		};
+		document.addEventListener("keydown", handleKey);
+		document.body.style.overflow = "hidden";
+		return () => {
+			document.removeEventListener("keydown", handleKey);
+			document.body.style.overflow = "";
+		};
+	}, [onClose, onPrev, onNext]);
+
+	return createPortal(
+		<div
+			className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-200"
+			onClick={onClose}
+		>
+			{/* Close */}
+			<button
+				onClick={onClose}
+				className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+				aria-label="Kapat"
+			>
+				<X className="h-6 w-6" />
+			</button>
+
+			{/* Counter */}
+			<div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full bg-white/10 text-white text-sm font-medium">
+				{currentIndex + 1} / {images.length}
+			</div>
+
+			{/* Prev */}
+			{images.length > 1 && (
+				<button
+					onClick={(e) => { e.stopPropagation(); onPrev(); }}
+					className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-10 p-2 sm:p-3 rounded-full bg-white/10 hover:bg-orange-500 text-white transition-colors"
+					aria-label="Önceki görsel"
+				>
+					<ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+				</button>
+			)}
+
+			{/* Image */}
+			<div
+				className="relative w-full h-full max-w-5xl max-h-[85vh] mx-4 flex items-center justify-center"
+				onClick={(e) => e.stopPropagation()}
+			>
+				{/* biome-ignore lint/a11y/useAltText: lightbox image */}
+				{/* biome-ignore lint/performance/noImgElement: CDN URL */}
+				<img
+					src={images[currentIndex]}
+					alt={`Aktüel görseli ${currentIndex + 1}`}
+					className="max-w-full max-h-[85vh] object-contain rounded-lg select-none"
+					draggable={false}
+				/>
+			</div>
+
+			{/* Next */}
+			{images.length > 1 && (
+				<button
+					onClick={(e) => { e.stopPropagation(); onNext(); }}
+					className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-10 p-2 sm:p-3 rounded-full bg-white/10 hover:bg-orange-500 text-white transition-colors"
+					aria-label="Sonraki görsel"
+				>
+					<ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+				</button>
+			)}
+		</div>,
+		document.body,
+	);
+}
+
 export default function CampaignActualType({ campaign, sections }) {
 	const contentRef = useRef(null);
+	const [lightboxIndex, setLightboxIndex] = useState(-1);
 
 	// Auto-expand first section on load
 	const [expandedSections, setExpandedSections] = useState(() => {
@@ -51,6 +132,16 @@ export default function CampaignActualType({ campaign, sections }) {
 		url?.toLowerCase()?.endsWith(".jpeg") ||
 		url?.toLowerCase()?.endsWith(".webp")
 	);
+
+	// Lightbox handlers
+	const openLightbox = (index) => setLightboxIndex(index);
+	const closeLightbox = useCallback(() => setLightboxIndex(-1), []);
+	const prevImage = useCallback(() => {
+		setLightboxIndex((prev) => (prev - 1 + imageFiles.length) % imageFiles.length);
+	}, [imageFiles.length]);
+	const nextImage = useCallback(() => {
+		setLightboxIndex((prev) => (prev + 1) % imageFiles.length);
+	}, [imageFiles.length]);
 
 	// Fix images in HTML content
 	useEffect(() => {
@@ -99,6 +190,17 @@ export default function CampaignActualType({ campaign, sections }) {
 
 	return (
 		<div className="space-y-8">
+			{/* Lightbox */}
+			{lightboxIndex >= 0 && (
+				<Lightbox
+					images={imageFiles}
+					currentIndex={lightboxIndex}
+					onClose={closeLightbox}
+					onPrev={prevImage}
+					onNext={nextImage}
+				/>
+			)}
+
 			{/* Actual Description/Content */}
 			{actualContent && (
 				<Card className="border-2 border-gray-200">
@@ -112,9 +214,49 @@ export default function CampaignActualType({ campaign, sections }) {
 				</Card>
 			)}
 
-			{/* Download Buttons Section */}
-			{(pdfFiles.length > 0 || imageFiles.length > 0) && (
-				<Card className="border-2 border-orange-200 bg-orange-50">
+			{/* Aktüel Görselleri - Thumbnail Grid */}
+			{imageFiles.length > 0 && (
+				<Card className="border-2 border-orange-200 bg-orange-50/50">
+					<CardHeader className="pb-4">
+						<CardTitle className="text-xl flex items-center gap-2">
+							<ImageIcon className="h-5 w-5 text-orange-500" />
+							Aktüel Görselleri
+							<Badge variant="secondary" className="ml-1">
+								{imageFiles.length} Görsel
+							</Badge>
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+							{imageFiles.map((url, index) => (
+								<button
+									key={`thumb-${index}`}
+									type="button"
+									onClick={() => openLightbox(index)}
+									className="group relative aspect-[3/4] rounded-xl overflow-hidden bg-white border-2 border-gray-100 hover:border-orange-300 hover:shadow-lg transition-all duration-200"
+								>
+									{/* biome-ignore lint/performance/noImgElement: CDN URL */}
+									<img
+										src={url}
+										alt={`Aktüel görseli ${index + 1}`}
+										className="w-full h-full object-cover"
+										loading="lazy"
+									/>
+									<div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
+										<div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2.5 rounded-full bg-white/90 shadow-md">
+											<ZoomIn className="h-5 w-5 text-orange-500" />
+										</div>
+									</div>
+								</button>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+			)}
+
+			{/* PDF Downloads */}
+			{pdfFiles.length > 0 && (
+				<Card className="border-2 border-orange-200 bg-orange-50/50">
 					<CardHeader className="pb-4">
 						<CardTitle className="text-xl flex items-center gap-2">
 							<Download className="h-5 w-5 text-orange-500" />
@@ -123,7 +265,6 @@ export default function CampaignActualType({ campaign, sections }) {
 					</CardHeader>
 					<CardContent>
 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-							{/* PDF Files */}
 							{pdfFiles.map((url, index) => (
 								<Button
 									key={`pdf-${index}`}
@@ -138,26 +279,6 @@ export default function CampaignActualType({ campaign, sections }) {
 												{getFileName(url)}
 											</p>
 											<p className="text-xs text-gray-500">PDF Dosyası</p>
-										</div>
-									</a>
-								</Button>
-							))}
-
-							{/* Image Files */}
-							{imageFiles.map((url, index) => (
-								<Button
-									key={`img-${index}`}
-									variant="outline"
-									className="h-auto py-4 px-4 flex items-center gap-3 justify-start bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 transition-colors"
-									asChild
-								>
-									<a href={getDownloadUrl(url)}>
-										<ImageIcon className="h-8 w-8 text-blue-500 flex-shrink-0" />
-										<div className="text-left overflow-hidden">
-											<p className="font-medium text-gray-900 truncate">
-												{getFileName(url)}
-											</p>
-											<p className="text-xs text-gray-500">Görsel Dosyası</p>
 										</div>
 									</a>
 								</Button>
