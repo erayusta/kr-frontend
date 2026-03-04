@@ -11,7 +11,7 @@ import HotspotOverlay from "./HotspotOverlay";
 const AUTOPLAY_DELAY = 3500;
 
 /* ================================================================
-   ActualImageViewer — Embla Carousel ile yan yana 2 sayfa görünümü
+   ActualImageViewer — Embla Carousel ile yan yana 3 sayfa görünümü
    Ping-pong autoplay: ileri git → sona gel → geri gel → başa dön
    ================================================================ */
 export default function ActualImageViewer({
@@ -35,7 +35,7 @@ export default function ActualImageViewer({
 		return () => window.removeEventListener("resize", check);
 	}, []);
 
-	const slidesPerView = isMobile ? 1 : 2;
+	const slidesPerView = isMobile ? 1 : 3;
 
 	const getHotspotsForImage = useCallback(
 		(index) => hotspots.filter((h) => h.image_index === index),
@@ -99,14 +99,14 @@ export default function ActualImageViewer({
 		return (
 			<div className="relative">
 				<div
-					className="relative min-h-[500px] sm:min-h-[650px] lg:min-h-[800px] flex items-center justify-center bg-gray-50 cursor-pointer"
+					className="relative min-h-[400px] sm:min-h-[500px] lg:min-h-[600px] flex items-center justify-center bg-gray-50 cursor-pointer"
 					onClick={() => onOpenLightbox(0)}
 				>
 					{/* biome-ignore lint/performance/noImgElement: CDN URL */}
 					<img
 						src={imageFiles[0]}
 						alt="Aktüel görseli"
-						className="w-full h-full object-contain max-h-[900px]"
+						className="w-full h-full object-contain max-h-[650px]"
 						draggable={false}
 					/>
 					<HotspotOverlay hotspots={getHotspotsForImage(0)} />
@@ -130,7 +130,7 @@ export default function ActualImageViewer({
 	const counterStart = currentSnap * slidesPerView + 1;
 	const counterEnd = Math.min(counterStart + slidesPerView - 1, totalImages);
 	const counterText =
-		slidesPerView === 2 && counterStart !== counterEnd
+		slidesPerView > 1 && counterStart !== counterEnd
 			? `${counterStart}-${counterEnd} / ${totalImages}`
 			: `${counterStart} / ${totalImages}`;
 
@@ -160,14 +160,14 @@ export default function ActualImageViewer({
 								key={`slide-${index}`}
 								className={cn(
 									"pl-0 relative",
-									isMobile ? "basis-full" : "basis-1/2",
+									isMobile ? "basis-full" : "basis-1/3",
 								)}
 							>
 								<div
 									className={cn(
 										"relative flex items-center justify-center cursor-pointer bg-gray-50",
-										"min-h-[500px] sm:min-h-[650px] lg:min-h-[850px]",
-										!isMobile && index % 2 === 0 && "border-r border-gray-200/60",
+										"min-h-[350px] sm:min-h-[450px] lg:min-h-[550px]",
+										!isMobile && index % 3 !== 2 && "border-r border-gray-200/60",
 									)}
 									onClick={() => onOpenLightbox(index)}
 								>
@@ -175,7 +175,7 @@ export default function ActualImageViewer({
 									<img
 										src={url}
 										alt={`Aktüel sayfa ${index + 1}`}
-										className="w-full h-full object-contain max-h-[900px]"
+										className="w-full h-full object-contain max-h-[600px]"
 										draggable={false}
 									/>
 									<HotspotOverlay hotspots={getHotspotsForImage(index)} />
