@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import NavbarAvatar from "@/components/common/auth/NavbarAvatar";
+import { SearchBar } from "@/components/common/SearchBar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
@@ -81,6 +82,10 @@ const GuestMenu = ({
 }) => (
 	<SheetContent className="flex flex-col w-[85vw] max-w-sm !p-0 overflow-hidden" side="right">
 		<div className="flex-1 overflow-y-auto overscroll-contain px-5 pt-10 pb-4">
+			<div className="mb-4">
+				<SearchBar />
+			</div>
+
 			<div className="mb-6">
 				<LoanGrid />
 			</div>
@@ -131,6 +136,9 @@ const UserMenu = ({
 		<hr className="my-2 shrink-0" />
 
 		<div className="flex-1 min-h-0 overflow-y-auto px-1">
+			<div className="mb-3 px-3">
+				<SearchBar />
+			</div>
 			<LoanGrid />
 			<hr className="my-2" />
 
