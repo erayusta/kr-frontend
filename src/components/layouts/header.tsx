@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import NavbarAvatar from "@/components/common/auth/NavbarAvatar";
+import { SearchBar } from "@/components/common/SearchBar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useMenu } from "@/context/menuContext";
@@ -51,6 +52,10 @@ export const Header = () => {
 					<div className="flex items-center gap-x-1 ml-14 md:ml-20 lg:ml-24">
 						<CategoryDialog menuItems={menuItems} />
 						<LoanDialog />
+					</div>
+
+					<div className="flex-1 flex justify-center px-4 max-w-sm">
+						<SearchBar />
 					</div>
 
 					<div className="flex items-center gap-3">
