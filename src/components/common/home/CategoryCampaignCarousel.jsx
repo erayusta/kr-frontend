@@ -78,7 +78,7 @@ const CategoryCampaginsCarousel = ({ category, style }) => {
 	);
 };
 
-const CategoryCampaginCarousel = ({ data }) => {
+const CategoryCampaginCarousel = ({ data, middleSlot }) => {
 	return (
 		<section className="bg-transparent w-full">
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
@@ -86,6 +86,8 @@ const CategoryCampaginCarousel = ({ data }) => {
 					<CategoryCampaginsCarousel key={category.id} category={category} />
 				))}
 			</div>
+
+			{middleSlot}
 
 			<div className="flex flex-col gap-10 mt-10">
 				{data?.slice(2).map((category) => (

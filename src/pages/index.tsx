@@ -114,7 +114,6 @@ export default function Home({
 						<HeroCarousel data={carousels} />
 						<HeroLp />
 					</div>
-					<BrandCarousel data={brands} />
 					<CategoryCarousel data={allCategories} />
 				</div>
 
@@ -122,7 +121,7 @@ export default function Home({
 				<Ads ads={ads} positions={["content_middle"]} />
 
 				<div className="container mx-auto px-4">
-					<CategoryCampaginCarousel data={categories} />
+					<CategoryCampaginCarousel data={categories} middleSlot={<BrandCarousel data={brands} />} />
 					<InfoBox />
 					<LatestPost posts={posts} />
 				</div>
