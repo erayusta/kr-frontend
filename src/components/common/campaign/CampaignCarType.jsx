@@ -1,5 +1,7 @@
 import {
+	BadgeCheck,
 	Check,
+	CheckCircle,
 	Settings,
 	Shield,
 	TrendingUp,
@@ -22,6 +24,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { IMAGE_BASE_URL, STORAGE_URL } from "@/constants/site";
+import { cn } from "@/lib/utils";
 
 
 // Renk gorseli yardımcıları
@@ -38,11 +41,22 @@ function useColorImage(selectedColorIndex) {
 export default function CampaignCarType({ campaign, htmlContent }) {
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
 	const [selectedColorIndex, setSelectedColorIndex] = useState(null);
+	const [selectedPackageIndex, setSelectedPackageIndex] = useState(0);
 	const { imageError: colorImageError, setImageError: setColorImageError } = useColorImage(selectedColorIndex);
 	const contentRef = useRef(null);
 
 	const carData = campaign.car || campaign.item;
 	if (!carData) return null;
+
+	const packages = carData.packages || [];
+	const packagePriceRange = useMemo(() => {
+		if (packages.length === 0) return null;
+		const prices = packages.map((p) => p.price).filter(Boolean);
+		if (prices.length === 0) return null;
+		const min = Math.min(...prices);
+		const max = Math.max(...prices);
+		return { min, max, same: min === max };
+	}, [packages]);
 
 	const getImageUrl = (image, useStorage = false) => {
 		if (!image) return null;
@@ -263,7 +277,14 @@ export default function CampaignCarType({ campaign, htmlContent }) {
 						<h2 className="text-2xl font-bold text-[#1C2B4A] mb-1">
 							{carData.brand} {carData.model}
 						</h2>
-						{priceStats.current > 0 && (
+						{packagePriceRange ? (
+							<div className="mt-2 mb-4 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-md">
+								{packagePriceRange.same
+									? formatPrice(packagePriceRange.min)
+									: `${formatPrice(packagePriceRange.min)} - ${formatPrice(packagePriceRange.max)}`
+								}
+							</div>
+						) : priceStats.current > 0 && (
 							<div className="mt-2 mb-4 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-md">
 								{formatPrice(priceStats.current)}
 							</div>
@@ -282,6 +303,78 @@ export default function CampaignCarType({ campaign, htmlContent }) {
 					<div className="clear-both" />
 				</CardContent>
 			</Card>
+
+			{/* ===== DONANIM PAKETLERİ ===== */}
+			{packages.length > 0 && (
+				<Card className="bg-white shadow-sm border">
+					<CardContent className="p-6">
+						<div className="flex items-center justify-between mb-4">
+							<h3 className="font-semibold text-gray-800 flex items-center gap-2">
+								<Settings className="w-5 h-5 text-orange-500" />
+								Donanım Paketleri
+							</h3>
+							{packagePriceRange && (
+								<Badge variant="secondary" className="bg-orange-50 text-orange-700">
+									{packagePriceRange.same
+										? formatPrice(packagePriceRange.min)
+										: `${formatPrice(packagePriceRange.min)} - ${formatPrice(packagePriceRange.max)}`
+									}
+								</Badge>
+							)}
+						</div>
+
+						<div className="space-y-3">
+							{packages.map((pkg, index) => (
+								<button
+									key={index}
+									onClick={() => setSelectedPackageIndex(index)}
+									className={cn(
+										"w-full p-4 rounded-xl border-2 text-left transition-all",
+										selectedPackageIndex === index
+											? "border-orange-500 bg-orange-50 shadow-md"
+											: "border-gray-200 bg-white hover:border-orange-300 hover:shadow"
+									)}
+								>
+									<div className="flex items-center justify-between mb-2">
+										<div className="flex items-center gap-2">
+											<span className="text-lg font-bold text-gray-800">
+												{pkg.name}
+											</span>
+											{selectedPackageIndex === index && (
+												<BadgeCheck className="h-5 w-5 text-orange-500" />
+											)}
+										</div>
+									</div>
+
+									{pkg.price && (
+										<div className="text-xl font-bold text-orange-600 mb-2">
+											{formatPrice(pkg.price)}
+										</div>
+									)}
+
+									{pkg.description && (
+										<p className="text-sm text-gray-500 mb-3">{pkg.description}</p>
+									)}
+
+									{pkg.features && pkg.features.length > 0 && (
+										<div className="flex flex-wrap gap-1.5 pt-2 border-t border-gray-100">
+											{pkg.features.map((feature, fIndex) => (
+												<span
+													key={fIndex}
+													className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700"
+												>
+													<CheckCircle className="h-3 w-3 text-green-500" />
+													{feature}
+												</span>
+											))}
+										</div>
+									)}
+								</button>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+			)}
 
 			{/* ===== FİYAT GEÇMİŞİ ===== */}
 			{carData.history_prices && carData.history_prices.length > 0 && (
