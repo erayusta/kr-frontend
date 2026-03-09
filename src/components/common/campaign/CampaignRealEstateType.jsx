@@ -7,6 +7,7 @@ import {
 	Car,
 	CheckCircle,
 	Droplets,
+	ExternalLink,
 	Home,
 	Layers,
 	Lightbulb,
@@ -42,7 +43,7 @@ import {
 	BadgeCheck,
 	ImageOff,
 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -192,6 +193,41 @@ export default function CampaignRealEstateType({ campaign, htmlContent }) {
 		if (image.startsWith("http")) return image;
 		return `${IMAGE_BASE_URL}/real-estates/${image}`;
 	};
+
+	// Google Maps URL'inden embed URL'i olustur
+	const mapEmbedUrl = useMemo(() => {
+		const url = realEstateData.maps_url;
+		if (!url) return null;
+
+		// Zaten embed URL ise direkt kullan
+		if (url.includes("/embed")) return url;
+
+		// @lat,lng veya !3d...!4d... koordinatlarini yakala
+		const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+		if (atMatch) {
+			return `https://www.google.com/maps?q=${atMatch[1]},${atMatch[2]}&z=15&output=embed`;
+		}
+		const dMatch = url.match(/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
+		if (dMatch) {
+			return `https://www.google.com/maps?q=${dMatch[1]},${dMatch[2]}&z=15&output=embed`;
+		}
+
+		// q= parametresini yakala
+		const qMatch = url.match(/[?&]q=([^&]+)/);
+		if (qMatch) {
+			return `https://www.google.com/maps?q=${qMatch[1]}&z=15&output=embed`;
+		}
+
+		// Fallback: konum bilgisiyle embed
+		const locationQuery = [realEstateData.district, realEstateData.city, realEstateData.country]
+			.filter(Boolean)
+			.join(", ");
+		if (locationQuery) {
+			return `https://www.google.com/maps?q=${encodeURIComponent(locationQuery)}&z=15&output=embed`;
+		}
+
+		return null;
+	}, [realEstateData.maps_url, realEstateData.district, realEstateData.city, realEstateData.country]);
 
 	const images = realEstateData.images || [];
 
@@ -361,6 +397,27 @@ export default function CampaignRealEstateType({ campaign, htmlContent }) {
 										</div>
 									))}
 								</div>
+							</div>
+						)}
+
+						{/* Konum — galeri panelinin en altı */}
+						{realEstateData.maps_url && (
+							<div className="px-3 pb-3 pt-1 border-t border-gray-200/60">
+								<a
+									href={realEstateData.maps_url}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="flex items-center gap-2 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm font-medium w-full justify-center"
+								>
+									<MapPin className="w-3.5 h-3.5" />
+									Haritada Görüntüle
+									<ExternalLink className="w-3 h-3 ml-auto opacity-70" />
+								</a>
+								{(realEstateData.district || realEstateData.city) && (
+									<p className="text-[11px] text-gray-500 text-center mt-1.5">
+										{[realEstateData.district, realEstateData.city].filter(Boolean).join(", ")}
+									</p>
+								)}
 							</div>
 						)}
 					</div>
@@ -1047,11 +1104,12 @@ export default function CampaignRealEstateType({ campaign, htmlContent }) {
 				</Card>
 			)}
 
-			{/* ===== PROJE KONUMU ===== */}
+			{/* ===== PROJE KONUMU — Embed Harita ===== */}
 			{realEstateData.maps_url && (
-				<Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
-					<CardContent className="p-6">
-						<div className="flex items-center justify-between">
+				<Card className="overflow-hidden border border-gray-200">
+					<CardContent className="p-0">
+						{/* Baslik */}
+						<div className="flex items-center justify-between px-5 py-4">
 							<div className="flex items-center gap-3">
 								<div className="p-2 bg-orange-500 rounded-lg">
 									<MapPin className="h-5 w-5 text-white" />
@@ -1059,18 +1117,43 @@ export default function CampaignRealEstateType({ campaign, htmlContent }) {
 								<div>
 									<h3 className="font-semibold text-gray-800">Proje Konumu</h3>
 									<p className="text-xs text-gray-500">
-										{realEstateData.district}, {realEstateData.city}
+										{[realEstateData.district, realEstateData.city].filter(Boolean).join(", ")}
 										{realEstateData.country && realEstateData.country !== "Turkiye" && `, ${realEstateData.country}`}
 									</p>
 								</div>
 							</div>
-							<Button asChild className="bg-orange-500 hover:bg-orange-600">
+							<Button asChild variant="outline" size="sm" className="text-orange-600 border-orange-200 hover:bg-orange-50">
 								<a href={realEstateData.maps_url} target="_blank" rel="noopener noreferrer">
-									<MapPin className="h-4 w-4 mr-2" />
-									Haritada Goruntule
+									<ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+									Google Maps
 								</a>
 							</Button>
 						</div>
+
+						{/* Embed Harita */}
+						{mapEmbedUrl ? (
+							<div className="relative w-full h-[300px] md:h-[400px] border-t border-gray-100">
+								<iframe
+									src={mapEmbedUrl}
+									title="Proje Konumu"
+									className="absolute inset-0 w-full h-full"
+									style={{ border: 0 }}
+									allowFullScreen
+									loading="lazy"
+									referrerPolicy="no-referrer-when-downgrade"
+								/>
+							</div>
+						) : (
+							<div className="flex flex-col items-center justify-center h-[200px] bg-gray-50 border-t border-gray-100 text-gray-400">
+								<MapPin className="h-8 w-8 mb-2" />
+								<p className="text-sm">Harita yüklenemedi</p>
+								<Button asChild variant="link" size="sm" className="mt-1 text-orange-500">
+									<a href={realEstateData.maps_url} target="_blank" rel="noopener noreferrer">
+										Google Maps&apos;te Aç
+									</a>
+								</Button>
+							</div>
+						)}
 					</CardContent>
 				</Card>
 			)}
