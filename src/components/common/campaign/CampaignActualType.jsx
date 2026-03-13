@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import JSZip from "jszip";
 import {
 	Download,
 	FileText,
@@ -13,6 +14,8 @@ import {
 	ChevronRight,
 	X,
 	ShoppingBasket,
+	Loader2,
+	Images,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -104,6 +107,8 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 	const contentRef = useRef(null);
 	const [lightboxIndex, setLightboxIndex] = useState(-1);
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
+	const [isDownloading, setIsDownloading] = useState(false);
+	const [downloadProgress, setDownloadProgress] = useState({ current: 0, total: 0 });
 
 	const [expandedSections, setExpandedSections] = useState(() => {
 		if (sections && sections.length > 0) {
@@ -184,6 +189,47 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 		return url.split("/").pop() || "dosya";
 	};
 
+	const downloadAllFiles = useCallback(async (files, suffix = "") => {
+		if (isDownloading || files.length === 0) return;
+
+		setIsDownloading(true);
+		setDownloadProgress({ current: 0, total: files.length });
+
+		try {
+			const zip = new JSZip();
+			const folder = zip.folder(campaign?.title || "aktuel");
+
+			for (let i = 0; i < files.length; i++) {
+				const url = files[i];
+				const fileName = getFileName(url) || `dosya-${i + 1}`;
+
+				try {
+					const response = await fetch(getDownloadUrl(url));
+					if (!response.ok) throw new Error(`HTTP ${response.status}`);
+					const blob = await response.blob();
+					folder.file(fileName, blob);
+				} catch {
+					// Skip failed files
+				}
+				setDownloadProgress({ current: i + 1, total: files.length });
+			}
+
+			const zipBlob = await zip.generateAsync({ type: "blob" });
+			const link = document.createElement("a");
+			link.href = URL.createObjectURL(zipBlob);
+			link.download = `${campaign?.slug || "aktuel"}${suffix}.zip`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(link.href);
+		} catch {
+			// Silent fail
+		} finally {
+			setIsDownloading(false);
+			setDownloadProgress({ current: 0, total: 0 });
+		}
+	}, [isDownloading, campaign?.title, campaign?.slug]);
+
 	const hasImages = imageFiles.length > 0;
 	const hasContent = !!actualContent;
 
@@ -217,16 +263,62 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 						</div>
 					)}
 
-					{/* PDF + Açıklama alt bölüm */}
-					{(pdfFiles.length > 0 || hasContent) && (
+					{/* İndirme + Açıklama alt bölüm */}
+					{(hasImages || pdfFiles.length > 0 || hasContent) && (
 						<div className="border-t border-gray-200 bg-[#fffaf4]">
-							{/* PDF İndirme şeridi */}
+							{/* Görsel toplu indirme şeridi */}
+							{hasImages && imageFiles.length > 1 && (
+								<div className="px-5 lg:px-6 py-3 flex flex-wrap items-center gap-3 border-b border-gray-100">
+									<button
+										type="button"
+										onClick={() => downloadAllFiles(imageFiles, "-gorseller")}
+										disabled={isDownloading}
+										className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-white bg-orange-500 rounded-full border border-orange-500 hover:bg-orange-600 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+									>
+										{isDownloading ? (
+											<>
+												<Loader2 className="h-3.5 w-3.5 animate-spin" />
+												{downloadProgress.current}/{downloadProgress.total}
+											</>
+										) : (
+											<>
+												<Download className="w-3.5 h-3.5" />
+												Tümünü İndir ({imageFiles.length} görsel)
+											</>
+										)}
+									</button>
+								</div>
+							)}
+
+							{/* Katalog (PDF) indirme şeridi */}
 							{pdfFiles.length > 0 && (
 								<div className="px-5 lg:px-6 py-3 flex flex-wrap items-center gap-3 border-b border-gray-100">
 									<span className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-										<Download className="w-3.5 h-3.5 text-orange-500" />
+										<FileText className="w-3.5 h-3.5 text-red-500" />
 										Katalog
 									</span>
+
+									{pdfFiles.length > 1 && (
+										<button
+											type="button"
+											onClick={() => downloadAllFiles(pdfFiles, "-katalog")}
+											disabled={isDownloading}
+											className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-white bg-red-500 rounded-full border border-red-500 hover:bg-red-600 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+										>
+											{isDownloading ? (
+												<>
+													<Loader2 className="h-3.5 w-3.5 animate-spin" />
+													{downloadProgress.current}/{downloadProgress.total}
+												</>
+											) : (
+												<>
+													<Download className="w-3.5 h-3.5" />
+													Tümünü İndir ({pdfFiles.length} dosya)
+												</>
+											)}
+										</button>
+									)}
+
 									{pdfFiles.map((url, index) => (
 										<a
 											key={`pdf-${index}`}
