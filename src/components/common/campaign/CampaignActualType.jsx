@@ -189,19 +189,19 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 		return url.split("/").pop() || "dosya";
 	};
 
-	const downloadAllImages = useCallback(async () => {
-		if (isDownloading || imageFiles.length === 0) return;
+	const downloadAllFiles = useCallback(async (files, suffix = "") => {
+		if (isDownloading || files.length === 0) return;
 
 		setIsDownloading(true);
-		setDownloadProgress({ current: 0, total: imageFiles.length });
+		setDownloadProgress({ current: 0, total: files.length });
 
 		try {
 			const zip = new JSZip();
 			const folder = zip.folder(campaign?.title || "aktuel");
 
-			for (let i = 0; i < imageFiles.length; i++) {
-				const url = imageFiles[i];
-				const fileName = getFileName(url) || `sayfa-${i + 1}.jpg`;
+			for (let i = 0; i < files.length; i++) {
+				const url = files[i];
+				const fileName = getFileName(url) || `dosya-${i + 1}`;
 
 				try {
 					const response = await fetch(getDownloadUrl(url));
@@ -209,15 +209,15 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 					const blob = await response.blob();
 					folder.file(fileName, blob);
 				} catch {
-					// Skip failed images
+					// Skip failed files
 				}
-				setDownloadProgress({ current: i + 1, total: imageFiles.length });
+				setDownloadProgress({ current: i + 1, total: files.length });
 			}
 
 			const zipBlob = await zip.generateAsync({ type: "blob" });
 			const link = document.createElement("a");
 			link.href = URL.createObjectURL(zipBlob);
-			link.download = `${campaign?.slug || "aktuel-gorselleri"}.zip`;
+			link.download = `${campaign?.slug || "aktuel"}${suffix}.zip`;
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
@@ -228,7 +228,7 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 			setIsDownloading(false);
 			setDownloadProgress({ current: 0, total: 0 });
 		}
-	}, [imageFiles, isDownloading, campaign?.title, campaign?.slug]);
+	}, [isDownloading, campaign?.title, campaign?.slug]);
 
 	const hasImages = imageFiles.length > 0;
 	const hasContent = !!actualContent;
@@ -266,21 +266,44 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 					{/* İndirme + Açıklama alt bölüm */}
 					{(hasImages || pdfFiles.length > 0 || hasContent) && (
 						<div className="border-t border-gray-200 bg-[#fffaf4]">
-							{/* İndirme şeridi */}
-							{(hasImages || pdfFiles.length > 0) && (
+							{/* Görsel toplu indirme şeridi */}
+							{hasImages && imageFiles.length > 1 && (
+								<div className="px-5 lg:px-6 py-3 flex flex-wrap items-center gap-3 border-b border-gray-100">
+									<button
+										type="button"
+										onClick={() => downloadAllFiles(imageFiles, "-gorseller")}
+										disabled={isDownloading}
+										className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-white bg-orange-500 rounded-full border border-orange-500 hover:bg-orange-600 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+									>
+										{isDownloading ? (
+											<>
+												<Loader2 className="h-3.5 w-3.5 animate-spin" />
+												{downloadProgress.current}/{downloadProgress.total}
+											</>
+										) : (
+											<>
+												<Download className="w-3.5 h-3.5" />
+												Tümünü İndir ({imageFiles.length} görsel)
+											</>
+										)}
+									</button>
+								</div>
+							)}
+
+							{/* Katalog (PDF) indirme şeridi */}
+							{pdfFiles.length > 0 && (
 								<div className="px-5 lg:px-6 py-3 flex flex-wrap items-center gap-3 border-b border-gray-100">
 									<span className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-										<Download className="w-3.5 h-3.5 text-orange-500" />
-										{pdfFiles.length > 0 ? "Katalog" : "İndir"}
+										<FileText className="w-3.5 h-3.5 text-red-500" />
+										Katalog
 									</span>
 
-									{/* Tümünü İndir butonu */}
-									{hasImages && imageFiles.length > 1 && (
+									{pdfFiles.length > 1 && (
 										<button
 											type="button"
-											onClick={downloadAllImages}
+											onClick={() => downloadAllFiles(pdfFiles, "-katalog")}
 											disabled={isDownloading}
-											className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-white bg-orange-500 rounded-full border border-orange-500 hover:bg-orange-600 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+											className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-white bg-red-500 rounded-full border border-red-500 hover:bg-red-600 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
 										>
 											{isDownloading ? (
 												<>
@@ -289,8 +312,8 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 												</>
 											) : (
 												<>
-													<Images className="h-3.5 w-3.5" />
-													Tümünü İndir ({imageFiles.length} görsel)
+													<Download className="w-3.5 h-3.5" />
+													Tümünü İndir ({pdfFiles.length} dosya)
 												</>
 											)}
 										</button>
