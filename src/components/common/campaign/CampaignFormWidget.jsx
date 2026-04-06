@@ -47,11 +47,8 @@ function FormWidgetInner({ campaign }) {
 		watch,
 	} = useForm({ defaultValues });
 
-	// Brand logo fallback
-	const formLogo =
-		leadForm.logo ||
-		campaign.brands?.[0]?.logo ||
-		null;
+	// Sadece form'a yüklenmiş logo kullanılır — marka logosu burada gösterilmez
+	const formLogo = leadForm.logo || null;
 
 	const onSubmit = useCallback(
 		async (data) => {

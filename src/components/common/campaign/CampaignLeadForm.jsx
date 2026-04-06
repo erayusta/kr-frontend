@@ -59,9 +59,10 @@ function CampaignLeadFormInner({ campaign, brandLogo, brandName, variant }) {
 		control,
 	} = useForm({ defaultValues });
 
-	// Logo: form logo > brand logo passed via prop
+	// Logo öncelik sırası: form logosu > prop olarak gelen marka logosu
 	const displayLogo = leadForm.logo || brandLogo || null;
-	const displayName = leadForm.title || brandName || null;
+	// Başlık her zaman formdan gelir
+	const displayName = leadForm.title || leadForm.name || null;
 
 	const onSubmit = async (data) => {
 		// Frontend rate limit — 30 saniye
