@@ -1,14 +1,5 @@
-import Image from "next/image";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AdPosition, Ad as AdType } from "@/types/ad";
-
-declare global {
-  interface Window {
-    pigeon?: {
-      ads?: unknown[];
-    };
-  }
-}
 
 const parseDimensions = (
   dimensions: string | null,
@@ -29,7 +20,7 @@ const useDeviceType = () => {
   useEffect(() => {
     const checkDevice = () => {
       const width = window.innerWidth;
-      const mobile = width < 1024; // lg breakpoint
+      const mobile = width < 1024;
       setIsMobile(mobile);
     };
 
@@ -47,41 +38,33 @@ interface AdItemProps {
   maxWidth?: number;
 }
 
-const AdItem = ({ ad, maxWidth }: AdItemProps) => {
-  const [isGptAdLoaded, setIsGptAdLoaded] = useState(false);
+const AdItem = ({ ad }: AdItemProps) => {
   const [mounted, setMounted] = useState(false);
-  const uniqueId = useId();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const isGptAd = ad.type === "html" && ad.code?.includes("googletag");
-
+  // Script'leri dangerouslySetInnerHTML sonrası DOM'a enjekte et
+  // React <script> taglerini kasıtlı çalıştırmaz — yeni element oluşturarak çözülür
   useEffect(() => {
-    if (!mounted || !isGptAd) return;
+    if (!mounted || ad.type !== "html" || !ad.code || !containerRef.current) return;
 
-    const checkAdLoad = () => {
-      setIsGptAdLoaded(!!window.pigeon?.ads?.length);
-    };
+    const container = containerRef.current;
+    const scripts = Array.from(container.querySelectorAll("script"));
 
-    const handleAdLoaded = () => setIsGptAdLoaded(true);
-
-    if (window.pigeon) {
-      checkAdLoad();
-    } else {
-      window.addEventListener("pigeonLoaded", checkAdLoad);
-    }
-
-    document.addEventListener("pigeonAdLoaded", handleAdLoaded);
-    const timeout = setTimeout(checkAdLoad, 3000);
-
-    return () => {
-      window.removeEventListener("pigeonLoaded", checkAdLoad);
-      document.removeEventListener("pigeonAdLoaded", handleAdLoaded);
-      clearTimeout(timeout);
-    };
-  }, [mounted, isGptAd]);
+    scripts.forEach((oldScript) => {
+      const newScript = document.createElement("script");
+      for (const attr of Array.from(oldScript.attributes)) {
+        newScript.setAttribute(attr.name, attr.value);
+      }
+      if (oldScript.innerHTML) {
+        newScript.innerHTML = oldScript.innerHTML;
+      }
+      oldScript.parentNode?.replaceChild(newScript, oldScript);
+    });
+  }, [mounted, ad.type, ad.code]);
 
   if (!mounted) return null;
 
@@ -91,21 +74,11 @@ const AdItem = ({ ad, maxWidth }: AdItemProps) => {
       ? ({ width: dims.width, height: dims.height, overflow: "hidden" } as const)
       : ({} as const);
 
-    if (isGptAd) {
-      return (
-        <div
-          id={`ad-container-${uniqueId}`}
-          className={isGptAdLoaded ? "block" : "hidden"}
-          style={style}
-          dangerouslySetInnerHTML={{ __html: ad.code }}
-        />
-      );
-    }
-
     return (
       <div
-        id={`ad-container-${uniqueId}`}
+        ref={containerRef}
         style={style}
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: reklam kodu admin tarafından girilmektedir
         dangerouslySetInnerHTML={{ __html: ad.code }}
       />
     );
