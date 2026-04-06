@@ -102,7 +102,7 @@ const LoanCalculateForm = ({
 
 				<div className="space-y-2">
 					<Label className="text-sm md:text-md" htmlFor="rate">
-						Vade Süresi (Ay)
+						Vade Süresi <span className="hidden sm:inline">(Ay)</span>
 					</Label>
 					<div className="flex items-center gap-2">
 						<Select onValueChange={(value) => setMaturity(value)} value={maturity}>
