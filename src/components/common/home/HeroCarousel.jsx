@@ -24,7 +24,7 @@ const HeroCarousel = ({ data }) => {
                     {data?.map((item) => (
                         <CarouselItem
                             key={item.id}
-                            className="relative aspect-[16/9] sm:aspect-[4/3] md:aspect-[5/3] lg:aspect-[1/1]"
+                            className="relative aspect-[3/2] sm:aspect-[4/3] md:aspect-[5/3] lg:aspect-[1/1]"
                         >
                             <Link href={item.link || "#"} className="block w-full h-full">
                                 <Image
