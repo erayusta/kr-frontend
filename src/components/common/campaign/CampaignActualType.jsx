@@ -8,17 +8,23 @@ import {
 	Package,
 	Tag,
 	Store,
-	ChevronDown,
-	ChevronUp,
 	ChevronLeft,
 	ChevronRight,
 	X,
 	ShoppingBasket,
 	Loader2,
-	Images,
+	ExternalLink,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	CarouselNext,
+	CarouselPrevious,
+} from "@/components/ui/carousel";
 import { IMAGE_BASE_URL } from "@/constants/site";
 import ActualImageViewer from "./actual/ActualImageViewer";
 import HotspotOverlay from "./actual/HotspotOverlay";
@@ -101,6 +107,91 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext, hotspots = []
 }
 
 /* ================================================================
+   Mağaza renk/etiket haritası
+   ================================================================ */
+const STORE_COLORS = {
+	migros:    { bg: "bg-green-100",  text: "text-green-800",  label: "Migros"    },
+	sok:       { bg: "bg-purple-100", text: "text-purple-800", label: "Şok"       },
+	a101:      { bg: "bg-red-100",    text: "text-red-800",    label: "A101"      },
+	carrefour: { bg: "bg-blue-100",   text: "text-blue-800",   label: "Carrefour" },
+};
+
+/* ================================================================
+   ProductCard — Tekil ürün kartı
+   ================================================================ */
+function ProductCard({ item, formatPrice, getProductImage }) {
+	const imgSrc = getProductImage(item.image_url || item.product?.image);
+	const title = item.title || item.product?.title || "Ürün";
+	const storeColor = STORE_COLORS[item.store_brand?.toLowerCase()] || { bg: "bg-gray-100", text: "text-gray-700", label: item.store_brand };
+
+	return (
+		<div
+			className={`bg-white rounded-xl border-2 ${
+				item.highlight ? "border-orange-300 shadow-md" : "border-gray-100"
+			} p-3 flex flex-col h-full hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5`}
+		>
+			{/* Görsel */}
+			<div className="relative aspect-square mb-3 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0">
+				{/* biome-ignore lint/performance/noImgElement: CDN image */}
+				<img
+					src={imgSrc}
+					alt={title}
+					className="w-full h-full object-contain p-2"
+					loading="lazy"
+					onError={(e) => { e.currentTarget.src = "/images/placeholder-product.jpg"; }}
+				/>
+				{item.highlight && (
+					<span className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+						Öne Çıkan
+					</span>
+				)}
+			</div>
+
+			{/* İçerik */}
+			<div className="flex flex-col flex-1 gap-1.5">
+				<h4 className="font-medium text-gray-900 text-xs leading-snug line-clamp-2">
+					{title}
+				</h4>
+
+				{item.unit_or_size && (
+					<p className="text-xs text-gray-400">{item.unit_or_size}</p>
+				)}
+
+				{item.store_brand && (
+					<span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-full w-fit ${storeColor.bg} ${storeColor.text}`}>
+						<Store className="h-3 w-3" />
+						{storeColor.label}
+					</span>
+				)}
+
+				{item.snapshot_price && (
+					<p className="text-base font-bold text-orange-600 mt-auto pt-1">
+						{formatPrice(item.snapshot_price, item.currency)}
+					</p>
+				)}
+
+				{item.note && (
+					<p className="text-xs text-gray-500 italic line-clamp-2">{item.note}</p>
+				)}
+
+				{item.store_link && (
+					<a
+						href={item.store_link}
+						target="_blank"
+						rel="nofollow noopener noreferrer"
+						className="mt-1 inline-flex items-center justify-center gap-1 text-xs font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-lg py-1.5 px-3 transition-colors"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<ExternalLink className="h-3 w-3" />
+						Satın Al
+					</a>
+				)}
+			</div>
+		</div>
+	);
+}
+
+/* ================================================================
    CampaignActualType — Ana bileşen
    ================================================================ */
 export default function CampaignActualType({ campaign, sections, imageHotspots = [] }) {
@@ -110,15 +201,7 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [downloadProgress, setDownloadProgress] = useState({ current: 0, total: 0 });
 
-	const [expandedSections, setExpandedSections] = useState(() => {
-		if (sections && sections.length > 0) {
-			return { [sections[0].id]: true };
-		}
-		return {};
-	});
-
 	const actualContent = campaign?.actual_content || campaign?.content;
-
 	const actualFiles = campaign?.actualsUrls || campaign?.actuals_urls || campaign?.actuals || [];
 
 	const normalizeFileUrl = (url) => {
@@ -156,13 +239,6 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 			});
 		}
 	}, [actualContent]);
-
-	const toggleSection = (sectionId) => {
-		setExpandedSections((prev) => ({
-			...prev,
-			[sectionId]: !prev[sectionId],
-		}));
-	};
 
 	const getProductImage = (imageUrl) => {
 		if (!imageUrl) return "/images/placeholder-product.jpg";
@@ -347,152 +423,63 @@ export default function CampaignActualType({ campaign, sections, imageHotspots =
 				</Card>
 			)}
 
-			{/* ===== AKTÜEL ÜRÜNLERİ KAROSEL — İleride API'den gelecek ürünler için ===== */}
-			<Card className="border border-gray-200 bg-white">
-				<CardHeader className="pb-4 border-b">
-					<div className="flex items-center justify-between">
+			{/* ===== AKTÜEL ÜRÜNLERİ — Bölüm başına carousel ===== */}
+			{sections && sections.length > 0 && (
+				<Card className="border border-gray-200 bg-white">
+					<CardHeader className="pb-4 border-b">
 						<CardTitle className="text-xl flex items-center gap-2">
 							<ShoppingBasket className="h-5 w-5 text-orange-500" />
 							Aktüel Ürünleri
 						</CardTitle>
-					</div>
-				</CardHeader>
-				<CardContent className="py-10">
-					<div className="flex flex-col items-center justify-center text-center">
-						<div className="p-4 bg-orange-50 rounded-full mb-4">
-							<Package className="h-8 w-8 text-orange-400" />
-						</div>
-						<p className="text-gray-500 text-sm font-medium">
-							Bu aktüelin ürünleri yakında burada listelenecek.
-						</p>
-						<p className="text-gray-400 text-xs mt-1">
-							Fiyat karşılaştırmaları ve detaylar için takipte kalın.
-						</p>
-					</div>
-				</CardContent>
-			</Card>
-
-			{/* ===== AKTÜEL DETAY ÜRÜNLERİ — Mevcut sections verisi ===== */}
-			{sections && sections.length > 0 && (
-				<Card className="border border-gray-200">
-					<CardHeader className="pb-4 border-b">
-						<CardTitle className="text-xl flex items-center gap-2">
-							<Tag className="h-5 w-5 text-orange-500" />
-							Ürün Detayları
-						</CardTitle>
 					</CardHeader>
-					<CardContent className="p-0">
+					<CardContent className="py-4 space-y-8">
 						{sections.map((section) => (
-							<div key={section.id} className="border-b last:border-b-0">
-								<button
-									onClick={() => toggleSection(section.id)}
-									className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+							<div key={section.id}>
+								{/* Bölüm başlığı */}
+								<div className="flex items-center gap-2 mb-3 px-2">
+									<Tag className="h-4 w-4 text-orange-500 flex-shrink-0" />
+									<span className="font-semibold text-gray-800 text-sm">
+										{section.title || "Kategori"}
+									</span>
+									<Badge variant="secondary" className="ml-1 text-xs">
+										{section.items?.length || 0} ürün
+									</Badge>
+								</div>
+
+								{/* Carousel */}
+								<Carousel
+									opts={{ align: "start", dragFree: true }}
+									className="w-full"
 								>
-									<div className="flex items-center gap-3">
-										<Tag className="h-4 w-4 text-orange-500" />
-										<span className="font-semibold text-gray-900">
-											{section.title || "Kategori"}
-										</span>
-										<Badge variant="secondary" className="ml-2">
-											{section.items?.length || 0} Ürün
-										</Badge>
-									</div>
-									{expandedSections[section.id] ? (
-										<ChevronUp className="h-5 w-5 text-gray-500" />
-									) : (
-										<ChevronDown className="h-5 w-5 text-gray-500" />
+									<CarouselContent className="-ml-3">
+										{(section.items || []).map((item) => (
+											<CarouselItem
+												key={item.id}
+												className="pl-3 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5"
+											>
+												<ProductCard item={item} formatPrice={formatPrice} getProductImage={getProductImage} />
+											</CarouselItem>
+										))}
+									</CarouselContent>
+									{(section.items?.length || 0) > 4 && (
+										<>
+											<CarouselPrevious className="left-0 -translate-x-1/2" />
+											<CarouselNext className="right-0 translate-x-1/2" />
+										</>
 									)}
-								</button>
-
-								{expandedSections[section.id] && section.items && (
-									<div className="px-6 pb-6">
-										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-											{section.items.map((item) => (
-												<div
-													key={item.id}
-													className={`bg-white rounded-xl border-2 ${
-														item.highlight
-															? "border-orange-300 shadow-md"
-															: "border-gray-100"
-													} p-4 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5`}
-												>
-													<div className="relative aspect-square mb-3 bg-gray-50 rounded-lg overflow-hidden">
-														<Image
-															src={getProductImage(item.image_url || item.product?.image)}
-															alt={item.title || item.product?.title || "Ürün"}
-															fill
-															className="object-contain p-2"
-															sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-														/>
-														{item.highlight && (
-															<Badge className="absolute top-2 right-2 bg-orange-500">
-																Öne Çıkan
-															</Badge>
-														)}
-													</div>
-
-													<div className="space-y-2">
-														<h4 className="font-medium text-gray-900 text-sm line-clamp-2">
-															{item.title || item.product?.title || "Ürün"}
-														</h4>
-
-														{item.brand && (
-															<p className="text-xs text-gray-500">
-																Marka: <span className="font-medium">{item.brand}</span>
-															</p>
-														)}
-
-														{item.unit_or_size && (
-															<p className="text-xs text-gray-500">
-																{item.unit_or_size}
-															</p>
-														)}
-
-														{item.store_brand && (
-															<div className="flex items-center gap-1 text-xs text-gray-500">
-																<Store className="h-3 w-3" />
-																<span>{item.store_brand}</span>
-															</div>
-														)}
-
-														{item.snapshot_price && (
-															<div className="pt-2 border-t border-gray-100">
-																<p className="text-lg font-bold text-orange-600">
-																	{formatPrice(item.snapshot_price, item.currency)}
-																</p>
-																{item.snapshot_date && (
-																	<p className="text-xs text-gray-400">
-																		{item.snapshot_date} tarihli fiyat
-																	</p>
-																)}
-															</div>
-														)}
-
-														{item.note && (
-															<p className="text-xs text-gray-600 italic bg-gray-50 p-2 rounded">
-																{item.note}
-															</p>
-														)}
-													</div>
-												</div>
-											))}
-										</div>
-									</div>
-								)}
+								</Carousel>
 							</div>
 						))}
 					</CardContent>
 				</Card>
 			)}
 
-			{/* Boş durum mesajı */}
+			{/* Boş durum */}
 			{!hasContent && !hasImages && (!sections || sections.length === 0) && (
 				<Card className="border border-gray-200">
 					<CardContent className="p-8 text-center">
 						<Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-						<p className="text-gray-500">
-							Bu aktüel için henüz ürün veya katalog eklenmemiş.
-						</p>
+						<p className="text-gray-500">Bu aktüel için henüz içerik eklenmemiş.</p>
 					</CardContent>
 				</Card>
 			)}
