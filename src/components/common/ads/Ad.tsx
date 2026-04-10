@@ -64,8 +64,8 @@ const AdItem = ({ ad }: AdItemProps) => {
   if (ad.type === "html" && ad.code) {
     const dims = parseDimensions(ad.dimensions);
     const style = dims
-      ? ({ width: dims.width, height: dims.height, overflow: "hidden" } as const)
-      : ({} as const);
+      ? ({ width: dims.width, maxWidth: "100%", height: dims.height, overflow: "hidden" } as const)
+      : ({ maxWidth: "100%", overflow: "hidden" } as const);
 
     return (
       <div
@@ -95,7 +95,7 @@ const AdItem = ({ ad }: AdItemProps) => {
           width={width}
           height={height}
           style={{
-            maxWidth: width ? undefined : "100%",
+            maxWidth: "100%",
             width: width ?? "auto",
             height: height ?? "auto",
             display: "block",
@@ -145,7 +145,7 @@ export default function Ad({
     const dims = parseDimensions((ad as any).dimensions ?? null);
     return (
       <div className={`${className || ""} mt-2 mb-8`.trim()} style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ width: dims?.width ?? undefined, height: dims?.height ?? undefined }}>
+        <div style={{ width: dims?.width ?? undefined, maxWidth: "100%", height: dims?.height ?? undefined, overflow: "hidden" }}>
           <AdItem ad={ad} />
         </div>
       </div>
@@ -168,6 +168,8 @@ export default function Ad({
   const isRight = pos?.endsWith("_right");
 
   if ((isLeft || isRight) && hasWidth) {
+    if (isMobile) return null;
+
     const w = dims!.width!;
     const sideStyle = isLeft
       ? ({ left: calcGutterOffset(w) } as const)
