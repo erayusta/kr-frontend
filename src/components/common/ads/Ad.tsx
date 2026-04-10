@@ -64,8 +64,8 @@ const AdItem = ({ ad }: AdItemProps) => {
   if (ad.type === "html" && ad.code) {
     const dims = parseDimensions(ad.dimensions);
     const style = dims
-      ? ({ width: dims.width, height: dims.height, overflow: "hidden" } as const)
-      : ({} as const);
+      ? ({ width: dims.width, maxWidth: "100%", height: dims.height, overflow: "hidden" } as const)
+      : ({ maxWidth: "100%", overflow: "hidden" } as const);
 
     return (
       <div
@@ -168,6 +168,8 @@ export default function Ad({
   const isRight = pos?.endsWith("_right");
 
   if ((isLeft || isRight) && hasWidth) {
+    if (isMobile) return null;
+
     const w = dims!.width!;
     const sideStyle = isLeft
       ? ({ left: calcGutterOffset(w) } as const)
