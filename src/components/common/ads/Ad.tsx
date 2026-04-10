@@ -95,7 +95,7 @@ const AdItem = ({ ad }: AdItemProps) => {
           width={width}
           height={height}
           style={{
-            maxWidth: width ? undefined : "100%",
+            maxWidth: "100%",
             width: width ?? "auto",
             height: height ?? "auto",
             display: "block",
@@ -145,7 +145,7 @@ export default function Ad({
     const dims = parseDimensions((ad as any).dimensions ?? null);
     return (
       <div className={`${className || ""} mt-2 mb-8`.trim()} style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ width: dims?.width ?? undefined, height: dims?.height ?? undefined }}>
+        <div style={{ width: dims?.width ?? undefined, maxWidth: "100%", height: dims?.height ?? undefined, overflow: "hidden" }}>
           <AdItem ad={ad} />
         </div>
       </div>
