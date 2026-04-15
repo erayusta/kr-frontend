@@ -31,18 +31,6 @@ export async function getServerSideProps({ params }) {
   }
 }
 
-/**
- * Extract first meaningful word (>= 3 chars) from a string.
- * Falls back to null if none found.
- */
-function extractSearchQuery(title, brandName) {
-  if (title) {
-    const words = title.split(/\s+/);
-    const word = words.find((w) => w.length >= 3);
-    if (word) return word;
-  }
-  return brandName || null;
-}
 
 export default function UrunDetay({ product }) {
   // Normalise images to full CDN URLs so ProductImageGallery gets absolute URLs
@@ -112,19 +100,15 @@ export default function UrunDetay({ product }) {
     }
   };
 
-  // Related products state
+  // Related products — use dedicated related endpoint
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
-    const q = extractSearchQuery(product.title, product.brand?.name);
-    if (!q) return;
-
     let cancelled = false;
-    apiRequest(`/marketplace/products?q=${encodeURIComponent(q)}&per_page=8`, 'get')
+    apiRequest(`/marketplace/products/${product.slug}/related`, 'get')
       .then((data) => {
         if (cancelled) return;
-        const results = (data.data || []).filter((p) => p.slug !== product.slug);
-        setRelatedProducts(results);
+        setRelatedProducts(data.data || []);
       })
       .catch(() => {
         // Hata durumunda sessizce geç
@@ -133,7 +117,7 @@ export default function UrunDetay({ product }) {
     return () => {
       cancelled = true;
     };
-  }, [product.slug, product.title, product.brand?.name]);
+  }, [product.slug]);
 
   const ogImage = galleryImages[0] || null;
   const ogDescription = product.description
