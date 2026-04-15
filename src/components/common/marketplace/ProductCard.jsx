@@ -125,12 +125,24 @@ export default function ProductCard({ product }) {
           {product.title}
         </h3>
 
-        {/* Lowest price pill */}
+        {/* Lowest price pill + change badge */}
         {product.latest_price != null && (
-          <div className="mt-auto pt-2">
+          <div className="mt-auto pt-2 flex flex-wrap items-center gap-1.5">
             <span className="inline-flex items-center gap-1 bg-orange-50 text-orange-600 border border-orange-100 text-xs font-semibold px-2.5 py-1 rounded-full">
-              En düşük ₺{formatPrice(product.latest_price)}
+              ₺{formatPrice(product.latest_price)}
             </span>
+            {product.prev_price != null && product.prev_price !== product.latest_price && (() => {
+              const pct = ((product.latest_price - product.prev_price) / product.prev_price) * 100;
+              const isDown = pct < 0;
+              return (
+                <span className={cn(
+                  'text-[10px] font-bold px-1.5 py-0.5 rounded-full',
+                  isDown ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500',
+                )}>
+                  {isDown ? '▼' : '▲'} {Math.abs(pct).toFixed(1)}%
+                </span>
+              );
+            })()}
           </div>
         )}
       </div>

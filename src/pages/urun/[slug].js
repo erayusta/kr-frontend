@@ -223,6 +223,18 @@ export default function UrunDetay({ product }) {
                       {getStoreName(product.stock_summary.cheapest_store.store)}&apos;da
                     </span>
                   )}
+                  {product.prev_price != null && product.prev_price !== product.latest_price && (() => {
+                    const pct = ((product.latest_price - product.prev_price) / product.prev_price) * 100;
+                    const isDown = pct < 0;
+                    return (
+                      <span className={cn(
+                        'text-xs font-bold px-2 py-1 rounded-lg',
+                        isDown ? 'bg-green-50 border border-green-200 text-green-600' : 'bg-red-50 border border-red-200 text-red-500',
+                      )}>
+                        {isDown ? '▼' : '▲'} {Math.abs(pct).toFixed(1)}% {isDown ? 'düşüş' : 'artış'}
+                      </span>
+                    );
+                  })()}
                 </div>
               )}
 
