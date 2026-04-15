@@ -23,13 +23,15 @@ export async function getServerSideProps({ query }) {
     if (query.category_slug) params.set('category_slug', query.category_slug);
     if (query.brand_slug) params.set('brand_slug', query.brand_slug);
 
-    const [data, categoriesData] = await Promise.all([
+    const [data, categoriesData, brandsData] = await Promise.all([
       serverApiRequest(`/marketplace/products?${params.toString()}`, 'get'),
       serverApiRequest('/marketplace/categories', 'get').catch(() => null),
+      serverApiRequest('/marketplace/brands', 'get').catch(() => null),
     ]);
 
     // Marketplace categories returns { data: [...] }
     const popularCategories = (categoriesData?.data || []).slice(0, 10);
+    const popularBrands = (brandsData?.data || []).slice(0, 12);
 
     const initialFilters = {
       q: query.q || '',
@@ -50,6 +52,7 @@ export async function getServerSideProps({ query }) {
         initialLastPage: data.meta?.last_page || data.last_page || 1,
         initialFilters,
         popularCategories,
+        popularBrands,
       },
     };
   } catch (error) {
@@ -60,6 +63,7 @@ export async function getServerSideProps({ query }) {
         initialTotal: 0,
         initialLastPage: 1,
         popularCategories: [],
+        popularBrands: [],
         initialFilters: {
           q: '',
           store: '',
@@ -193,7 +197,7 @@ function PaginationBar({ currentPage, lastPage, onPageChange }) {
   );
 }
 
-export default function FiyatKarsilastir({ initialProducts, initialTotal, initialLastPage, initialFilters, popularCategories = [] }) {
+export default function FiyatKarsilastir({ initialProducts, initialTotal, initialLastPage, initialFilters, popularCategories = [], popularBrands = [] }) {
   const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [total, setTotal] = useState(initialTotal);
@@ -353,6 +357,30 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
               })}
             </div>
           )}
+
+          {/* Popular brand chips */}
+          {popularBrands.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {popularBrands.map((brand) => {
+                const isActive = filters.brand_slug === brand.slug;
+                return (
+                  <button
+                    key={brand.slug}
+                    type="button"
+                    onClick={() => handleFilterChange({ ...filters, brand_slug: isActive ? '' : brand.slug, page: 1 })}
+                    className={cn(
+                      'px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150',
+                      isActive
+                        ? 'bg-gray-800 text-white border-gray-800'
+                        : 'bg-white/80 text-gray-600 border-gray-200 hover:border-gray-400 hover:text-gray-900',
+                    )}
+                  >
+                    {brand.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -362,7 +390,7 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {filters.category_slug && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-medium">
-                Kategori: {filters.category_slug}
+                Kategori: {popularCategories.find((c) => c.slug === filters.category_slug)?.name || filters.category_slug}
                 <button
                   type="button"
                   onClick={() => handleFilterChange({ ...filters, category_slug: '', page: 1 })}
@@ -375,7 +403,7 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
             )}
             {filters.brand_slug && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-medium">
-                Marka: {filters.brand_slug}
+                Marka: {popularBrands.find((b) => b.slug === filters.brand_slug)?.name || filters.brand_slug}
                 <button
                   type="button"
                   onClick={() => handleFilterChange({ ...filters, brand_slug: '', page: 1 })}
