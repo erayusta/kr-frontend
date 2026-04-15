@@ -43,6 +43,10 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
     onFilterChange({ ...filters, sort: value, page: 1 });
   };
 
+  const handleInStockToggle = () => {
+    onFilterChange({ ...filters, in_stock: !filters.in_stock, page: 1 });
+  };
+
   return (
     <div className="bg-white border-b border-gray-100 shadow-sm mb-6 py-3 px-0">
       {/* Main filter row */}
@@ -80,6 +84,21 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
             );
           })}
         </div>
+
+        {/* In stock toggle */}
+        <button
+          type="button"
+          onClick={handleInStockToggle}
+          className={cn(
+            'px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 flex items-center gap-1.5 flex-shrink-0',
+            filters.in_stock
+              ? 'bg-green-500 text-white border-green-500 shadow-sm'
+              : 'bg-white text-gray-600 border-gray-200 hover:border-green-400 hover:text-green-600',
+          )}
+        >
+          <span className={cn('w-1.5 h-1.5 rounded-full', filters.in_stock ? 'bg-white' : 'bg-gray-400')} />
+          Stokta
+        </button>
 
         {/* Sort dropdown */}
         <div className="ml-auto flex-shrink-0">

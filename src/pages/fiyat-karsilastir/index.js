@@ -152,7 +152,7 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
   const [total, setTotal] = useState(initialTotal);
   const [lastPage, setLastPage] = useState(initialLastPage);
   const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({ q: '', store: '', sort: 'newest', page: 1 });
+  const [filters, setFilters] = useState({ q: '', store: '', sort: 'newest', page: 1, in_stock: false });
 
   const fetchProducts = useCallback(async (newFilters) => {
     setLoading(true);
@@ -163,6 +163,9 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
       if (newFilters.q) params.set('q', newFilters.q);
       if (newFilters.store) params.set('store', newFilters.store);
       if (newFilters.sort) params.set('sort', newFilters.sort);
+      if (newFilters.in_stock) params.set('in_stock', 'true');
+      if (newFilters.min_price) params.set('min_price', newFilters.min_price);
+      if (newFilters.max_price) params.set('max_price', newFilters.max_price);
 
       const data = await apiRequest(`/marketplace/products?${params.toString()}`, 'get');
       setProducts(data.data || []);
