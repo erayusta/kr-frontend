@@ -71,7 +71,7 @@ function LowestPricesSection() {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		apiRequest("/marketplace/products?sort=price_asc&in_stock=true&per_page=8", "get")
+		apiRequest("/marketplace/products/featured", "get")
 			.then((data: any) => {
 				setProducts(data?.data || []);
 			})
