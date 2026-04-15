@@ -25,12 +25,11 @@ export async function getServerSideProps({ query }) {
 
     const [data, categoriesData] = await Promise.all([
       serverApiRequest(`/marketplace/products?${params.toString()}`, 'get'),
-      serverApiRequest('/categories?is_active=true&per_page=12', 'get').catch(() => null),
+      serverApiRequest('/marketplace/categories', 'get').catch(() => null),
     ]);
 
-    // Categories API returns array directly (no data wrapper)
-    const rawCategories = Array.isArray(categoriesData) ? categoriesData : (categoriesData?.data || []);
-    const popularCategories = rawCategories.slice(0, 10);
+    // Marketplace categories returns { data: [...] }
+    const popularCategories = (categoriesData?.data || []).slice(0, 10);
 
     const initialFilters = {
       q: query.q || '',
