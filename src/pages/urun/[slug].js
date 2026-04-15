@@ -1,11 +1,14 @@
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { ChevronRight, Tag } from 'lucide-react';
+import { ChevronRight, Tag, Share2 } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
 import ProductImageGallery from '@/components/common/campaign/product/ProductImageGallery';
 import PriceHistoryChart from '@/components/common/campaign/product/PriceHistoryChart';
 import ProductPriceTable from '@/components/common/marketplace/ProductPriceTable';
+import ProductCard from '@/components/common/marketplace/ProductCard';
 import serverApiRequest from '@/lib/serverApiRequest';
+import apiRequest from '@/lib/apiRequest';
 import { formatPrice, getCdnImageUrl } from '@/utils/storeUtils';
 
 export async function getServerSideProps({ params }) {
@@ -22,6 +25,19 @@ export async function getServerSideProps({ params }) {
     }
     return { notFound: true };
   }
+}
+
+/**
+ * Extract first meaningful word (>= 3 chars) from a string.
+ * Falls back to null if none found.
+ */
+function extractSearchQuery(title, brandName) {
+  if (title) {
+    const words = title.split(/\s+/);
+    const word = words.find((w) => w.length >= 3);
+    if (word) return word;
+  }
+  return brandName || null;
 }
 
 export default function UrunDetay({ product }) {
@@ -47,6 +63,56 @@ export default function UrunDetay({ product }) {
 
   const storeCount = (product.stores || []).length;
 
+  // Share button state
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: product.title, url });
+      } catch {
+        // Kullanıcı iptal etti
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        // Clipboard API kullanılamıyor
+      }
+    }
+  };
+
+  // Related products state
+  const [relatedProducts, setRelatedProducts] = useState([]);
+
+  useEffect(() => {
+    const q = extractSearchQuery(product.title, product.brand?.name);
+    if (!q) return;
+
+    let cancelled = false;
+    apiRequest(`/marketplace/products?q=${encodeURIComponent(q)}&per_page=8`, 'get')
+      .then((data) => {
+        if (cancelled) return;
+        const results = (data.data || []).filter((p) => p.slug !== product.slug);
+        setRelatedProducts(results);
+      })
+      .catch(() => {
+        // Hata durumunda sessizce geç
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product.slug, product.title, product.brand?.name]);
+
+  const ogImage = galleryImages[0] || null;
+  const ogDescription = product.description
+    ? product.description.slice(0, 160)
+    : `${product.title} fiyat karşılaştırması`;
+
   return (
     <Layout>
       <Head>
@@ -58,6 +124,50 @@ export default function UrunDetay({ product }) {
               ? product.description.slice(0, 160)
               : `${product.title} fiyat karşılaştırması - KampanyaRadar`
           }
+        />
+        <meta property="og:title" content={`${product.title} - KampanyaRadar`} />
+        <meta property="og:description" content={ogDescription} />
+        <meta property="og:type" content="product" />
+        {ogImage && <meta property="og:image" content={ogImage} />}
+        <meta property="og:url" content={`https://kampanyaradar.com/urun/${product.slug}`} />
+
+        {/* BreadcrumbList structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Ana Sayfa", "item": "https://kampanyaradar.com" },
+                { "@type": "ListItem", "position": 2, "name": "Fiyat Karşılaştır", "item": "https://kampanyaradar.com/fiyat-karsilastir" },
+                { "@type": "ListItem", "position": 3, "name": product.title, "item": `https://kampanyaradar.com/urun/${product.slug}` },
+              ],
+            }),
+          }}
+        />
+
+        {/* Product structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Product",
+              "name": product.title,
+              "description": product.description || product.title,
+              "image": galleryImages[0] || undefined,
+              "brand": product.brand ? { "@type": "Brand", "name": product.brand.name } : undefined,
+              "offers": (product.stores || []).filter((s) => s.price).map((s) => ({
+                "@type": "Offer",
+                "price": s.sale_price || s.price,
+                "priceCurrency": "TRY",
+                "availability": s.in_stock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                "url": s.link || undefined,
+                "seller": { "@type": "Organization", "name": s.name },
+              })),
+            }),
+          }}
         />
       </Head>
 
@@ -113,6 +223,18 @@ export default function UrunDetay({ product }) {
                 </div>
               )}
 
+              {/* Share button */}
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-orange-500 border border-gray-200 hover:border-orange-300 bg-white hover:bg-orange-50 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                  {copied ? 'Kopyalandı!' : 'Paylaş'}
+                </button>
+              </div>
+
               {/* Description */}
               {product.description && (
                 <p className="text-sm text-gray-600 leading-relaxed">
@@ -159,6 +281,23 @@ export default function UrunDetay({ product }) {
                 apiPrices={priceHistory}
                 formatPrice={formatPriceFn}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Related products — Benzer Ürünler */}
+        {relatedProducts.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-5 bg-orange-500 rounded-full" />
+              <h2 className="text-base font-semibold text-gray-900">Benzer Ürünler</h2>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
+              {relatedProducts.map((p) => (
+                <div key={p.slug} className="snap-start flex-shrink-0 w-44 sm:w-52">
+                  <ProductCard product={p} />
+                </div>
+              ))}
             </div>
           </div>
         )}
