@@ -315,6 +315,30 @@ export default function Home({
 					<NewProductsSection />
 				</div>
 
+				{/* Mağazalar */}
+				<div className="container mx-auto px-4 mt-8 mb-2">
+					<div className="flex items-center gap-2 mb-4">
+						<div className="w-1 h-5 bg-gray-400 rounded-full" />
+						<h2 className="text-base font-semibold text-gray-900">Mağazalar</h2>
+					</div>
+					<div className="flex flex-wrap gap-3">
+						{[
+							{ key: 'migros', label: 'Migros', bg: 'bg-red-600' },
+							{ key: 'sok', label: 'Şok', bg: 'bg-orange-500' },
+							{ key: 'a101', label: 'A101', bg: 'bg-red-800' },
+							{ key: 'carrefour', label: 'Carrefour', bg: 'bg-blue-600' },
+						].map((store) => (
+							<Link
+								key={store.key}
+								href={`/magaza/${store.key}`}
+								className={`inline-flex items-center px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm ${store.bg}`}
+							>
+								{store.label}
+							</Link>
+						))}
+					</div>
+				</div>
+
 				{/* Footer */}
 				<Ads ads={ads} positions={["footer"]} />
 			</section>

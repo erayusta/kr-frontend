@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ChevronLeft, ChevronRight, X, ArrowUp } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
@@ -317,15 +318,16 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
           {/* Store badges */}
           <div className="flex flex-wrap gap-2">
             {STORE_BADGES.map((store) => (
-              <div
+              <Link
                 key={store.key}
+                href={`/magaza/${store.key}`}
                 className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold',
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold hover:opacity-90 transition-opacity',
                   store.bg,
                 )}
               >
                 {store.label}
-              </div>
+              </Link>
             ))}
           </div>
           {total > 0 && (
