@@ -7,12 +7,14 @@ import ProductImageGallery from '@/components/common/campaign/product/ProductIma
 import MultiStorePriceChart from '@/components/common/marketplace/MultiStorePriceChart';
 import ProductPriceTable from '@/components/common/marketplace/ProductPriceTable';
 import ProductCard from '@/components/common/marketplace/ProductCard';
+import RecentlyViewedSection from '@/components/common/marketplace/RecentlyViewedSection';
 import serverApiRequest from '@/lib/serverApiRequest';
 import apiRequest from '@/lib/apiRequest';
 import { formatPrice, getCdnImageUrl, getStoreName } from '@/utils/storeUtils';
 import { isFavorited, toggleFavorited, subscribeFavoritesChanged } from '@/lib/favorites';
 import { useCompare } from '@/context/compareContext';
 import { getPriceAlert, setPriceAlert, removePriceAlert, subscribePriceAlertsChanged } from '@/lib/priceAlerts';
+import { recordView } from '@/lib/recentlyViewed';
 import { cn } from '@/lib/utils';
 
 export async function getServerSideProps({ params }) {
@@ -39,6 +41,18 @@ export default function UrunDetay({ product }) {
   const priceHistory = product.price_history || [];
 
   const storeCount = (product.stores || []).length;
+
+  // Record this view on mount
+  useEffect(() => {
+    recordView({
+      slug: product.slug,
+      title: product.title,
+      image: galleryImages[0] || null,
+      latest_price: product.latest_price,
+      brand: product.brand,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.slug]);
 
   // Favorite state
   const [fav, setFav] = useState(false);
@@ -443,6 +457,9 @@ export default function UrunDetay({ product }) {
             </div>
           </div>
         )}
+
+        {/* Recently viewed */}
+        <RecentlyViewedSection excludeSlug={product.slug} />
 
         {/* Back link */}
         <div className="mt-4">
