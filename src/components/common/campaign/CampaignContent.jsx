@@ -174,14 +174,22 @@ export default function CampaignContent({ campaign, sections, imageHotspots, ads
 					margin-bottom: 0.75rem;
 				}
 
-				.campaign-content ul,
+				.campaign-content ul {
+					list-style-type: disc;
+					margin-left: 1.5rem;
+					margin-top: 0.5rem;
+					margin-bottom: 0.5rem;
+				}
+
 				.campaign-content ol {
+					list-style-type: decimal;
 					margin-left: 1.5rem;
 					margin-top: 0.5rem;
 					margin-bottom: 0.5rem;
 				}
 
 				.campaign-content li {
+					display: list-item;
 					margin-top: 0.25rem;
 					margin-bottom: 0.25rem;
 				}
