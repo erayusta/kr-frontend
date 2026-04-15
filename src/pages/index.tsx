@@ -127,6 +127,60 @@ function LowestPricesSection() {
 	);
 }
 
+function PriceDropsSection() {
+	const [products, setProducts] = useState<any[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		apiRequest("/marketplace/products/price-drops", "get")
+			.then((data: any) => {
+				setProducts(data?.data || []);
+			})
+			.catch(() => {})
+			.finally(() => setLoading(false));
+	}, []);
+
+	if (!loading && products.length === 0) return null;
+
+	return (
+		<div className="container mx-auto px-4">
+			<div className="flex items-center justify-between mb-4">
+				<div className="flex items-center gap-2">
+					<div className="w-1 h-5 bg-green-500 rounded-full" />
+					<h2 className="text-base font-semibold text-gray-900">📉 Fiyatı Düşen Ürünler</h2>
+				</div>
+				<Link href="/fiyat-dusus" className="text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
+					Tümünü Gör &rarr;
+				</Link>
+			</div>
+
+			<div className="overflow-x-auto pb-2">
+				<div className="flex gap-4" style={{ minWidth: "max-content" }}>
+					{loading
+						? Array.from({ length: 8 }).map((_, i) => (
+								<div
+									key={i}
+									className="min-w-[160px] max-w-[180px] w-[160px] rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden animate-pulse"
+								>
+									<div className="aspect-square bg-gray-100" />
+									<div className="p-3 flex flex-col gap-2">
+										<div className="h-3 bg-gray-100 rounded w-1/2" />
+										<div className="h-4 bg-gray-100 rounded w-full" />
+										<div className="h-6 bg-green-50 rounded-full w-2/3 mt-1" />
+									</div>
+								</div>
+							))
+						: products.map((product) => (
+								<div key={product.slug} className="min-w-[160px] max-w-[180px] w-[160px] flex-shrink-0">
+									<ProductCard product={product} />
+								</div>
+							))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export default function Home({
 	categories,
 	carousels,
@@ -194,6 +248,11 @@ export default function Home({
 				{/* En Düşük Fiyatlar */}
 				<div className="mt-8 mb-2">
 					<LowestPricesSection />
+				</div>
+
+				{/* Fiyatı Düşen Ürünler */}
+				<div className="mt-8 mb-2">
+					<PriceDropsSection />
 				</div>
 
 				{/* Footer */}
