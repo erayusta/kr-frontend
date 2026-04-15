@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { ChevronRight, Tag, Share2, Heart, Scale } from 'lucide-react';
+import { ChevronRight, Tag, Share2, Heart, Scale, Bell, BellOff } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
 import ProductImageGallery from '@/components/common/campaign/product/ProductImageGallery';
 import MultiStorePriceChart from '@/components/common/marketplace/MultiStorePriceChart';
@@ -12,6 +12,7 @@ import apiRequest from '@/lib/apiRequest';
 import { formatPrice, getCdnImageUrl, getStoreName } from '@/utils/storeUtils';
 import { isFavorited, toggleFavorited, subscribeFavoritesChanged } from '@/lib/favorites';
 import { useCompare } from '@/context/compareContext';
+import { getPriceAlert, setPriceAlert, removePriceAlert, subscribePriceAlertsChanged } from '@/lib/priceAlerts';
 import { cn } from '@/lib/utils';
 
 export async function getServerSideProps({ params }) {
@@ -65,6 +66,29 @@ export default function UrunDetay({ product }) {
   // Compare state
   const { toggleCompare, isInCompare, canAdd } = useCompare();
   const inCompare = isInCompare(product.slug);
+
+  // Price alert state
+  const [alert, setAlert] = useState(null);
+  const [showAlertForm, setShowAlertForm] = useState(false);
+  const [alertInput, setAlertInput] = useState('');
+  useEffect(() => {
+    const sync = () => setAlert(getPriceAlert(product.slug));
+    sync();
+    return subscribePriceAlertsChanged(sync);
+  }, [product.slug]);
+  const handleSaveAlert = () => {
+    const target = parseFloat(alertInput);
+    if (!target || target <= 0) return;
+    setPriceAlert(product.slug, {
+      slug: product.slug,
+      title: product.title,
+      image: galleryImages[0] || null,
+      currentPrice: product.latest_price,
+      targetPrice: target,
+    });
+    setShowAlertForm(false);
+    setAlertInput('');
+  };
 
   // Share button state
   const [copied, setCopied] = useState(false);
@@ -282,6 +306,58 @@ export default function UrunDetay({ product }) {
                   {copied ? 'Kopyalandı!' : 'Paylaş'}
                 </button>
               </div>
+
+              {/* Price alert */}
+              {alert ? (
+                <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-lg px-3 py-2">
+                  <Bell className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                  <span className="text-xs text-gray-700 flex-1">
+                    Hedef fiyat: <strong>₺{formatPrice(alert.targetPrice)}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removePriceAlert(product.slug)}
+                    className="text-gray-400 hover:text-red-500 transition-colors"
+                    aria-label="Alarmı kaldır"
+                  >
+                    <BellOff className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : showAlertForm ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={alertInput}
+                    onChange={(e) => setAlertInput(e.target.value)}
+                    placeholder={`Hedef fiyat (şu an ₺${product.latest_price ? formatPrice(product.latest_price) : '?'})`}
+                    className="flex-1 h-9 text-sm border border-gray-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveAlert}
+                    className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors"
+                  >
+                    Kaydet
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowAlertForm(false); setAlertInput(''); }}
+                    className="px-3 py-1.5 border border-gray-200 text-gray-500 text-sm rounded-lg transition-colors hover:bg-gray-50"
+                  >
+                    İptal
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowAlertForm(true)}
+                  className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-orange-500 border border-gray-200 hover:border-orange-300 bg-white hover:bg-orange-50 px-3 py-1.5 rounded-lg transition-colors self-start"
+                >
+                  <Bell className="h-3.5 w-3.5" />
+                  Fiyat Takip
+                </button>
+              )}
 
               {/* Description */}
               {product.description && product.description !== product.title && (
