@@ -23,7 +23,14 @@ export async function getServerSideProps({ query }) {
     if (query.category_slug) params.set('category_slug', query.category_slug);
     if (query.brand_slug) params.set('brand_slug', query.brand_slug);
 
-    const data = await serverApiRequest(`/marketplace/products?${params.toString()}`, 'get');
+    const [data, categoriesData] = await Promise.all([
+      serverApiRequest(`/marketplace/products?${params.toString()}`, 'get'),
+      serverApiRequest('/categories?is_active=true&per_page=12', 'get').catch(() => null),
+    ]);
+
+    // Categories API returns array directly (no data wrapper)
+    const rawCategories = Array.isArray(categoriesData) ? categoriesData : (categoriesData?.data || []);
+    const popularCategories = rawCategories.slice(0, 10);
 
     const initialFilters = {
       q: query.q || '',
@@ -43,6 +50,7 @@ export async function getServerSideProps({ query }) {
         initialTotal: data.meta?.total || data.total || 0,
         initialLastPage: data.meta?.last_page || data.last_page || 1,
         initialFilters,
+        popularCategories,
       },
     };
   } catch (error) {
@@ -52,6 +60,7 @@ export async function getServerSideProps({ query }) {
         initialProducts: [],
         initialTotal: 0,
         initialLastPage: 1,
+        popularCategories: [],
         initialFilters: {
           q: '',
           store: '',
@@ -185,7 +194,7 @@ function PaginationBar({ currentPage, lastPage, onPageChange }) {
   );
 }
 
-export default function FiyatKarsilastir({ initialProducts, initialTotal, initialLastPage, initialFilters }) {
+export default function FiyatKarsilastir({ initialProducts, initialTotal, initialLastPage, initialFilters, popularCategories = [] }) {
   const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [total, setTotal] = useState(initialTotal);
@@ -313,6 +322,30 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
             <p className="text-xs text-gray-400 mt-3">
               {total.toLocaleString('tr-TR')} ürün karşılaştırılıyor
             </p>
+          )}
+
+          {/* Popular category chips */}
+          {popularCategories.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {popularCategories.map((cat) => {
+                const isActive = filters.category_slug === cat.slug;
+                return (
+                  <button
+                    key={cat.slug}
+                    type="button"
+                    onClick={() => handleFilterChange({ ...filters, category_slug: isActive ? '' : cat.slug, page: 1 })}
+                    className={cn(
+                      'px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150',
+                      isActive
+                        ? 'bg-orange-500 text-white border-orange-500'
+                        : 'bg-white/80 text-gray-700 border-gray-200 hover:border-orange-300 hover:text-orange-600',
+                    )}
+                  >
+                    {cat.name}
+                  </button>
+                );
+              })}
+            </div>
           )}
         </div>
       </div>
