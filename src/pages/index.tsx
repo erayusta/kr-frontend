@@ -88,10 +88,10 @@ function LowestPricesSection() {
 			<div className="flex items-center justify-between mb-4">
 				<div className="flex items-center gap-2">
 					<div className="w-1 h-5 bg-orange-500 rounded-full" />
-					<h2 className="text-base font-semibold text-gray-900">En Düşük Fiyatlar</h2>
+					<h2 className="text-base font-semibold text-gray-900">⚡ Günün Fırsatları</h2>
 				</div>
 				<Link
-					href="/fiyat-karsilastir?sort=price_asc"
+					href="/gunun-firsatlari"
 					className="text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
 				>
 					Tümünü Gör &rarr;
