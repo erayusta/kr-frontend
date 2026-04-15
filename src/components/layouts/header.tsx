@@ -58,6 +58,12 @@ export const Header = () => {
 						>
 							Fiyat Karşılaştır
 						</Link>
+						<Link
+							href="/gunun-firsatlari"
+							className="h-10 px-4 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors flex items-center rounded-md hover:bg-orange-50 gap-1"
+						>
+							⚡ Günün Fırsatları
+						</Link>
 					</div>
 
 					<div className="flex-1 flex justify-center px-4 max-w-sm">
