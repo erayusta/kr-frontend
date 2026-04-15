@@ -2,6 +2,7 @@ import type { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { NextSeo } from "next-seo";
 import BrandCarousel from "@/components/common/home/BrandCarousel";
 import CategoryCarousel from "@/components/common/home/CategoryCarousel";
@@ -313,6 +314,23 @@ export default function Home({
 				{/* Yeni Ürünler */}
 				<div className="mt-8 mb-2">
 					<NewProductsSection />
+				</div>
+
+				{/* Bugün Bitiyor — quick link */}
+				<div className="container mx-auto px-4 mt-6 mb-2">
+					<Link
+						href="/bugun-bitiyor"
+						className="flex items-center justify-between bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl px-5 py-4 hover:opacity-95 transition-opacity shadow-sm"
+					>
+						<div className="flex items-center gap-3">
+							<span className="text-2xl">⏰</span>
+							<div>
+								<p className="font-bold text-base">Bugün Bitiyor!</p>
+								<p className="text-sm text-red-100">Son günlerinde olan kampanyaları kaçırma</p>
+							</div>
+						</div>
+						<ChevronRight className="h-5 w-5 text-white/80" />
+					</Link>
 				</div>
 
 				{/* Kampanyalar linki */}

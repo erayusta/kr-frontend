@@ -1,19 +1,55 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Bell, BellOff, ExternalLink, Trash2 } from 'lucide-react';
+import { Bell, BellOff, ExternalLink, Trash2, RefreshCw } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
-import { getAllPriceAlerts, removePriceAlert, subscribePriceAlertsChanged } from '@/lib/priceAlerts';
+import { getAllPriceAlerts, removePriceAlert, setPriceAlert, subscribePriceAlertsChanged } from '@/lib/priceAlerts';
 import { getCdnImageUrl, formatPrice } from '@/utils/storeUtils';
+import apiRequest from '@/lib/apiRequest';
 import { cn } from '@/lib/utils';
 
 export default function FiyatTakip() {
   const [alerts, setAlerts] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState(null);
 
   useEffect(() => {
     const sync = () => setAlerts(getAllPriceAlerts());
     sync();
     return subscribePriceAlertsChanged(sync);
+  }, []);
+
+  // Auto-refresh on mount
+  useEffect(() => {
+    const currentAlerts = getAllPriceAlerts();
+    if (currentAlerts.length > 0) {
+      refreshPrices(currentAlerts);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const refreshPrices = useCallback(async (currentAlerts) => {
+    if (!currentAlerts || currentAlerts.length === 0) return;
+    setRefreshing(true);
+    try {
+      await Promise.allSettled(
+        currentAlerts.map(async (alert) => {
+          try {
+            const data = await apiRequest(`/marketplace/products/${alert.slug}`, 'get');
+            const product = data.data || data;
+            const newPrice = product.latest_price;
+            if (newPrice != null) {
+              setPriceAlert(alert.slug, { ...alert, currentPrice: newPrice });
+            }
+          } catch {
+            // Sessizce geç — ürün bulunamayabilir
+          }
+        }),
+      );
+      setLastRefreshed(new Date());
+    } finally {
+      setRefreshing(false);
+    }
   }, []);
 
   const handleRemove = (slug) => {
@@ -28,9 +64,29 @@ export default function FiyatTakip() {
       </Head>
 
       <div className="container py-8 px-4 md:px-6">
-        <div className="flex items-center gap-3 mb-6">
-          <Bell className="h-5 w-5 text-orange-500" />
-          <h1 className="text-xl font-bold text-gray-900">Fiyat Takip</h1>
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <Bell className="h-5 w-5 text-orange-500" />
+            <h1 className="text-xl font-bold text-gray-900">Fiyat Takip</h1>
+          </div>
+          {alerts.length > 0 && (
+            <div className="flex items-center gap-3">
+              {lastRefreshed && (
+                <span className="text-xs text-gray-400">
+                  {lastRefreshed.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} güncellendi
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => refreshPrices(alerts)}
+                disabled={refreshing}
+                className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-orange-500 border border-gray-200 hover:border-orange-300 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />
+                {refreshing ? 'Güncelleniyor...' : 'Güncelle'}
+              </button>
+            </div>
+          )}
         </div>
 
         {alerts.length === 0 ? (

@@ -99,6 +99,9 @@ const GuestMenu = ({
 				<Link href="/kampanyalar" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 					Kampanyalar
 				</Link>
+				<Link href="/bugun-bitiyor" className="flex items-center gap-2 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors">
+					⏰ Bugün Bitiyor
+				</Link>
 				<Link href="/gunun-firsatlari" className="flex items-center gap-2 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
 					⚡ Günün Fırsatları
 				</Link>
@@ -185,6 +188,9 @@ const UserMenu = ({
 			</Link>
 			<Link href="/kampanyalar" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 				Kampanyalar
+			</Link>
+			<Link href="/bugun-bitiyor" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors">
+				⏰ Bugün Bitiyor
 			</Link>
 			<Link href="/gunun-firsatlari" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
 				⚡ Günün Fırsatları
