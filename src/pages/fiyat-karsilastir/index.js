@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
 import ProductGrid from '@/components/common/marketplace/ProductGrid';
 import ProductFilters from '@/components/common/marketplace/ProductFilters';
@@ -20,6 +20,8 @@ export async function getServerSideProps({ query }) {
     if (query.in_stock === 'true') params.set('in_stock', 'true');
     if (query.min_price) params.set('min_price', query.min_price);
     if (query.max_price) params.set('max_price', query.max_price);
+    if (query.category_slug) params.set('category_slug', query.category_slug);
+    if (query.brand_slug) params.set('brand_slug', query.brand_slug);
 
     const data = await serverApiRequest(`/marketplace/products?${params.toString()}`, 'get');
 
@@ -30,6 +32,8 @@ export async function getServerSideProps({ query }) {
       in_stock: query.in_stock === 'true',
       min_price: query.min_price || '',
       max_price: query.max_price || '',
+      category_slug: query.category_slug || '',
+      brand_slug: query.brand_slug || '',
       page: Number(query.page) || 1,
     };
 
@@ -55,6 +59,8 @@ export async function getServerSideProps({ query }) {
           in_stock: false,
           min_price: '',
           max_price: '',
+          category_slug: '',
+          brand_slug: '',
           page: 1,
         },
       },
@@ -198,6 +204,8 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
         in_stock: q.in_stock === 'true',
         min_price: q.min_price || '',
         max_price: q.max_price || '',
+        category_slug: q.category_slug || '',
+        brand_slug: q.brand_slug || '',
         page: Number(q.page) || 1,
       });
     };
@@ -213,6 +221,8 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
     if (newFilters.in_stock) cleanQuery.in_stock = 'true';
     if (newFilters.min_price) cleanQuery.min_price = newFilters.min_price;
     if (newFilters.max_price) cleanQuery.max_price = newFilters.max_price;
+    if (newFilters.category_slug) cleanQuery.category_slug = newFilters.category_slug;
+    if (newFilters.brand_slug) cleanQuery.brand_slug = newFilters.brand_slug;
     if (newFilters.page && newFilters.page > 1) cleanQuery.page = String(newFilters.page);
 
     router.push(
@@ -234,6 +244,8 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
       if (newFilters.in_stock) params.set('in_stock', 'true');
       if (newFilters.min_price) params.set('min_price', newFilters.min_price);
       if (newFilters.max_price) params.set('max_price', newFilters.max_price);
+      if (newFilters.category_slug) params.set('category_slug', newFilters.category_slug);
+      if (newFilters.brand_slug) params.set('brand_slug', newFilters.brand_slug);
 
       const data = await apiRequest(`/marketplace/products?${params.toString()}`, 'get');
       setProducts(data.data || []);
@@ -306,6 +318,38 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
       </div>
 
       <div className="container py-6 px-4 md:px-6">
+        {/* Active context filters (category / brand) */}
+        {(filters.category_slug || filters.brand_slug) && (
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {filters.category_slug && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-medium">
+                Kategori: {filters.category_slug}
+                <button
+                  type="button"
+                  onClick={() => handleFilterChange({ ...filters, category_slug: '', page: 1 })}
+                  className="text-orange-400 hover:text-orange-600 ml-0.5"
+                  aria-label="Kategori filtresini kaldır"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
+            {filters.brand_slug && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-medium">
+                Marka: {filters.brand_slug}
+                <button
+                  type="button"
+                  onClick={() => handleFilterChange({ ...filters, brand_slug: '', page: 1 })}
+                  className="text-orange-400 hover:text-orange-600 ml-0.5"
+                  aria-label="Marka filtresini kaldır"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Filters */}
         <ProductFilters
           filters={filters}

@@ -6,6 +6,7 @@ const DEFAULT_STATE = {
 	post: [],
 	brand: [],
 	category: [],
+	product: [],
 };
 
 function canUseStorage() {
