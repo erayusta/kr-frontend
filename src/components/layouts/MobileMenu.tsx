@@ -108,6 +108,12 @@ const GuestMenu = ({
 				<Link href="/fiyat-takip" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 					🔔 Fiyat Takip
 				</Link>
+				<Link href="/markalar" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Markalar
+				</Link>
+				<Link href="/kategoriler" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Kategoriler
+				</Link>
 			</div>
 
 			<hr />
@@ -176,6 +182,12 @@ const UserMenu = ({
 			</Link>
 			<Link href="/fiyat-takip" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 				🔔 Fiyat Takip
+			</Link>
+			<Link href="/markalar" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Markalar
+			</Link>
+			<Link href="/kategoriler" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Kategoriler
 			</Link>
 
 			<hr className="my-2" />
