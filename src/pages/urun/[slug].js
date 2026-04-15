@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { ChevronRight, Tag, Share2, Heart } from 'lucide-react';
+import { ChevronRight, Tag, Share2, Heart, Scale } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
 import ProductImageGallery from '@/components/common/campaign/product/ProductImageGallery';
 import MultiStorePriceChart from '@/components/common/marketplace/MultiStorePriceChart';
@@ -11,6 +11,7 @@ import serverApiRequest from '@/lib/serverApiRequest';
 import apiRequest from '@/lib/apiRequest';
 import { formatPrice, getCdnImageUrl, getStoreName } from '@/utils/storeUtils';
 import { isFavorited, toggleFavorited, subscribeFavoritesChanged } from '@/lib/favorites';
+import { useCompare } from '@/context/compareContext';
 import { cn } from '@/lib/utils';
 
 export async function getServerSideProps({ params }) {
@@ -60,6 +61,10 @@ export default function UrunDetay({ product }) {
   const handleFavToggle = useCallback(() => {
     setFav(toggleFavorited('product', product.slug));
   }, [product.slug]);
+
+  // Compare state
+  const { toggleCompare, isInCompare, canAdd } = useCompare();
+  const inCompare = isInCompare(product.slug);
 
   // Share button state
   const [copied, setCopied] = useState(false);
@@ -238,8 +243,8 @@ export default function UrunDetay({ product }) {
                 </div>
               )}
 
-              {/* Share + Favorite buttons */}
-              <div className="flex items-center gap-2">
+              {/* Share + Favorite + Compare buttons */}
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={handleFavToggle}
@@ -251,7 +256,22 @@ export default function UrunDetay({ product }) {
                   )}
                 >
                   <Heart className="h-3.5 w-3.5" fill={fav ? 'currentColor' : 'none'} />
-                  {fav ? 'Favorilerde' : 'Favorilere Ekle'}
+                  {fav ? 'Favorilerde' : 'Favori'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleCompare(product)}
+                  disabled={!inCompare && !canAdd}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 text-sm border px-3 py-1.5 rounded-lg transition-colors',
+                    inCompare
+                      ? 'text-orange-600 border-orange-300 bg-orange-50 hover:bg-orange-100'
+                      : 'text-gray-500 border-gray-200 bg-white hover:text-orange-500 hover:border-orange-300 hover:bg-orange-50',
+                    !inCompare && !canAdd && 'opacity-50 cursor-not-allowed',
+                  )}
+                >
+                  <Scale className="h-3.5 w-3.5" />
+                  {inCompare ? 'Karşılaştırmada' : 'Karşılaştır'}
                 </button>
                 <button
                   type="button"
