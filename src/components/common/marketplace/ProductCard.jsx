@@ -3,7 +3,8 @@ import { getCdnImageUrl, getStoreName, formatPrice } from '@/utils/storeUtils';
 import { cn } from '@/lib/utils';
 
 export default function ProductCard({ product }) {
-  const imageUrl = product.images?.[0] ? getCdnImageUrl(product.images[0]) : null;
+  const rawImage = product.image || product.images?.[0] || null;
+  const imageUrl = rawImage ? getCdnImageUrl(rawImage) : null;
   const visibleStores = (product.stores || []).slice(0, 4);
 
   return (
