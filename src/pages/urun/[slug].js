@@ -11,8 +11,9 @@ import { formatPrice, getCdnImageUrl } from '@/utils/storeUtils';
 export async function getServerSideProps({ params }) {
   try {
     const data = await serverApiRequest(`/marketplace/products/${params.slug}`, 'get');
+    const product = data.data || data;
     return {
-      props: { product: data },
+      props: { product },
     };
   } catch (error) {
     console.error('[Urun SSR] ERROR:', error.message);

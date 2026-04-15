@@ -14,8 +14,8 @@ export async function getServerSideProps() {
     return {
       props: {
         initialProducts: data.data || [],
-        initialTotal: data.total || 0,
-        initialLastPage: data.last_page || 1,
+        initialTotal: data.meta?.total || data.total || 0,
+        initialLastPage: data.meta?.last_page || data.last_page || 1,
       },
     };
   } catch (error) {
@@ -49,8 +49,8 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
 
       const data = await apiRequest(`/marketplace/products?${params.toString()}`, 'get');
       setProducts(data.data || []);
-      setTotal(data.total || 0);
-      setLastPage(data.last_page || 1);
+      setTotal(data.meta?.total || data.total || 0);
+      setLastPage(data.meta?.last_page || data.last_page || 1);
     } catch (error) {
       console.error('[Marketplace] Fetch error:', error.message);
     } finally {
