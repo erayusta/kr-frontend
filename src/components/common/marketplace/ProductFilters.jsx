@@ -52,6 +52,10 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
     onFilterChange({ ...filters, in_stock: !filters.in_stock, page: 1 });
   };
 
+  const handleDiscountToggle = () => {
+    onFilterChange({ ...filters, has_discount: !filters.has_discount, page: 1 });
+  };
+
   const handleMinPriceChange = (e) => {
     const value = e.target.value;
     setMinPrice(value);
@@ -129,6 +133,20 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
           >
             <span className={cn('w-1.5 h-1.5 rounded-full', filters.in_stock ? 'bg-white' : 'bg-gray-400')} />
             Stokta
+          </button>
+
+          {/* Discount toggle */}
+          <button
+            type="button"
+            onClick={handleDiscountToggle}
+            className={cn(
+              'flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 flex items-center gap-1.5',
+              filters.has_discount
+                ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-orange-400 hover:text-orange-600',
+            )}
+          >
+            📉 İndirimli
           </button>
         </div>
 
@@ -263,6 +281,20 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
         >
           <span className={cn('w-1.5 h-1.5 rounded-full', filters.in_stock ? 'bg-white' : 'bg-gray-400')} />
           Stokta
+        </button>
+
+        {/* Discount toggle */}
+        <button
+          type="button"
+          onClick={handleDiscountToggle}
+          className={cn(
+            'px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 flex items-center gap-1.5 flex-shrink-0',
+            filters.has_discount
+              ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+              : 'bg-white text-gray-600 border-gray-200 hover:border-orange-400 hover:text-orange-600',
+          )}
+        >
+          📉 İndirimli
         </button>
 
         {/* Sort dropdown */}

@@ -23,6 +23,7 @@ export async function getServerSideProps({ query }) {
     if (query.max_price) params.set('max_price', query.max_price);
     if (query.category_slug) params.set('category_slug', query.category_slug);
     if (query.brand_slug) params.set('brand_slug', query.brand_slug);
+    if (query.has_discount === 'true') params.set('has_discount', 'true');
 
     const [data, categoriesData, brandsData] = await Promise.all([
       serverApiRequest(`/marketplace/products?${params.toString()}`, 'get'),
@@ -43,6 +44,7 @@ export async function getServerSideProps({ query }) {
       max_price: query.max_price || '',
       category_slug: query.category_slug || '',
       brand_slug: query.brand_slug || '',
+      has_discount: query.has_discount === 'true',
       page: Number(query.page) || 1,
     };
 
@@ -74,6 +76,7 @@ export async function getServerSideProps({ query }) {
           max_price: '',
           category_slug: '',
           brand_slug: '',
+          has_discount: false,
           page: 1,
         },
       },
@@ -226,6 +229,7 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
         max_price: q.max_price || '',
         category_slug: q.category_slug || '',
         brand_slug: q.brand_slug || '',
+        has_discount: q.has_discount === 'true',
         page: Number(q.page) || 1,
       });
     };
@@ -243,6 +247,7 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
     if (newFilters.max_price) cleanQuery.max_price = newFilters.max_price;
     if (newFilters.category_slug) cleanQuery.category_slug = newFilters.category_slug;
     if (newFilters.brand_slug) cleanQuery.brand_slug = newFilters.brand_slug;
+    if (newFilters.has_discount) cleanQuery.has_discount = 'true';
     if (newFilters.page && newFilters.page > 1) cleanQuery.page = String(newFilters.page);
 
     router.push(
@@ -266,6 +271,7 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
       if (newFilters.max_price) params.set('max_price', newFilters.max_price);
       if (newFilters.category_slug) params.set('category_slug', newFilters.category_slug);
       if (newFilters.brand_slug) params.set('brand_slug', newFilters.brand_slug);
+      if (newFilters.has_discount) params.set('has_discount', 'true');
 
       const data = await apiRequest(`/marketplace/products?${params.toString()}`, 'get');
       setProducts(data.data || []);
