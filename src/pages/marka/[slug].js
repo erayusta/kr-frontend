@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState, useCallback } from "react";
 import { NextSeo } from "next-seo";
@@ -134,7 +135,7 @@ function BrandPaginationBar({ currentPage, lastPage, onPageChange }) {
 	);
 }
 
-function BrandProductsSection({ brandId }) {
+function BrandProductsSection({ brandId, brandName }) {
 	const [activated, setActivated] = useState(false);
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(false);
@@ -175,9 +176,19 @@ function BrandProductsSection({ brandId }) {
 
 	return (
 		<section className="mt-10">
-			<div className="flex items-center gap-2 mb-6">
-				<div className="w-1 h-6 bg-orange-500 rounded-full" />
-				<h2 className="text-lg font-bold text-gray-900">Bu Markaya Ait Ürünler</h2>
+			<div className="flex items-center justify-between gap-2 mb-6">
+				<div className="flex items-center gap-2">
+					<div className="w-1 h-6 bg-orange-500 rounded-full" />
+					<h2 className="text-lg font-bold text-gray-900">Bu Markaya Ait Ürünler</h2>
+				</div>
+				{brandName && (
+					<Link
+						href={`/fiyat-karsilastir?q=${encodeURIComponent(brandName)}`}
+						className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
+					>
+						Tümünü Gör &rarr;
+					</Link>
+				)}
 			</div>
 
 			{!activated ? (
@@ -254,7 +265,7 @@ export default function Brand({ brand, ads, url, items }) {
 
 				<BrandContent items={items} url={url} brand={brand} />
 
-				<BrandProductsSection brandId={brand.id} />
+				<BrandProductsSection brandId={brand.id} brandName={brand.name} />
 
 				{/* Footer */}
 				<Ads ads={ads} positions={["footer"]} itemType="brand" />

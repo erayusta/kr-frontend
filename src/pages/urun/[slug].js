@@ -9,7 +9,7 @@ import ProductPriceTable from '@/components/common/marketplace/ProductPriceTable
 import ProductCard from '@/components/common/marketplace/ProductCard';
 import serverApiRequest from '@/lib/serverApiRequest';
 import apiRequest from '@/lib/apiRequest';
-import { formatPrice, getCdnImageUrl } from '@/utils/storeUtils';
+import { formatPrice, getCdnImageUrl, getStoreName } from '@/utils/storeUtils';
 
 export async function getServerSideProps({ params }) {
   try {
@@ -200,11 +200,16 @@ export default function UrunDetay({ product }) {
 
               {/* En Düşük Fiyat badge */}
               {product.latest_price != null && (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-600 text-sm font-bold px-3 py-1.5 rounded-lg">
                     <Tag className="h-3.5 w-3.5" />
                     En Düşük Fiyat: ₺{formatPrice(product.latest_price)}
                   </span>
+                  {product.stock_summary?.cheapest_store && (
+                    <span className="text-xs text-gray-500">
+                      {getStoreName(product.stock_summary.cheapest_store.store)}&apos;da
+                    </span>
+                  )}
                 </div>
               )}
 
