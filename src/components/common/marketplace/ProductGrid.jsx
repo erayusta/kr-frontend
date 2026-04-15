@@ -30,7 +30,7 @@ export default function ProductGrid({ products = [], loading = false }) {
   // Initial load (no products yet): show skeletons
   if (loading && products.length === 0) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {Array.from({ length: 12 }).map((_, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: Skeleton placeholders have no identity
           <SkeletonCard key={i} />
@@ -49,7 +49,7 @@ export default function ProductGrid({ products = [], loading = false }) {
       )}
       <div
         className={cn(
-          'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4',
+          'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4',
           loading && products.length > 0 && 'pointer-events-none',
         )}
       >

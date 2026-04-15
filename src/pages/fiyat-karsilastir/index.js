@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, ArrowUp } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
 import ProductGrid from '@/components/common/marketplace/ProductGrid';
 import ProductFilters from '@/components/common/marketplace/ProductFilters';
@@ -200,6 +200,13 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
   const [lastPage, setLastPage] = useState(initialLastPage);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState(initialFilters);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 600);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Sync filter state when navigating back/forward via browser history
   useEffect(() => {
@@ -401,6 +408,18 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
           />
         )}
       </div>
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-20 right-4 z-40 flex items-center justify-center w-10 h-10 bg-white border border-gray-200 text-gray-500 hover:text-orange-500 hover:border-orange-300 shadow-md rounded-full transition-all"
+          aria-label="Yukarı çık"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </button>
+      )}
     </Layout>
   );
 }
