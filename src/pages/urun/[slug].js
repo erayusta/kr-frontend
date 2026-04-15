@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { ChevronRight, Tag, Share2 } from 'lucide-react';
+import { ChevronRight, Tag, Share2, Heart } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
 import ProductImageGallery from '@/components/common/campaign/product/ProductImageGallery';
 import MultiStorePriceChart from '@/components/common/marketplace/MultiStorePriceChart';
@@ -10,6 +10,8 @@ import ProductCard from '@/components/common/marketplace/ProductCard';
 import serverApiRequest from '@/lib/serverApiRequest';
 import apiRequest from '@/lib/apiRequest';
 import { formatPrice, getCdnImageUrl, getStoreName } from '@/utils/storeUtils';
+import { isFavorited, toggleFavorited, subscribeFavoritesChanged } from '@/lib/favorites';
+import { cn } from '@/lib/utils';
 
 export async function getServerSideProps({ params }) {
   try {
@@ -47,6 +49,17 @@ export default function UrunDetay({ product }) {
   const priceHistory = product.price_history || [];
 
   const storeCount = (product.stores || []).length;
+
+  // Favorite state
+  const [fav, setFav] = useState(false);
+  useEffect(() => {
+    const sync = () => setFav(isFavorited('product', product.slug));
+    sync();
+    return subscribeFavoritesChanged(sync);
+  }, [product.slug]);
+  const handleFavToggle = useCallback(() => {
+    setFav(toggleFavorited('product', product.slug));
+  }, [product.slug]);
 
   // Share button state
   const [copied, setCopied] = useState(false);
@@ -213,8 +226,21 @@ export default function UrunDetay({ product }) {
                 </div>
               )}
 
-              {/* Share button */}
-              <div className="flex items-center">
+              {/* Share + Favorite buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleFavToggle}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 text-sm border px-3 py-1.5 rounded-lg transition-colors',
+                    fav
+                      ? 'text-rose-500 border-rose-300 bg-rose-50 hover:bg-rose-100'
+                      : 'text-gray-500 border-gray-200 bg-white hover:text-rose-500 hover:border-rose-300 hover:bg-rose-50',
+                  )}
+                >
+                  <Heart className="h-3.5 w-3.5" fill={fav ? 'currentColor' : 'none'} />
+                  {fav ? 'Favorilerde' : 'Favorilere Ekle'}
+                </button>
                 <button
                   type="button"
                   onClick={handleShare}
@@ -255,6 +281,52 @@ export default function UrunDetay({ product }) {
             </div>
           </div>
         </div>
+
+        {/* Categories + Attributes row */}
+        {((product.categories?.length > 0) || (product.attributes && Object.keys(product.attributes).length > 0)) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Categories */}
+            {product.categories?.length > 0 && (
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-5 bg-orange-500 rounded-full" />
+                  <h2 className="text-sm font-semibold text-gray-900">Kategoriler</h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {product.categories.map((cat) => (
+                    <Link
+                      key={cat.id}
+                      href={`/fiyat-karsilastir?category_slug=${cat.slug}`}
+                      className="inline-flex items-center px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-medium border border-orange-100 hover:bg-orange-100 transition-colors"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Attributes */}
+            {product.attributes && Object.keys(product.attributes).length > 0 && (
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-5 bg-orange-500 rounded-full" />
+                  <h2 className="text-sm font-semibold text-gray-900">Ürün Özellikleri</h2>
+                </div>
+                <div className="divide-y divide-gray-50">
+                  {Object.entries(product.attributes).map(([key, value]) => (
+                    <div key={key} className="flex justify-between py-2 first:pt-0 last:pb-0">
+                      <span className="text-xs text-gray-500 capitalize">{key.replace(/_/g, ' ')}</span>
+                      <span className="text-xs font-medium text-gray-900 text-right max-w-[60%]">
+                        {Array.isArray(value) ? value.join(', ') : String(value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Full-width price history chart — per-store lines */}
         {priceHistory.length > 0 && (

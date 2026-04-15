@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Heart } from 'lucide-react';
 import { getCdnImageUrl, getStoreName, formatPrice, STORE_CONFIG } from '@/utils/storeUtils';
 import { cn } from '@/lib/utils';
+import { isFavorited, toggleFavorited, subscribeFavoritesChanged } from '@/lib/favorites';
 
 const STORE_DOT_COLORS = {
   migros: 'bg-red-500',
@@ -13,7 +14,20 @@ const STORE_DOT_COLORS = {
 
 export default function ProductCard({ product }) {
   const [imgError, setImgError] = useState(false);
+  const [fav, setFav] = useState(false);
   const rawImage = product.image || product.images?.[0] || null;
+
+  useEffect(() => {
+    const sync = () => setFav(isFavorited('product', product.slug));
+    sync();
+    return subscribeFavoritesChanged(sync);
+  }, [product.slug]);
+
+  const handleFavClick = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFav(toggleFavorited('product', product.slug));
+  }, [product.slug]);
   const imageUrl = rawImage ? getCdnImageUrl(rawImage) : null;
   const allStores = product.stores || [];
   const visibleStores = allStores.slice(0, 2);
@@ -64,6 +78,23 @@ export default function ProductCard({ product }) {
             )}
           </div>
         )}
+
+        {/* Favorite button — top right */}
+        <button
+          type="button"
+          onClick={handleFavClick}
+          aria-label={fav ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+          className={cn(
+            'absolute top-2 right-2 z-10 flex items-center justify-center',
+            'w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm shadow-sm',
+            'border transition-all duration-150',
+            fav
+              ? 'border-rose-300 text-rose-500'
+              : 'border-gray-200 text-gray-400 opacity-0 group-hover:opacity-100',
+          )}
+        >
+          <Heart className="h-3.5 w-3.5" fill={fav ? 'currentColor' : 'none'} />
+        </button>
 
         {/* Hover CTA overlay */}
         <div
