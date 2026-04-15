@@ -1,9 +1,17 @@
 import { useRef } from 'react';
 import { Search } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 const STORE_OPTIONS = [
-  { value: '', label: 'Tüm Mağazalar' },
+  { value: '', label: 'Tümü' },
   { value: 'migros', label: 'Migros' },
   { value: 'sok', label: 'Şok' },
   { value: 'a101', label: 'A101' },
@@ -11,13 +19,12 @@ const STORE_OPTIONS = [
 ];
 
 const SORT_OPTIONS = [
-  { value: 'newest', label: 'En Yeni' },
-  { value: 'price_asc', label: 'Artan Fiyat' },
-  { value: 'price_desc', label: 'Azalan Fiyat' },
+  { value: 'newest', label: 'Yeniden Eskiye' },
+  { value: 'price_asc', label: 'En Düşük Fiyat' },
+  { value: 'price_desc', label: 'En Yüksek Fiyat' },
 ];
 
 export default function ProductFilters({ filters = {}, onFilterChange, totalCount }) {
-  const searchRef = useRef(null);
   const debounceRef = useRef(null);
 
   const handleSearchChange = (e) => {
@@ -28,75 +35,79 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
     }, 400);
   };
 
-  const handleStoreChange = (e) => {
-    onFilterChange({ ...filters, store: e.target.value, page: 1 });
+  const handleStoreChange = (value) => {
+    onFilterChange({ ...filters, store: value, page: 1 });
   };
 
-  const handleSortChange = (e) => {
-    onFilterChange({ ...filters, sort: e.target.value, page: 1 });
+  const handleSortChange = (value) => {
+    onFilterChange({ ...filters, sort: value, page: 1 });
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6">
+    <div className="bg-white border-b border-gray-100 shadow-sm mb-6 py-3 px-0">
+      {/* Main filter row */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        {/* Search input */}
-        <div className="relative flex-1 min-w-0">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none"
-          />
-          <input
-            ref={searchRef}
+        {/* Search */}
+        <div className="relative flex-1 min-w-0 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none" />
+          <Input
             type="text"
             defaultValue={filters.q || ''}
             onChange={handleSearchChange}
             placeholder="Ürün ara..."
-            className={cn(
-              'w-full pl-9 pr-4 py-2 text-sm rounded-md border border-gray-200',
-              'focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent',
-              'placeholder:text-gray-400',
-            )}
+            className="pl-9 h-9 text-sm border-gray-200 focus-visible:ring-orange-400 rounded-lg"
           />
         </div>
 
-        {/* Store filter */}
-        <select
-          value={filters.store || ''}
-          onChange={handleStoreChange}
-          className={cn(
-            'py-2 pl-3 pr-8 text-sm rounded-md border border-gray-200 bg-white',
-            'focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent',
-            'text-gray-700',
-          )}
-        >
-          {STORE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        {/* Store pill filters */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {STORE_OPTIONS.map((opt) => {
+            const isActive = (filters.store || '') === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => handleStoreChange(opt.value)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150',
+                  isActive
+                    ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:text-orange-500',
+                )}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
 
-        {/* Sort select */}
-        <select
-          value={filters.sort || 'newest'}
-          onChange={handleSortChange}
-          className={cn(
-            'py-2 pl-3 pr-8 text-sm rounded-md border border-gray-200 bg-white',
-            'focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent',
-            'text-gray-700',
-          )}
-        >
-          {SORT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        {/* Sort dropdown */}
+        <div className="ml-auto flex-shrink-0">
+          <Select
+            value={filters.sort || 'newest'}
+            onValueChange={handleSortChange}
+          >
+            <SelectTrigger className="h-9 text-sm w-44 border-gray-200 focus:ring-orange-400 rounded-lg">
+              <SelectValue placeholder="Sırala" />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Result count */}
       {totalCount != null && (
-        <p className="mt-3 text-xs text-gray-500">
-          <span className="font-semibold text-gray-700">{totalCount}</span> ürün bulundu
+        <p className="mt-2.5 text-xs text-gray-500">
+          <span className="font-semibold text-gray-700">
+            {new Intl.NumberFormat('tr-TR').format(totalCount)}
+          </span>{' '}
+          ürün
         </p>
       )}
     </div>

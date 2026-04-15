@@ -30,6 +30,123 @@ export async function getServerSideProps() {
   }
 }
 
+const STORE_BADGES = [
+  { key: 'migros', label: 'Migros', bg: 'bg-red-500' },
+  { key: 'sok', label: 'Şok', bg: 'bg-orange-400' },
+  { key: 'a101', label: 'A101', bg: 'bg-red-700' },
+  { key: 'carrefour', label: 'Carrefour', bg: 'bg-blue-600' },
+];
+
+function PaginationBar({ currentPage, lastPage, onPageChange }) {
+  if (lastPage <= 1) return null;
+
+  // Build page number window: show up to 5 pages centered on current page
+  const buildPages = () => {
+    const pages = [];
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(lastPage, start + 4);
+    // Adjust start if near the end
+    if (end - start < 4) {
+      start = Math.max(1, end - 4);
+    }
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  const pages = buildPages();
+
+  return (
+    <div className="flex items-center justify-center gap-1 mt-10">
+      {/* Prev */}
+      <button
+        type="button"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage <= 1}
+        className={cn(
+          'flex items-center justify-center w-9 h-9 rounded-lg border text-sm font-medium transition-colors',
+          currentPage <= 1
+            ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
+            : 'border-gray-200 text-gray-600 hover:bg-gray-100 bg-white hover:border-gray-300',
+        )}
+        aria-label="Önceki sayfa"
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+
+      {/* First page + ellipsis */}
+      {pages[0] > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={() => onPageChange(1)}
+            className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 text-sm font-medium bg-white text-gray-600 hover:bg-gray-100 transition-colors"
+          >
+            1
+          </button>
+          {pages[0] > 2 && (
+            <span className="flex items-center justify-center w-9 h-9 text-sm text-gray-400">
+              …
+            </span>
+          )}
+        </>
+      )}
+
+      {/* Page numbers */}
+      {pages.map((page) => (
+        <button
+          key={page}
+          type="button"
+          onClick={() => onPageChange(page)}
+          className={cn(
+            'flex items-center justify-center w-9 h-9 rounded-lg border text-sm font-medium transition-colors',
+            page === currentPage
+              ? 'bg-orange-500 border-orange-500 text-white shadow-sm'
+              : 'border-gray-200 text-gray-600 hover:bg-gray-100 bg-white hover:border-gray-300',
+          )}
+        >
+          {page}
+        </button>
+      ))}
+
+      {/* Last page + ellipsis */}
+      {pages[pages.length - 1] < lastPage && (
+        <>
+          {pages[pages.length - 1] < lastPage - 1 && (
+            <span className="flex items-center justify-center w-9 h-9 text-sm text-gray-400">
+              …
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => onPageChange(lastPage)}
+            className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 text-sm font-medium bg-white text-gray-600 hover:bg-gray-100 transition-colors"
+          >
+            {lastPage}
+          </button>
+        </>
+      )}
+
+      {/* Next */}
+      <button
+        type="button"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage >= lastPage}
+        className={cn(
+          'flex items-center justify-center w-9 h-9 rounded-lg border text-sm font-medium transition-colors',
+          currentPage >= lastPage
+            ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
+            : 'border-gray-200 text-gray-600 hover:bg-gray-100 bg-white hover:border-gray-300',
+        )}
+        aria-label="Sonraki sayfa"
+      >
+        <ChevronRight className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
 export default function FiyatKarsilastir({ initialProducts, initialTotal, initialLastPage }) {
   const [products, setProducts] = useState(initialProducts);
   const [total, setTotal] = useState(initialTotal);
@@ -80,15 +197,34 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
         />
       </Head>
 
-      <div className="container py-6 px-4 md:px-6">
-        {/* Page header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Fiyat Karşılaştır</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Marketlerdeki ürün fiyatlarını karşılaştırın
+      {/* Hero section */}
+      <div className="bg-gradient-to-b from-orange-50 to-white border-b border-orange-100/60">
+        <div className="container px-4 md:px-6 py-10 md:py-14">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+            Fiyat Karşılaştır
+          </h1>
+          <p className="text-sm md:text-base text-gray-500 mb-6 max-w-lg">
+            Migros, Şok, A101 ve Carrefour'daki fiyatları gerçek zamanlı karşılaştırın
           </p>
-        </div>
 
+          {/* Store badges */}
+          <div className="flex flex-wrap gap-2">
+            {STORE_BADGES.map((store) => (
+              <div
+                key={store.key}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold',
+                  store.bg,
+                )}
+              >
+                {store.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="container py-6 px-4 md:px-6">
         {/* Filters */}
         <ProductFilters
           filters={filters}
@@ -100,45 +236,12 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
         <ProductGrid products={products} loading={loading} />
 
         {/* Pagination */}
-        {!loading && lastPage > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-8">
-            <button
-              type="button"
-              onClick={() => handlePageChange(filters.page - 1)}
-              disabled={filters.page <= 1}
-              className={cn(
-                'flex items-center gap-1 px-4 py-2 rounded-md text-sm font-medium border transition-colors',
-                filters.page <= 1
-                  ? 'border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-100 bg-white',
-              )}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Önceki
-            </button>
-
-            <span className="text-sm text-gray-600">
-              Sayfa{' '}
-              <span className="font-semibold text-gray-900">{filters.page}</span>
-              {' '}/{' '}
-              <span className="font-semibold text-gray-900">{lastPage}</span>
-            </span>
-
-            <button
-              type="button"
-              onClick={() => handlePageChange(filters.page + 1)}
-              disabled={filters.page >= lastPage}
-              className={cn(
-                'flex items-center gap-1 px-4 py-2 rounded-md text-sm font-medium border transition-colors',
-                filters.page >= lastPage
-                  ? 'border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-100 bg-white',
-              )}
-            >
-              Sonraki
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
+        {!loading && (
+          <PaginationBar
+            currentPage={filters.page}
+            lastPage={lastPage}
+            onPageChange={handlePageChange}
+          />
         )}
       </div>
     </Layout>
