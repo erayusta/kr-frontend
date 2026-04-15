@@ -1,4 +1,5 @@
 import { ShoppingBag } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import ProductCard from './ProductCard';
 
 function SkeletonCard() {
@@ -26,16 +27,36 @@ export default function ProductGrid({ products = [], loading = false }) {
     );
   }
 
+  // Initial load (no products yet): show skeletons
+  if (loading && products.length === 0) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 12 }).map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: Skeleton placeholders have no identity
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  // Re-filtering existing results: overlay spinner over cards
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {loading
-        ? Array.from({ length: 12 }).map((_, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: Skeleton placeholders have no identity
-            <SkeletonCard key={i} />
-          ))
-        : products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+    <div className="relative">
+      {loading && products.length > 0 && (
+        <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center rounded-lg">
+          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      <div
+        className={cn(
+          'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4',
+          loading && products.length > 0 && 'pointer-events-none',
+        )}
+      >
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
     </div>
   );
 }

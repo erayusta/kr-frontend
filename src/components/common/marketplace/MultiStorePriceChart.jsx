@@ -96,6 +96,19 @@ export default function MultiStorePriceChart({ priceHistory = [] }) {
 
   if (!priceHistory.length || !activeStores.length) return null;
 
+  // Not enough data to draw a meaningful chart
+  if (chartData.length <= 1) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-1 h-5 bg-orange-500 rounded-full" />
+          <h3 className="text-sm font-semibold text-gray-900">Mağazalara Göre Fiyat Trendi</h3>
+        </div>
+        <p className="text-sm text-gray-400 py-6 text-center">Yeterli fiyat geçmişi yok</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
       {/* Title */}
