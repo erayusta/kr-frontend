@@ -22,6 +22,15 @@ const SORT_OPTIONS = [
   { value: 'newest', label: 'Yeniden Eskiye' },
   { value: 'price_asc', label: 'En Düşük Fiyat' },
   { value: 'price_desc', label: 'En Yüksek Fiyat' },
+  { value: 'discount', label: 'En Yüksek İndirim' },
+];
+
+const DISCOUNT_OPTIONS = [
+  { value: '', label: 'İndirimli' },
+  { value: '10', label: '%10+' },
+  { value: '20', label: '%20+' },
+  { value: '30', label: '%30+' },
+  { value: '50', label: '%50+' },
 ];
 
 export default function ProductFilters({ filters = {}, onFilterChange, totalCount }) {
@@ -53,7 +62,12 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
   };
 
   const handleDiscountToggle = () => {
-    onFilterChange({ ...filters, has_discount: !filters.has_discount, page: 1 });
+    const turningOff = filters.has_discount;
+    onFilterChange({ ...filters, has_discount: !turningOff, min_discount: turningOff ? '' : filters.min_discount, page: 1 });
+  };
+
+  const handleMinDiscountChange = (value) => {
+    onFilterChange({ ...filters, has_discount: true, min_discount: value, page: 1 });
   };
 
   const handleMinPriceChange = (e) => {
@@ -135,7 +149,7 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
             Stokta
           </button>
 
-          {/* Discount toggle */}
+          {/* Discount toggle + min % chips */}
           <button
             type="button"
             onClick={handleDiscountToggle}
@@ -148,6 +162,21 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
           >
             📉 İndirimli
           </button>
+          {filters.has_discount && DISCOUNT_OPTIONS.filter((o) => o.value).map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => handleMinDiscountChange(opt.value === filters.min_discount ? '' : opt.value)}
+              className={cn(
+                'flex-shrink-0 px-2.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150',
+                filters.min_discount === opt.value
+                  ? 'bg-orange-600 text-white border-orange-600'
+                  : 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100',
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
 
         {/* Price range inputs */}
@@ -283,7 +312,7 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
           Stokta
         </button>
 
-        {/* Discount toggle */}
+        {/* Discount toggle + min % chips */}
         <button
           type="button"
           onClick={handleDiscountToggle}
@@ -296,6 +325,21 @@ export default function ProductFilters({ filters = {}, onFilterChange, totalCoun
         >
           📉 İndirimli
         </button>
+        {filters.has_discount && DISCOUNT_OPTIONS.filter((o) => o.value).map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => handleMinDiscountChange(opt.value === filters.min_discount ? '' : opt.value)}
+            className={cn(
+              'px-2.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 flex-shrink-0',
+              filters.min_discount === opt.value
+                ? 'bg-orange-600 text-white border-orange-600'
+                : 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100',
+            )}
+          >
+            {opt.label}
+          </button>
+        ))}
 
         {/* Sort dropdown */}
         <div className="ml-auto flex-shrink-0">

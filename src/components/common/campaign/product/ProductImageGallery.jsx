@@ -1,5 +1,5 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function ProductImageGallery({
 	images = [],
@@ -9,6 +9,7 @@ export default function ProductImageGallery({
 	selectedColorIndex = 0,
 }) {
 	const [currentIndex, setCurrentIndex] = useState(0);
+	const [lightboxOpen, setLightboxOpen] = useState(false);
 
 	// Build image list: if a color is selected and has image, prepend it
 	const baseImages = images.length > 0 ? images : [];
@@ -36,18 +37,41 @@ export default function ProductImageGallery({
 		setCurrentIndex(0);
 	};
 
+	const imageCount = productImages.length;
+	// Keyboard navigation for lightbox
+	useEffect(() => {
+		if (!lightboxOpen) return;
+		const handleKey = (e) => {
+			if (e.key === "Escape") setLightboxOpen(false);
+			if (e.key === "ArrowLeft") setCurrentIndex((i) => (i - 1 + imageCount) % imageCount);
+			if (e.key === "ArrowRight") setCurrentIndex((i) => (i + 1) % imageCount);
+		};
+		document.addEventListener("keydown", handleKey);
+		return () => document.removeEventListener("keydown", handleKey);
+	}, [lightboxOpen, imageCount]);
+
 	return (
 		<div className="space-y-4">
 			{/* Main Image */}
 			<div className="relative rounded-xl overflow-hidden bg-gray-50">
 				{productImages.length > 0 ? (
 					<>
+						{/* Zoom into lightbox button */}
+						<button
+							type="button"
+							onClick={() => setLightboxOpen(true)}
+							className="absolute top-2 right-2 z-10 flex items-center justify-center w-8 h-8 bg-white/80 hover:bg-white text-gray-500 hover:text-orange-500 rounded-full shadow-sm transition-colors"
+							aria-label="Büyüt"
+						>
+							<ZoomIn className="h-4 w-4" />
+						</button>
 						{/* biome-ignore lint/performance/noImgElement: Gallery uses arbitrary remote URLs */}
 						<img
 							src={productImages[currentIndex]}
 							alt={title}
-							className="w-full aspect-square object-contain"
-						loading="lazy"
+							className="w-full aspect-square object-contain cursor-zoom-in"
+							loading="lazy"
+							onClick={() => setLightboxOpen(true)}
 						/>
 						{productImages.length > 1 && (
 							<>
@@ -126,6 +150,78 @@ export default function ProductImageGallery({
 							</button>
 						))}
 					</div>
+				</div>
+			)}
+
+			{/* Lightbox */}
+			{lightboxOpen && productImages.length > 0 && (
+				<div
+					className="fixed inset-0 z-50 flex flex-col bg-black/90"
+					onClick={() => setLightboxOpen(false)}
+				>
+					{/* Top bar */}
+					<div className="flex items-center justify-between px-4 py-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+						<span className="text-white/70 text-sm">{currentIndex + 1} / {productImages.length}</span>
+						<button
+							type="button"
+							onClick={() => setLightboxOpen(false)}
+							className="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+							aria-label="Kapat"
+						>
+							<X className="h-5 w-5" />
+						</button>
+					</div>
+
+					{/* Main image */}
+					<div className="flex-1 flex items-center justify-center relative min-h-0 px-12" onClick={(e) => e.stopPropagation()}>
+						{productImages.length > 1 && (
+							<button
+								type="button"
+								onClick={() => setCurrentIndex((i) => (i - 1 + productImages.length) % productImages.length)}
+								className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+								aria-label="Önceki"
+							>
+								<ChevronLeft className="h-6 w-6" />
+							</button>
+						)}
+						{/* biome-ignore lint/performance/noImgElement: Lightbox uses arbitrary remote URLs */}
+						<img
+							src={productImages[currentIndex]}
+							alt={`${title} - ${currentIndex + 1}`}
+							className="max-h-full max-w-full object-contain select-none"
+							draggable={false}
+						/>
+						{productImages.length > 1 && (
+							<button
+								type="button"
+								onClick={() => setCurrentIndex((i) => (i + 1) % productImages.length)}
+								className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+								aria-label="Sonraki"
+							>
+								<ChevronRight className="h-6 w-6" />
+							</button>
+						)}
+					</div>
+
+					{/* Thumbnail strip */}
+					{productImages.length > 1 && (
+						<div className="flex items-center justify-center gap-2 px-4 py-3 shrink-0 overflow-x-auto" onClick={(e) => e.stopPropagation()}>
+							{productImages.map((img, idx) => (
+								<button
+									type="button"
+									key={`lb-thumb-${idx}-${img.slice(-10)}`}
+									onClick={() => setCurrentIndex(idx)}
+									className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${
+										idx === currentIndex ? "border-orange-400 opacity-100" : "border-white/20 opacity-50 hover:opacity-75"
+									}`}
+									aria-label={`Görsel ${idx + 1}`}
+								>
+									{/* biome-ignore lint/performance/noImgElement: Thumbnail strip uses arbitrary remote URLs */}
+									<img src={img} alt={`${idx + 1}`} className="w-full h-full object-cover" />
+								</button>
+							))}
+						</div>
+					)}
 				</div>
 			)}
 		</div>

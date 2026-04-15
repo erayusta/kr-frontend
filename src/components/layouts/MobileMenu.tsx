@@ -96,6 +96,9 @@ const GuestMenu = ({
 				<Link href="/fiyat-karsilastir" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 					Fiyat Karşılaştır
 				</Link>
+				<Link href="/kampanyalar" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Kampanyalar
+				</Link>
 				<Link href="/gunun-firsatlari" className="flex items-center gap-2 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
 					⚡ Günün Fırsatları
 				</Link>
@@ -119,6 +122,9 @@ const GuestMenu = ({
 				</Link>
 				<Link href="/kategoriler" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 					Kategoriler
+				</Link>
+				<Link href="/gecmis" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					🕐 Son Baktıklarım
 				</Link>
 			</div>
 
@@ -177,6 +183,9 @@ const UserMenu = ({
 			<Link href="/fiyat-karsilastir" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 				Fiyat Karşılaştır
 			</Link>
+			<Link href="/kampanyalar" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Kampanyalar
+			</Link>
 			<Link href="/gunun-firsatlari" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
 				⚡ Günün Fırsatları
 			</Link>
@@ -200,6 +209,9 @@ const UserMenu = ({
 			</Link>
 			<Link href="/kategoriler" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 				Kategoriler
+			</Link>
+			<Link href="/gecmis" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				🕐 Son Baktıklarım
 			</Link>
 
 			<hr className="my-2" />

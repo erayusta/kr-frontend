@@ -59,6 +59,12 @@ export const Header = () => {
 							Fiyat Karşılaştır
 						</Link>
 						<Link
+							href="/kampanyalar"
+							className="h-10 px-4 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors flex items-center rounded-md hover:bg-orange-50"
+						>
+							Kampanyalar
+						</Link>
+						<Link
 							href="/gunun-firsatlari"
 							className="h-10 px-4 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors flex items-center rounded-md hover:bg-orange-50 gap-1"
 						>

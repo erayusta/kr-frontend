@@ -315,6 +315,36 @@ export default function Home({
 					<NewProductsSection />
 				</div>
 
+				{/* Kampanyalar linki */}
+				<div className="container mx-auto px-4 mt-8 mb-2">
+					<div className="flex items-center justify-between mb-4">
+						<div className="flex items-center gap-2">
+							<div className="w-1 h-5 bg-orange-500 rounded-full" />
+							<h2 className="text-base font-semibold text-gray-900">🏷️ Kampanyalar</h2>
+						</div>
+						<Link href="/kampanyalar" className="text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors">
+							Tümünü Gör &rarr;
+						</Link>
+					</div>
+					<div className="flex flex-wrap gap-2">
+						{[
+							{ href: '/kampanyalar', label: 'Tüm Kampanyalar', cls: 'bg-orange-500 text-white' },
+							{ href: '/kampanyalar?item_type=product', label: 'Ürün Kampanyaları', cls: 'bg-orange-50 text-orange-700 border border-orange-200' },
+							{ href: '/kampanyalar?item_type=actual', label: 'Aktüel Kataloglar', cls: 'bg-orange-50 text-orange-700 border border-orange-200' },
+							{ href: '/kampanyalar?item_type=car', label: 'Araç Kampanyaları', cls: 'bg-orange-50 text-orange-700 border border-orange-200' },
+							{ href: '/kampanyalar?item_type=real-estate', label: 'Emlak', cls: 'bg-orange-50 text-orange-700 border border-orange-200' },
+						].map((item) => (
+							<Link
+								key={item.href}
+								href={item.href}
+								className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity ${item.cls}`}
+							>
+								{item.label}
+							</Link>
+						))}
+					</div>
+				</div>
+
 				{/* Mağazalar */}
 				<div className="container mx-auto px-4 mt-8 mb-2">
 					<div className="flex items-center gap-2 mb-4">

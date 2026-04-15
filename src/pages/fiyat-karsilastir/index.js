@@ -24,6 +24,7 @@ export async function getServerSideProps({ query }) {
     if (query.category_slug) params.set('category_slug', query.category_slug);
     if (query.brand_slug) params.set('brand_slug', query.brand_slug);
     if (query.has_discount === 'true') params.set('has_discount', 'true');
+    if (query.min_discount) params.set('min_discount', query.min_discount);
 
     const [data, categoriesData, brandsData] = await Promise.all([
       serverApiRequest(`/marketplace/products?${params.toString()}`, 'get'),
@@ -45,6 +46,7 @@ export async function getServerSideProps({ query }) {
       category_slug: query.category_slug || '',
       brand_slug: query.brand_slug || '',
       has_discount: query.has_discount === 'true',
+      min_discount: query.min_discount || '',
       page: Number(query.page) || 1,
     };
 
@@ -77,6 +79,7 @@ export async function getServerSideProps({ query }) {
           category_slug: '',
           brand_slug: '',
           has_discount: false,
+          min_discount: '',
           page: 1,
         },
       },
@@ -230,6 +233,7 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
         category_slug: q.category_slug || '',
         brand_slug: q.brand_slug || '',
         has_discount: q.has_discount === 'true',
+        min_discount: q.min_discount || '',
         page: Number(q.page) || 1,
       });
     };
@@ -248,6 +252,7 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
     if (newFilters.category_slug) cleanQuery.category_slug = newFilters.category_slug;
     if (newFilters.brand_slug) cleanQuery.brand_slug = newFilters.brand_slug;
     if (newFilters.has_discount) cleanQuery.has_discount = 'true';
+    if (newFilters.min_discount) cleanQuery.min_discount = newFilters.min_discount;
     if (newFilters.page && newFilters.page > 1) cleanQuery.page = String(newFilters.page);
 
     router.push(
@@ -272,6 +277,7 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
       if (newFilters.category_slug) params.set('category_slug', newFilters.category_slug);
       if (newFilters.brand_slug) params.set('brand_slug', newFilters.brand_slug);
       if (newFilters.has_discount) params.set('has_discount', 'true');
+      if (newFilters.min_discount) params.set('min_discount', newFilters.min_discount);
 
       const data = await apiRequest(`/marketplace/products?${params.toString()}`, 'get');
       setProducts(data.data || []);
@@ -337,9 +343,22 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
             ))}
           </div>
           {total > 0 && (
-            <p className="text-xs text-gray-400 mt-3">
-              {total.toLocaleString('tr-TR')} ürün karşılaştırılıyor
-            </p>
+            <div className="flex flex-wrap gap-4 mt-4">
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-gray-900">{total.toLocaleString('tr-TR')}</span>
+                <span className="text-xs text-gray-500">Ürün</span>
+              </div>
+              <div className="w-px bg-gray-200 self-stretch" />
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-gray-900">4</span>
+                <span className="text-xs text-gray-500">Mağaza</span>
+              </div>
+              <div className="w-px bg-gray-200 self-stretch" />
+              <Link href="/fiyat-dusus" className="flex flex-col group">
+                <span className="text-2xl font-bold text-green-600 group-hover:text-green-700">📉</span>
+                <span className="text-xs text-green-600 group-hover:text-green-700">Fiyat Düşüşleri</span>
+              </Link>
+            </div>
           )}
 
           {/* Popular category chips */}
@@ -393,9 +412,22 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
       </div>
 
       <div className="container py-6 px-4 md:px-6">
-        {/* Active context filters (category / brand) */}
-        {(filters.category_slug || filters.brand_slug) && (
+        {/* Active context filters (category / brand / discount) */}
+        {(filters.category_slug || filters.brand_slug || filters.min_discount) && (
           <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {filters.min_discount && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-medium">
+                📉 En az %{filters.min_discount} indirim
+                <button
+                  type="button"
+                  onClick={() => handleFilterChange({ ...filters, min_discount: '', page: 1 })}
+                  className="text-orange-400 hover:text-orange-600 ml-0.5"
+                  aria-label="İndirim filtresini kaldır"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
             {filters.category_slug && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-medium">
                 Kategori: {popularCategories.find((c) => c.slug === filters.category_slug)?.name || filters.category_slug}

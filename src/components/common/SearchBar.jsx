@@ -120,6 +120,10 @@ export const SearchBar = () => {
 			setShowResults(false);
 			inputRef.current?.blur();
 		}
+		if (e.key === "Enter" && query.trim().length >= 2) {
+			setShowResults(false);
+			router.push(`/arama?q=${encodeURIComponent(query.trim())}`);
+		}
 	};
 
 	const getRemainingBadge = (endDate) => {
@@ -160,7 +164,7 @@ export const SearchBar = () => {
 					onChange={handleChange}
 					onFocus={handleFocus}
 					onKeyDown={handleKeyDown}
-					placeholder="Kampanya ara..."
+					placeholder="Kampanya veya ürün ara..."
 					className="w-full rounded-lg border border-border/60 bg-muted/40 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary/40 focus:bg-background focus:ring-1 focus:ring-primary/20"
 				/>
 			</div>
@@ -221,6 +225,21 @@ export const SearchBar = () => {
 						</ul>
 					)}
 
+					{/* Arama sayfasına git footer */}
+					{!loading && (results.length > 0 || productResults.length > 0) && (
+						<div className="border-t border-border/60 px-3 py-2">
+							<Link
+								href={`/arama?q=${encodeURIComponent(query)}`}
+								className="flex items-center justify-center gap-1.5 text-xs text-orange-500 hover:text-orange-600 font-medium py-1"
+								onClick={() => { setShowResults(false); setQuery(""); setResults([]); setProductResults([]); }}
+							>
+								<Search size={11} />
+								Tüm sonuçları gör
+								<ArrowRight size={11} />
+							</Link>
+						</div>
+					)}
+
 					{/* Ürünler bölümü */}
 					{!loading && productResults.length > 0 && (
 						<div className="border-t border-border/60">
@@ -230,7 +249,7 @@ export const SearchBar = () => {
 									Ürünler
 								</span>
 								<Link
-									href={`/fiyat-karsilastir?q=${encodeURIComponent(query)}`}
+									href={`/arama?q=${encodeURIComponent(query)}`}
 									className="inline-flex items-center gap-0.5 text-[11px] text-orange-500 hover:text-orange-600 font-medium"
 									onClick={() => {
 										setShowResults(false);
