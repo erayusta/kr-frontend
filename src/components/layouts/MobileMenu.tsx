@@ -99,8 +99,14 @@ const GuestMenu = ({
 				<Link href="/gunun-firsatlari" className="flex items-center gap-2 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
 					⚡ Günün Fırsatları
 				</Link>
+				<Link href="/fiyat-dusus" className="flex items-center gap-2 py-2 text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
+					📉 Fiyat Düşüşleri
+				</Link>
 				<Link href="/favoriler/urunler" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 					Favori Ürünler
+				</Link>
+				<Link href="/fiyat-takip" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					🔔 Fiyat Takip
 				</Link>
 			</div>
 
@@ -162,8 +168,14 @@ const UserMenu = ({
 			<Link href="/gunun-firsatlari" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
 				⚡ Günün Fırsatları
 			</Link>
+			<Link href="/fiyat-dusus" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
+				📉 Fiyat Düşüşleri
+			</Link>
 			<Link href="/favoriler/urunler" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 				Favori Ürünler
+			</Link>
+			<Link href="/fiyat-takip" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				🔔 Fiyat Takip
 			</Link>
 
 			<hr className="my-2" />
