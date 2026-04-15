@@ -70,6 +70,12 @@ export const Header = () => {
 						>
 							📉 Fiyat Düşüşleri
 						</Link>
+						<Link
+							href="/yeni-urunler"
+							className="h-10 px-4 text-sm font-medium text-violet-600 hover:text-violet-700 transition-colors flex items-center rounded-md hover:bg-violet-50 gap-1"
+						>
+							✨ Yeni
+						</Link>
 					</div>
 
 					<div className="flex-1 flex justify-center px-4 max-w-sm">
