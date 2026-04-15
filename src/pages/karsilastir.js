@@ -244,6 +244,34 @@ export default function KarsilastirPage({ products }) {
                 })}
               </tr>
 
+              {/* Attributes rows — show attributes that appear in at least one product */}
+              {(() => {
+                const allKeys = new Set();
+                for (const p of products) {
+                  if (p.attributes && typeof p.attributes === 'object') {
+                    for (const k of Object.keys(p.attributes)) {
+                      allKeys.add(k);
+                    }
+                  }
+                }
+                return Array.from(allKeys).map((key) => (
+                  <tr key={key}>
+                    <RowLabel>{key.replace(/_/g, ' ')}</RowLabel>
+                    {products.map((product) => {
+                      const val = product.attributes?.[key];
+                      return (
+                        <td key={product.slug} className="py-3 px-4 text-center text-xs text-gray-700">
+                          {val != null
+                            ? (Array.isArray(val) ? val.join(', ') : String(val))
+                            : <span className="text-gray-300">—</span>
+                          }
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ));
+              })()}
+
               {/* CTA row */}
               <tr className="bg-gray-50/50">
                 <td className="py-4 px-4 bg-gray-50 border-r border-gray-100" />
