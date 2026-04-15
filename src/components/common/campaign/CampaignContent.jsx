@@ -5,6 +5,7 @@ import CampaignActualType from "./CampaignActualType";
 import CampaignCarType from "./CampaignCarType";
 import CampaignCouponType from "./CampaignCouponType";
 import CampaignCreditType from "./CampaignCreditType";
+import CampaignGalleryType from "./CampaignGalleryType";
 import CampaignProductType from "./CampaignProductType";
 import CampaignRealEstateType from "./CampaignRealEstateType";
 
@@ -81,6 +82,12 @@ export default function CampaignContent({ campaign, sections, imageHotspots, ads
 		) {
 			return <CampaignRealEstateType campaign={campaign} htmlContent={htmlContent} />;
 		}
+		if (
+			(campaign?.itemType === "gallery" || campaign?.item_type === "gallery") &&
+			campaign?.gallery?.length > 0
+		) {
+			return <CampaignGalleryType campaign={campaign} />;
+		}
 		return null;
 	};
 
@@ -107,7 +114,7 @@ export default function CampaignContent({ campaign, sections, imageHotspots, ads
 					<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 						{/* Sol Taraf - İçerik */}
 						<div
-							className={`${campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product" || campaign?.itemType === "actual" || campaign?.item_type === "actual" || campaign?.itemType === "real-estate" || campaign?.item_type === "real-estate" || campaign?.item_type === "real_estate" ? "lg:col-span-12" : "lg:col-span-8"}`}
+							className={`${campaign?.itemType === "car" || campaign?.item_type === "car" || campaign?.itemType === "product" || campaign?.item_type === "product" || campaign?.itemType === "actual" || campaign?.item_type === "actual" || campaign?.itemType === "real-estate" || campaign?.item_type === "real-estate" || campaign?.item_type === "real_estate" || campaign?.itemType === "gallery" || campaign?.item_type === "gallery" ? "lg:col-span-12" : "lg:col-span-8"}`}
 						>
 							{htmlContent &&
 								campaign?.itemType !== "product" &&
@@ -132,7 +139,7 @@ export default function CampaignContent({ campaign, sections, imageHotspots, ads
 								)}
 						</div>
 
-						{/* Sağ Taraf - Form - Car, Product, Actual ve Real Estate için gösterilmez, kendi içerikleri var */}
+						{/* Sağ Taraf - Form - Car, Product, Actual, Real Estate ve Gallery için gösterilmez */}
 						{!(
 							campaign?.itemType === "car" ||
 							campaign?.item_type === "car" ||
@@ -142,7 +149,9 @@ export default function CampaignContent({ campaign, sections, imageHotspots, ads
 							campaign?.item_type === "actual" ||
 							campaign?.itemType === "real-estate" ||
 							campaign?.item_type === "real-estate" ||
-							campaign?.item_type === "real_estate"
+							campaign?.item_type === "real_estate" ||
+							campaign?.itemType === "gallery" ||
+							campaign?.item_type === "gallery"
 						) && (
 							<div className="lg:col-span-4">
 								<div className="sticky top-4 space-y-6">
