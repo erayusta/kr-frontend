@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Heart } from 'lucide-react';
+import { ShoppingBag, Heart, Scale } from 'lucide-react';
 import { getCdnImageUrl, getStoreName, formatPrice, STORE_CONFIG } from '@/utils/storeUtils';
 import { cn } from '@/lib/utils';
 import { isFavorited, toggleFavorited, subscribeFavoritesChanged } from '@/lib/favorites';
+import { useCompare } from '@/context/compareContext';
 
 const STORE_DOT_COLORS = {
   migros: 'bg-red-500',
@@ -28,6 +29,14 @@ export default function ProductCard({ product }) {
     e.stopPropagation();
     setFav(toggleFavorited('product', product.slug));
   }, [product.slug]);
+
+  const { toggleCompare, isInCompare, canAdd } = useCompare();
+  const inCompare = isInCompare(product.slug);
+  const handleCompareClick = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleCompare(product);
+  }, [product, toggleCompare]);
   const imageUrl = rawImage ? getCdnImageUrl(rawImage) : null;
   const allStores = product.stores || [];
   const visibleStores = allStores.slice(0, 2);
@@ -79,22 +88,33 @@ export default function ProductCard({ product }) {
           </div>
         )}
 
-        {/* Favorite button — top right */}
-        <button
-          type="button"
-          onClick={handleFavClick}
-          aria-label={fav ? 'Favorilerden çıkar' : 'Favorilere ekle'}
-          className={cn(
-            'absolute top-2 right-2 z-10 flex items-center justify-center',
-            'w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm shadow-sm',
-            'border transition-all duration-150',
-            fav
-              ? 'border-rose-300 text-rose-500'
-              : 'border-gray-200 text-gray-400 opacity-0 group-hover:opacity-100',
-          )}
-        >
-          <Heart className="h-3.5 w-3.5" fill={fav ? 'currentColor' : 'none'} />
-        </button>
+        {/* Action buttons — top right */}
+        <div className={cn('absolute top-2 right-2 z-10 flex flex-col gap-1', (!fav && !inCompare) && 'opacity-0 group-hover:opacity-100 transition-opacity')}>
+          <button
+            type="button"
+            onClick={handleFavClick}
+            aria-label={fav ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+            className={cn(
+              'flex items-center justify-center w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm shadow-sm border transition-all duration-150',
+              fav ? 'border-rose-300 text-rose-500' : 'border-gray-200 text-gray-400',
+            )}
+          >
+            <Heart className="h-3.5 w-3.5" fill={fav ? 'currentColor' : 'none'} />
+          </button>
+          <button
+            type="button"
+            onClick={handleCompareClick}
+            disabled={!inCompare && !canAdd}
+            aria-label={inCompare ? 'Karşılaştırmadan çıkar' : 'Karşılaştırmaya ekle'}
+            className={cn(
+              'flex items-center justify-center w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm shadow-sm border transition-all duration-150',
+              inCompare ? 'border-orange-400 text-orange-500' : 'border-gray-200 text-gray-400',
+              !inCompare && !canAdd && 'opacity-40 cursor-not-allowed',
+            )}
+          >
+            <Scale className="h-3.5 w-3.5" />
+          </button>
+        </div>
 
         {/* Hover CTA overlay */}
         <div

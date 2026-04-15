@@ -8,9 +8,11 @@ import { useEffect, useState } from "react";
 
 import SettingsInjector from "@/components/SettingsInjector";
 import { MenuProvider } from "@/context/menuContext";
+import { CompareProvider } from "@/context/compareContext";
 import dynamic from "next/dynamic";
 
 const FavoritesSync = dynamic(() => import("@/components/FavoritesSync"), { ssr: false });
+const CompareBar = dynamic(() => import("@/components/common/marketplace/CompareBar"), { ssr: false });
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -49,6 +51,7 @@ export default function App({ Component, pageProps }: AppProps) {
 	}, [router]);
 	return (
 		<MenuProvider>
+			<CompareProvider>
 				<SettingsInjector />
 				<Head>
 					<link
@@ -65,7 +68,9 @@ export default function App({ Component, pageProps }: AppProps) {
 				<div className={inter.className}>
 					<FavoritesSync />
 					<Component {...pageProps} />
+					<CompareBar />
 				</div>
+			</CompareProvider>
 			</MenuProvider>
 	);
 }
