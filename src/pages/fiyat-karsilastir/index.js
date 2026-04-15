@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
 import ProductGrid from '@/components/common/marketplace/ProductGrid';
@@ -8,14 +9,36 @@ import serverApiRequest from '@/lib/serverApiRequest';
 import apiRequest from '@/lib/apiRequest';
 import { cn } from '@/lib/utils';
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ query }) {
   try {
-    const data = await serverApiRequest('/marketplace/products?per_page=24&page=1', 'get');
+    const params = new URLSearchParams();
+    params.set('per_page', '24');
+    params.set('page', String(Number(query.page) || 1));
+    if (query.q) params.set('q', query.q);
+    if (query.store) params.set('store', query.store);
+    if (query.sort) params.set('sort', query.sort);
+    if (query.in_stock === 'true') params.set('in_stock', 'true');
+    if (query.min_price) params.set('min_price', query.min_price);
+    if (query.max_price) params.set('max_price', query.max_price);
+
+    const data = await serverApiRequest(`/marketplace/products?${params.toString()}`, 'get');
+
+    const initialFilters = {
+      q: query.q || '',
+      store: query.store || '',
+      sort: query.sort || 'newest',
+      in_stock: query.in_stock === 'true',
+      min_price: query.min_price || '',
+      max_price: query.max_price || '',
+      page: Number(query.page) || 1,
+    };
+
     return {
       props: {
         initialProducts: data.data || [],
         initialTotal: data.meta?.total || data.total || 0,
         initialLastPage: data.meta?.last_page || data.last_page || 1,
+        initialFilters,
       },
     };
   } catch (error) {
@@ -25,6 +48,15 @@ export async function getServerSideProps() {
         initialProducts: [],
         initialTotal: 0,
         initialLastPage: 1,
+        initialFilters: {
+          q: '',
+          store: '',
+          sort: 'newest',
+          in_stock: false,
+          min_price: '',
+          max_price: '',
+          page: 1,
+        },
       },
     };
   }
@@ -147,12 +179,48 @@ function PaginationBar({ currentPage, lastPage, onPageChange }) {
   );
 }
 
-export default function FiyatKarsilastir({ initialProducts, initialTotal, initialLastPage }) {
+export default function FiyatKarsilastir({ initialProducts, initialTotal, initialLastPage, initialFilters }) {
+  const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [total, setTotal] = useState(initialTotal);
   const [lastPage, setLastPage] = useState(initialLastPage);
   const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({ q: '', store: '', sort: 'newest', page: 1, in_stock: false });
+  const [filters, setFilters] = useState(initialFilters);
+
+  // Sync filter state when navigating back/forward via browser history
+  useEffect(() => {
+    const handleRouteChange = () => {
+      const q = router.query;
+      setFilters({
+        q: q.q || '',
+        store: q.store || '',
+        sort: q.sort || 'newest',
+        in_stock: q.in_stock === 'true',
+        min_price: q.min_price || '',
+        max_price: q.max_price || '',
+        page: Number(q.page) || 1,
+      });
+    };
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => router.events.off('routeChangeComplete', handleRouteChange);
+  }, [router.events, router.query]);
+
+  const pushToUrl = useCallback((newFilters) => {
+    const cleanQuery = {};
+    if (newFilters.q) cleanQuery.q = newFilters.q;
+    if (newFilters.store) cleanQuery.store = newFilters.store;
+    if (newFilters.sort && newFilters.sort !== 'newest') cleanQuery.sort = newFilters.sort;
+    if (newFilters.in_stock) cleanQuery.in_stock = 'true';
+    if (newFilters.min_price) cleanQuery.min_price = newFilters.min_price;
+    if (newFilters.max_price) cleanQuery.max_price = newFilters.max_price;
+    if (newFilters.page && newFilters.page > 1) cleanQuery.page = String(newFilters.page);
+
+    router.push(
+      { pathname: '/fiyat-karsilastir', query: cleanQuery },
+      undefined,
+      { shallow: true },
+    );
+  }, [router]);
 
   const fetchProducts = useCallback(async (newFilters) => {
     setLoading(true);
@@ -180,12 +248,14 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
 
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
+    pushToUrl(newFilters);
     fetchProducts(newFilters);
-  }, [fetchProducts]);
+  }, [fetchProducts, pushToUrl]);
 
   const handlePageChange = (newPage) => {
     const updated = { ...filters, page: newPage };
     setFilters(updated);
+    pushToUrl(updated);
     fetchProducts(updated);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

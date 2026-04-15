@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ChevronRight, Tag, Share2 } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
 import ProductImageGallery from '@/components/common/campaign/product/ProductImageGallery';
-import PriceHistoryChart from '@/components/common/campaign/product/PriceHistoryChart';
+import MultiStorePriceChart from '@/components/common/marketplace/MultiStorePriceChart';
 import ProductPriceTable from '@/components/common/marketplace/ProductPriceTable';
 import ProductCard from '@/components/common/marketplace/ProductCard';
 import serverApiRequest from '@/lib/serverApiRequest';
@@ -44,22 +44,7 @@ export default function UrunDetay({ product }) {
   // Normalise images to full CDN URLs so ProductImageGallery gets absolute URLs
   const galleryImages = (product.images || []).map((img) => getCdnImageUrl(img)).filter(Boolean);
 
-  // PriceHistoryChart expects: apiPrices = [{ date: 'YYYY-MM-DD', price: number }, ...]
-  // price_history format: [{ date, migros, sok, a101, carrefour }] — flatten to {date, price} rows
-  const priceHistory = (product.price_history || []).flatMap((entry) => {
-    const storeKeys = ['migros', 'sok', 'a101', 'carrefour'];
-    return storeKeys
-      .filter((s) => entry[s] != null && entry[s] > 0)
-      .map((s) => ({ date: entry.date, store: s, price: Number(entry[s]) }));
-  });
-
-  const formatPriceFn = (value) => {
-    if (value == null) return '-';
-    return new Intl.NumberFormat('tr-TR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  };
+  const priceHistory = product.price_history || [];
 
   const storeCount = (product.stores || []).length;
 
@@ -266,22 +251,10 @@ export default function UrunDetay({ product }) {
           </div>
         </div>
 
-        {/* Full-width price history chart */}
+        {/* Full-width price history chart — per-store lines */}
         {priceHistory.length > 0 && (
           <div className="mb-8">
-            {/* Chart title card */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-5 bg-orange-500 rounded-full" />
-              <h2 className="text-base font-semibold text-gray-900">
-                Son 90 Günlük Fiyat Trendi
-              </h2>
-            </div>
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-              <PriceHistoryChart
-                apiPrices={priceHistory}
-                formatPrice={formatPriceFn}
-              />
-            </div>
+            <MultiStorePriceChart priceHistory={priceHistory} />
           </div>
         )}
 
