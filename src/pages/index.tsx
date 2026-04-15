@@ -351,6 +351,7 @@ export default function Home({
 							{ href: '/kampanyalar?item_type=actual', label: 'Aktüel Kataloglar', cls: 'bg-orange-50 text-orange-700 border border-orange-200' },
 							{ href: '/kampanyalar?item_type=car', label: 'Araç Kampanyaları', cls: 'bg-orange-50 text-orange-700 border border-orange-200' },
 							{ href: '/kampanyalar?item_type=real-estate', label: 'Emlak', cls: 'bg-orange-50 text-orange-700 border border-orange-200' },
+							{ href: '/bugun-bitiyor', label: '⏰ Bugün Bitiyor', cls: 'bg-red-50 text-red-600 border border-red-200' },
 						].map((item) => (
 							<Link
 								key={item.href}

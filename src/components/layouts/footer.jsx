@@ -163,7 +163,9 @@ const Footer = () => {
 								<li><a href="/bugun-bitiyor" className="text-gray-700 transition hover:opacity-75">Bugün Bitiyor</a></li>
 								<li><a href="/gunun-firsatlari" className="text-gray-700 transition hover:opacity-75">Günün Fırsatları</a></li>
 								<li><a href="/fiyat-dusus" className="text-gray-700 transition hover:opacity-75">Fiyat Düşüşleri</a></li>
+								<li><a href="/indirim-takip" className="text-gray-700 transition hover:opacity-75">İndirim Takip</a></li>
 								<li><a href="/yeni-urunler" className="text-gray-700 transition hover:opacity-75">Yeni Ürünler</a></li>
+								<li><a href="/populer-urunler" className="text-gray-700 transition hover:opacity-75">Popüler Ürünler</a></li>
 								<li><a href="/markalar" className="text-gray-700 transition hover:opacity-75">Markalar</a></li>
 								<li><a href="/magaza" className="text-gray-700 transition hover:opacity-75">Mağazalar</a></li>
 							</ul>

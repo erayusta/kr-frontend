@@ -72,7 +72,7 @@ export const SearchBar = () => {
 						"get",
 					),
 					apiRequest(
-						`/marketplace/products?q=${encodeURIComponent(searchQuery)}&per_page=3`,
+						`/marketplace/suggestions?q=${encodeURIComponent(searchQuery)}`,
 						"get",
 					),
 				]);
