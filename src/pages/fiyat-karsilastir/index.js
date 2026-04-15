@@ -198,6 +198,9 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
           name="description"
           content="Migros, Şok, A101 ve Carrefour'daki ürün fiyatlarını karşılaştırın. En ucuz fiyatı bulun."
         />
+        <meta property="og:title" content="Fiyat Karşılaştır - KampanyaRadar" />
+        <meta property="og:description" content="Migros, Şok, A101 ve Carrefour'daki ürün fiyatlarını karşılaştırın." />
+        <meta property="og:type" content="website" />
       </Head>
 
       {/* Hero section */}
@@ -224,6 +227,11 @@ export default function FiyatKarsilastir({ initialProducts, initialTotal, initia
               </div>
             ))}
           </div>
+          {total > 0 && (
+            <p className="text-xs text-gray-400 mt-3">
+              {total.toLocaleString('tr-TR')} ürün karşılaştırılıyor
+            </p>
+          )}
         </div>
       </div>
 
