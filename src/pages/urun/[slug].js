@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { ChevronRight, Tag, Share2, Heart, Scale, Bell, BellOff } from 'lucide-react';
+import { ChevronRight, Tag, Share2, Heart, Scale, Bell, BellOff, Download } from 'lucide-react';
 import { Layout } from '@/components/layouts/layout';
 import ProductImageGallery from '@/components/common/campaign/product/ProductImageGallery';
 import MultiStorePriceChart from '@/components/common/marketplace/MultiStorePriceChart';
@@ -437,6 +437,34 @@ export default function UrunDetay({ product }) {
         {/* Full-width price history chart — per-store lines */}
         {priceHistory.length > 0 && (
           <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-5 bg-orange-500 rounded-full" />
+                <span className="text-sm font-semibold text-gray-900">Fiyat Geçmişi</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const STORES = ['migros', 'sok', 'a101', 'carrefour'];
+                  const header = ['Tarih', ...STORES.map(s => s.charAt(0).toUpperCase() + s.slice(1))].join(',');
+                  const rows = priceHistory.map((entry) =>
+                    [entry.date, ...STORES.map(s => entry[s] ?? '')].join(',')
+                  );
+                  const csv = [header, ...rows].join('\n');
+                  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `fiyat-gecmisi-${product.slug}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-orange-500 border border-gray-200 hover:border-orange-300 bg-white hover:bg-orange-50 px-2.5 py-1.5 rounded-lg transition-colors"
+              >
+                <Download className="h-3 w-3" />
+                CSV İndir
+              </button>
+            </div>
             <MultiStorePriceChart priceHistory={priceHistory} />
           </div>
         )}
