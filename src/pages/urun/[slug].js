@@ -236,7 +236,7 @@ export default function UrunDetay({ product }) {
               </div>
 
               {/* Description */}
-              {product.description && (
+              {product.description && product.description !== product.title && (
                 <p className="text-sm text-gray-600 leading-relaxed">
                   {product.description}
                 </p>

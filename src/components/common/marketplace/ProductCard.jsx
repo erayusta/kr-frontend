@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Link from 'next/link';
 import { ShoppingBag } from 'lucide-react';
 import { getCdnImageUrl, getStoreName, formatPrice, STORE_CONFIG } from '@/utils/storeUtils';
@@ -11,6 +12,7 @@ const STORE_DOT_COLORS = {
 };
 
 export default function ProductCard({ product }) {
+  const [imgError, setImgError] = useState(false);
   const rawImage = product.image || product.images?.[0] || null;
   const imageUrl = rawImage ? getCdnImageUrl(rawImage) : null;
   const allStores = product.stores || [];
@@ -27,13 +29,14 @@ export default function ProductCard({ product }) {
     >
       {/* Image area */}
       <div className="relative bg-white aspect-square overflow-hidden">
-        {imageUrl ? (
+        {imageUrl && !imgError ? (
           // biome-ignore lint/performance/noImgElement: <explanation>
           <img
             src={imageUrl}
             alt={product.title}
             className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-50">
