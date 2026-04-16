@@ -96,9 +96,6 @@ const GuestMenu = ({
 				<Link href="/fiyat-karsilastir" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 					Fiyat Karşılaştır
 				</Link>
-				<Link href="/favoriler/urunler" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
-					Favori Ürünler
-				</Link>
 			</div>
 
 			<hr />
@@ -155,9 +152,6 @@ const UserMenu = ({
 
 			<Link href="/fiyat-karsilastir" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
 				Fiyat Karşılaştır
-			</Link>
-			<Link href="/favoriler/urunler" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
-				Favori Ürünler
 			</Link>
 
 			<hr className="my-2" />
