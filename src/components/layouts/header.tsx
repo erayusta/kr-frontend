@@ -52,6 +52,12 @@ export const Header = () => {
 					<div className="flex items-center gap-x-1 ml-14 md:ml-20 lg:ml-24">
 						<CategoryDialog menuItems={menuItems} />
 						<LoanDialog />
+						<Link
+							href="/fiyat-karsilastir"
+							className="h-10 px-4 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors flex items-center rounded-md hover:bg-orange-50"
+						>
+							Fiyat Karşılaştır
+						</Link>
 					</div>
 
 					<div className="flex-1 flex justify-center px-4 max-w-sm">

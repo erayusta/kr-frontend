@@ -93,6 +93,14 @@ const GuestMenu = ({
 			<hr />
 
 			<div className="mt-4">
+				<Link href="/fiyat-karsilastir" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Fiyat Karşılaştır
+				</Link>
+			</div>
+
+			<hr />
+
+			<div className="mt-4">
 				<div className="text-md font-semibold mb-2">Kategoriler</div>
 				<CategoryAccordion menuItems={menuItems} />
 			</div>
@@ -140,6 +148,12 @@ const UserMenu = ({
 				<SearchBar />
 			</div>
 			<LoanGrid />
+			<hr className="my-2" />
+
+			<Link href="/fiyat-karsilastir" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Fiyat Karşılaştır
+			</Link>
+
 			<hr className="my-2" />
 
 			<div className="flex flex-col mt-4 px-0">
