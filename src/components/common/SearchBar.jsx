@@ -1,4 +1,5 @@
-import { Clock, Loader2, Search } from "lucide-react";
+import { ArrowRight, Clock, Loader2, Search } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import apiRequest from "@/lib/apiRequest";
@@ -7,6 +8,7 @@ import { remainingDay } from "@/utils/campaign";
 export const SearchBar = () => {
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState([]);
+	const [productResults, setProductResults] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [showResults, setShowResults] = useState(false);
 	const router = useRouter();
@@ -43,6 +45,7 @@ export const SearchBar = () => {
 			setShowResults(false);
 			setQuery("");
 			setResults([]);
+			setProductResults([]);
 		};
 		router.events.on("routeChangeStart", handleRouteChange);
 		return () => router.events.off("routeChangeStart", handleRouteChange);
@@ -53,6 +56,7 @@ export const SearchBar = () => {
 
 		if (searchQuery.length < 2) {
 			setResults([]);
+			setProductResults([]);
 			setLoading(false);
 			setShowResults(false);
 			return;
@@ -62,13 +66,29 @@ export const SearchBar = () => {
 		setShowResults(true);
 		debounceRef.current = setTimeout(async () => {
 			try {
-				const response = await apiRequest(
-					`/campaigns?search=${encodeURIComponent(searchQuery)}&per_page=8`,
-					"get",
+				const [campaignResponse, productResponse] = await Promise.allSettled([
+					apiRequest(
+						`/campaigns?search=${encodeURIComponent(searchQuery)}&per_page=8`,
+						"get",
+					),
+					apiRequest(
+						`/marketplace/suggestions?q=${encodeURIComponent(searchQuery)}`,
+						"get",
+					),
+				]);
+				setResults(
+					campaignResponse.status === "fulfilled"
+						? campaignResponse.value.data || []
+						: [],
 				);
-				setResults(response.data || []);
+				setProductResults(
+					productResponse.status === "fulfilled"
+						? productResponse.value.data || []
+						: [],
+				);
 			} catch {
 				setResults([]);
+				setProductResults([]);
 			} finally {
 				setLoading(false);
 			}
@@ -91,6 +111,7 @@ export const SearchBar = () => {
 		setShowResults(false);
 		setQuery("");
 		setResults([]);
+		setProductResults([]);
 		router.push(`/kampanya/${slug}`);
 	};
 
@@ -98,6 +119,10 @@ export const SearchBar = () => {
 		if (e.key === "Escape") {
 			setShowResults(false);
 			inputRef.current?.blur();
+		}
+		if (e.key === "Enter" && query.trim().length >= 2) {
+			setShowResults(false);
+			router.push(`/arama?q=${encodeURIComponent(query.trim())}`);
 		}
 	};
 
@@ -139,7 +164,7 @@ export const SearchBar = () => {
 					onChange={handleChange}
 					onFocus={handleFocus}
 					onKeyDown={handleKeyDown}
-					placeholder="Kampanya ara..."
+					placeholder="Kampanya veya ürün ara..."
 					className="w-full rounded-lg border border-border/60 bg-muted/40 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary/40 focus:bg-background focus:ring-1 focus:ring-primary/20"
 				/>
 			</div>
@@ -152,7 +177,7 @@ export const SearchBar = () => {
 						</div>
 					)}
 
-					{!loading && query.length >= 2 && results.length === 0 && (
+					{!loading && query.length >= 2 && results.length === 0 && productResults.length === 0 && (
 						<div className="py-6 text-center text-sm text-muted-foreground">
 							Sonuç bulunamadı.
 						</div>
@@ -198,6 +223,91 @@ export const SearchBar = () => {
 								);
 							})}
 						</ul>
+					)}
+
+					{/* Arama sayfasına git footer */}
+					{!loading && (results.length > 0 || productResults.length > 0) && (
+						<div className="border-t border-border/60 px-3 py-2">
+							<Link
+								href={`/arama?q=${encodeURIComponent(query)}`}
+								className="flex items-center justify-center gap-1.5 text-xs text-orange-500 hover:text-orange-600 font-medium py-1"
+								onClick={() => { setShowResults(false); setQuery(""); setResults([]); setProductResults([]); }}
+							>
+								<Search size={11} />
+								Tüm sonuçları gör
+								<ArrowRight size={11} />
+							</Link>
+						</div>
+					)}
+
+					{/* Ürünler bölümü */}
+					{!loading && productResults.length > 0 && (
+						<div className="border-t border-border/60">
+							{/* Section header */}
+							<div className="flex items-center justify-between px-3 pt-2 pb-1">
+								<span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+									Ürünler
+								</span>
+								<Link
+									href={`/arama?q=${encodeURIComponent(query)}`}
+									className="inline-flex items-center gap-0.5 text-[11px] text-orange-500 hover:text-orange-600 font-medium"
+									onClick={() => {
+										setShowResults(false);
+										setQuery("");
+										setResults([]);
+										setProductResults([]);
+									}}
+								>
+									Tümünü gör
+									<ArrowRight size={11} />
+								</Link>
+							</div>
+							<ul className="pb-1">
+								{productResults.map((product) => (
+									<li key={product.slug}>
+										<Link
+											href={`/urun/${product.slug}`}
+											className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-accent"
+											onClick={() => {
+												setShowResults(false);
+												setQuery("");
+												setResults([]);
+												setProductResults([]);
+											}}
+										>
+											{product.image ? (
+												// biome-ignore lint/performance/noImgElement: search result thumbnail
+												<img
+													src={product.image}
+													alt=""
+													className="h-9 w-9 shrink-0 rounded-md object-cover bg-muted"
+													onError={(e) => {
+														e.currentTarget.style.display = "none";
+													}}
+												/>
+											) : (
+												<div className="h-9 w-9 shrink-0 rounded-md bg-muted" />
+											)}
+											<div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
+												<span className="truncate text-sm font-medium">
+													{product.title}
+												</span>
+												{product.latest_price != null && (
+													<span className="text-xs font-semibold text-orange-500">
+														{new Intl.NumberFormat("tr-TR", {
+															style: "currency",
+															currency: "TRY",
+															minimumFractionDigits: 2,
+															maximumFractionDigits: 2,
+														}).format(product.latest_price)}
+													</span>
+												)}
+											</div>
+										</Link>
+									</li>
+								))}
+							</ul>
+						</div>
 					)}
 				</div>
 			)}

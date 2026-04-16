@@ -93,6 +93,47 @@ const GuestMenu = ({
 			<hr />
 
 			<div className="mt-4">
+				<Link href="/fiyat-karsilastir" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Fiyat Karşılaştır
+				</Link>
+				<Link href="/kampanyalar" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Kampanyalar
+				</Link>
+				<Link href="/bugun-bitiyor" className="flex items-center gap-2 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors">
+					⏰ Bugün Bitiyor
+				</Link>
+				<Link href="/gunun-firsatlari" className="flex items-center gap-2 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
+					⚡ Günün Fırsatları
+				</Link>
+				<Link href="/fiyat-dusus" className="flex items-center gap-2 py-2 text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
+					📉 Fiyat Düşüşleri
+				</Link>
+				<Link href="/favoriler/urunler" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Favori Ürünler
+				</Link>
+				<Link href="/fiyat-takip" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					🔔 Fiyat Takip
+				</Link>
+				<Link href="/yeni-urunler" className="flex items-center gap-2 py-2 text-sm font-medium text-violet-600 hover:text-violet-700 transition-colors">
+					✨ Yeni Ürünler
+				</Link>
+				<Link href="/magaza" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Mağazalar
+				</Link>
+				<Link href="/markalar" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Markalar
+				</Link>
+				<Link href="/kategoriler" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					Kategoriler
+				</Link>
+				<Link href="/gecmis" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+					🕐 Son Baktıklarım
+				</Link>
+			</div>
+
+			<hr />
+
+			<div className="mt-4">
 				<div className="text-md font-semibold mb-2">Kategoriler</div>
 				<CategoryAccordion menuItems={menuItems} />
 			</div>
@@ -140,6 +181,45 @@ const UserMenu = ({
 				<SearchBar />
 			</div>
 			<LoanGrid />
+			<hr className="my-2" />
+
+			<Link href="/fiyat-karsilastir" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Fiyat Karşılaştır
+			</Link>
+			<Link href="/kampanyalar" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Kampanyalar
+			</Link>
+			<Link href="/bugun-bitiyor" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors">
+				⏰ Bugün Bitiyor
+			</Link>
+			<Link href="/gunun-firsatlari" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
+				⚡ Günün Fırsatları
+			</Link>
+			<Link href="/fiyat-dusus" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
+				📉 Fiyat Düşüşleri
+			</Link>
+			<Link href="/favoriler/urunler" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Favori Ürünler
+			</Link>
+			<Link href="/fiyat-takip" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				🔔 Fiyat Takip
+			</Link>
+			<Link href="/yeni-urunler" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-violet-600 hover:text-violet-700 transition-colors">
+				✨ Yeni Ürünler
+			</Link>
+			<Link href="/magaza" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Mağazalar
+			</Link>
+			<Link href="/markalar" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Markalar
+			</Link>
+			<Link href="/kategoriler" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				Kategoriler
+			</Link>
+			<Link href="/gecmis" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors">
+				🕐 Son Baktıklarım
+			</Link>
+
 			<hr className="my-2" />
 
 			<div className="flex flex-col mt-4 px-0">

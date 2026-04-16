@@ -154,7 +154,23 @@ const Footer = () => {
 						</ul>
 					</div>
 
-					<div className="grid grid-cols-1 gap-8 border-t border-gray-100 pt-8 sm:grid-cols-2 lg:grid-cols-4 lg:pt-16">
+					<div className="grid grid-cols-1 gap-8 border-t border-gray-100 pt-8 sm:grid-cols-2 lg:grid-cols-5 lg:pt-16">
+						<div>
+							<p className="font-medium text-gray-900">Market</p>
+							<ul className="mt-6 space-y-4 text-sm">
+								<li><a href="/fiyat-karsilastir" className="text-gray-700 transition hover:opacity-75">Fiyat Karşılaştır</a></li>
+								<li><a href="/kampanyalar" className="text-gray-700 transition hover:opacity-75">Kampanyalar</a></li>
+								<li><a href="/bugun-bitiyor" className="text-gray-700 transition hover:opacity-75">Bugün Bitiyor</a></li>
+								<li><a href="/gunun-firsatlari" className="text-gray-700 transition hover:opacity-75">Günün Fırsatları</a></li>
+								<li><a href="/fiyat-dusus" className="text-gray-700 transition hover:opacity-75">Fiyat Düşüşleri</a></li>
+								<li><a href="/indirim-takip" className="text-gray-700 transition hover:opacity-75">İndirim Takip</a></li>
+								<li><a href="/yeni-urunler" className="text-gray-700 transition hover:opacity-75">Yeni Ürünler</a></li>
+								<li><a href="/populer-urunler" className="text-gray-700 transition hover:opacity-75">Popüler Ürünler</a></li>
+								<li><a href="/markalar" className="text-gray-700 transition hover:opacity-75">Markalar</a></li>
+								<li><a href="/magaza" className="text-gray-700 transition hover:opacity-75">Mağazalar</a></li>
+							</ul>
+						</div>
+
 						<div>
 							<p className="font-medium text-gray-900">Kurumsal</p>
 							<ul className="mt-6 space-y-4 text-sm">

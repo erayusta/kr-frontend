@@ -93,6 +93,8 @@ export default function UnifiedCampaignHeader({ campaign }) {
 	// Ana gorsel
 	const mainImage = campaign.mainImage || campaign.image;
 
+	const isGallery = campaign?.itemType === "gallery" || campaign?.item_type === "gallery";
+
 	// Status badge bileşeni (mobil ve desktop için ortak)
 	const StatusBadge = ({ className = "" }) => {
 		if (isActual) {
@@ -100,6 +102,13 @@ export default function UnifiedCampaignHeader({ campaign }) {
 				<Badge className={`bg-blue-500 hover:bg-blue-600 text-white font-medium ${className}`}>
 					<Newspaper className="h-3.5 w-3.5 mr-1" />
 					Aktuel Katalog
+				</Badge>
+			);
+		}
+		if (isGallery) {
+			return (
+				<Badge className={`bg-purple-500 hover:bg-purple-600 text-white font-medium ${className}`}>
+					🖼️ Galeri
 				</Badge>
 			);
 		}

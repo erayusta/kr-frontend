@@ -52,6 +52,36 @@ export const Header = () => {
 					<div className="flex items-center gap-x-1 ml-14 md:ml-20 lg:ml-24">
 						<CategoryDialog menuItems={menuItems} />
 						<LoanDialog />
+						<Link
+							href="/fiyat-karsilastir"
+							className="h-10 px-4 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors flex items-center rounded-md hover:bg-orange-50"
+						>
+							Fiyat Karşılaştır
+						</Link>
+						<Link
+							href="/kampanyalar"
+							className="h-10 px-4 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors flex items-center rounded-md hover:bg-orange-50"
+						>
+							Kampanyalar
+						</Link>
+						<Link
+							href="/gunun-firsatlari"
+							className="h-10 px-4 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors flex items-center rounded-md hover:bg-orange-50 gap-1"
+						>
+							⚡ Günün Fırsatları
+						</Link>
+						<Link
+							href="/fiyat-dusus"
+							className="h-10 px-4 text-sm font-medium text-green-600 hover:text-green-700 transition-colors flex items-center rounded-md hover:bg-green-50 gap-1"
+						>
+							📉 Fiyat Düşüşleri
+						</Link>
+						<Link
+							href="/yeni-urunler"
+							className="h-10 px-4 text-sm font-medium text-violet-600 hover:text-violet-700 transition-colors flex items-center rounded-md hover:bg-violet-50 gap-1"
+						>
+							✨ Yeni
+						</Link>
 					</div>
 
 					<div className="flex-1 flex justify-center px-4 max-w-sm">
